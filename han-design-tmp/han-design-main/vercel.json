@@ -1,0 +1,141 @@
+{
+  "buildCommand": null,
+  "outputDirectory": ".",
+  "framework": null,
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/examples/landing-page"
+    },
+    {
+      "source": "/landing-page",
+      "destination": "/examples/landing-page"
+    },
+    {
+      "source": "/landing-page.html",
+      "destination": "/examples/landing-page"
+    },
+    {
+      "source": "/showcase",
+      "destination": "/examples/showcase"
+    },
+    {
+      "source": "/showcase.html",
+      "destination": "/examples/showcase"
+    },
+    {
+      "source": "/themes",
+      "destination": "/examples/theme-showcase"
+    },
+    {
+      "source": "/themes.html",
+      "destination": "/examples/theme-showcase"
+    },
+    {
+      "source": "/theme-showcase",
+      "destination": "/examples/theme-showcase"
+    },
+    {
+      "source": "/theme-showcase.html",
+      "destination": "/examples/theme-showcase"
+    },
+    {
+      "source": "/quick-start",
+      "destination": "/examples/quick-start"
+    },
+    {
+      "source": "/quick-start.html",
+      "destination": "/examples/quick-start"
+    },
+    {
+      "source": "/mac-han",
+      "destination": "/examples/mac-han"
+    },
+    {
+      "source": "/mac-han.html",
+      "destination": "/examples/mac-han"
+    },
+    {
+      "source": "/contemporary-themes",
+      "destination": "/examples/contemporary-themes"
+    },
+    {
+      "source": "/contemporary-themes.html",
+      "destination": "/examples/contemporary-themes"
+    },
+    {
+      "source": "/pine-wheat-tea",
+      "destination": "/examples/pine-wheat-tea"
+    },
+    {
+      "source": "/pine-wheat-tea.html",
+      "destination": "/examples/pine-wheat-tea"
+    },
+    {
+      "source": "/plum-blush-beauty",
+      "destination": "/examples/plum-blush-beauty"
+    },
+    {
+      "source": "/plum-blush-beauty.html",
+      "destination": "/examples/plum-blush-beauty"
+    },
+    {
+      "source": "/ocean-orchid-ai",
+      "destination": "/examples/ocean-orchid-ai"
+    },
+    {
+      "source": "/ocean-orchid-ai.html",
+      "destination": "/examples/ocean-orchid-ai"
+    },
+    {
+      "source": "/caramel-cream-coffee",
+      "destination": "/examples/caramel-cream-coffee"
+    },
+    {
+      "source": "/caramel-cream-coffee.html",
+      "destination": "/examples/caramel-cream-coffee"
+    },
+    {
+      "source": "/mint-lavender-yoga",
+      "destination": "/examples/mint-lavender-yoga"
+    },
+    {
+      "source": "/mint-lavender-yoga.html",
+      "destination": "/examples/mint-lavender-yoga"
+    },
+    {
+      "source": "/berry-butter-dessert",
+      "destination": "/examples/berry-butter-dessert"
+    },
+    {
+      "source": "/berry-butter-dessert.html",
+      "destination": "/examples/berry-butter-dessert"
+    },
+    {
+      "source": "/components/:path*",
+      "destination": "/examples/components/:path*"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/skills/han-design/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
+      ]
+    },
+    {
+      "source": "/skills/han-design/assets/(.*)",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/css; charset=utf-8"
+        }
+      ]
+    }
+  ]
+}
