@@ -1,496 +1,597 @@
 <!DOCTYPE html>
 <html lang="zh-CN" data-theme="dark">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>薪火 · 非遗数字展馆</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;900&family=Cinzel:wght@400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/han/han.css">
-<script src="https://lib.baomitu.com/three.js/0.160.0/three.min.js"></script>
-<script src="js/gsap.min.js"></script>
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body, html { height: 100%; overflow: hidden; background: #050810; color: #e8eaf0; font-family: 'Noto Serif SC', serif; }
-
-  #canvas-container { position: fixed; inset: 0; z-index: 1; }
-
-  /* 顶部导航 */
-  .nav {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 1.5rem 2.5rem;
-  }
-  .nav__logo {
-    display: flex; align-items: center; gap: 0.8rem;
-    font-family: 'Cinzel', serif; font-size: 0.85rem; letter-spacing: 4px;
-    color: #c8cdd8;
-  }
-  .nav__logo-mark {
-    width: 36px; height: 36px; border: 1.5px solid #c8cdd8; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.1rem; opacity: 0.8;
-  }
-  .nav__links { display: flex; gap: 3rem; }
-  .nav__link {
-    font-family: 'Cinzel', serif; font-size: 0.75rem; letter-spacing: 3px;
-    color: #8892a8; text-decoration: none; transition: color 0.3s; cursor: pointer;
-  }
-  .nav__link:hover { color: #e8eaf0; }
-  .nav__button {
-    width: 40px; height: 40px; border: 1.5px solid #8892a8; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    color: #8892a8; font-size: 0.9rem; transition: all 0.3s; cursor: pointer;
-  }
-  .nav__button:hover { border-color: #e8eaf0; color: #e8eaf0; }
-
-  /* 主标题区 */
-  .hero {
-    position: fixed; left: 5rem; top: 50%; transform: translateY(-50%);
-    z-index: 10; max-width: 600px;
-  }
-  .hero__title {
-    font-size: clamp(2.5rem, 5.5vw, 4.5rem); font-weight: 900;
-    line-height: 1.15; letter-spacing: 0.05em;
-    color: #f0f2f8; margin-bottom: 2rem;
-  }
-  .hero__subtitle {
-    font-size: 0.9rem; letter-spacing: 3px; color: #8892a8;
-    margin-bottom: 3rem; line-height: 1.8;
-  }
-  .hero__cta {
-    display: inline-flex; align-items: center; gap: 0.8rem;
-    padding: 1rem 2rem; border: 1px solid #8892a8; border-radius: 2px;
-    color: #e8eaf0; text-decoration: none; font-size: 0.8rem; letter-spacing: 3px;
-    transition: all 0.3s; cursor: pointer; background: transparent;
-    font-family: inherit;
-  }
-  .hero__cta:hover { background: #e8eaf0; color: #050810; }
-
-  /* 底部进度条 */
-  .progress {
-    position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
-    height: 3px; background: rgba(255,255,255,0.1);
-  }
-  .progress__bar {
-    height: 100%; width: 0%; background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
-    transition: width 0.3s;
-  }
-</style>
-</head>
-<body>
-  <div id="canvas-container"></div>
-
-  <!-- 顶部导航 -->
-  <nav class="nav">
-    <div class="nav__logo">
-      <div class="nav__logo-mark">薪</div>
-      <span>XINHUO HERITAGE</span>
-    </div>
-    <div class="nav__links">
-      <a class="nav__link" onclick="enterHall()">数字展馆</a>
-      <a class="nav__link" onclick="enterCraftsman()">匠人故事</a>
-      <a class="nav__link" onclick="enterEasterEgg()">技艺互动</a>
-    </div>
-    <div class="nav__button">↓</div>
-  </nav>
-
-  <!-- 主标题 -->
-  <section class="hero">
-    <h1 class="hero__title">
-      以数字之光<br>
-      照见万年<br>
-      非遗之美
-    </h1>
-    <p class="hero__subtitle">
-      — 薪火相传，让传统在指尖流转中焕发新生 —
-    </p>
-    <button class="hero__cta" onclick="enterHall()">
-      进入展馆 →
-    </button>
-  </section>
-
-  <!-- 底部进度 -->
-  <div class="progress"><div class="progress__bar" id="progressBar"></div></div>
-
-<script>
-// ==================== 银河粒子（蓝紫暗色调） ====================
-let scene, camera, renderer;
-let starCloud, galacticHalo, galaxySystem, dustNebula, darkDust, coreGlow, brightStarField;
-let mouseX = 0, mouseY = 0;
-let starClock;
-
-const STAR_COUNT        = 210000;
-const DUST_COUNT        = 95000;
-const DARK_DUST_COUNT   = 28000;
-const CORE_GLOW_COUNT   = 18000;
-const CLOUD_COUNT       = 65000;
-const HALO_COUNT       = 42000;
-const BRIGHT_STAR_COUNT = 1600;
-
-function addColorNoise(color, amount) {
-    color.r += (Math.random() - 0.5) * amount;
-    color.g += (Math.random() - 0.5) * amount;
-    color.b += (Math.random() - 0.5) * amount;
-    color.r = Math.max(0, Math.min(1, color.r));
-    color.g = Math.max(0, Math.min(1, color.g));
-    color.b = Math.max(0, Math.min(1, color.b));
-}
-
-function initGalaxy() {
-    const container = document.getElementById('canvas-container');
-    scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x050810, 0.00082);
-
-    camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1200);
-    camera.position.set(0, 32, 64);
-
-    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.4;
-    container.appendChild(renderer.domElement);
-
-    createStarCloud();
-    createGalacticHalo();
-    createGalaxyStars();
-    createDustNebula();
-    createDarkDust();
-    createCoreGlow();
-    createBrightStarField();
-
-    scene.rotation.x = 0.34;
-    scene.rotation.z = -0.16;
-
-    window.addEventListener('resize', () => {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-    document.addEventListener('mousemove', (e) => {
-        mouseX = (e.clientX - window.innerWidth / 2) * 0.0005;
-        mouseY = (e.clientY - window.innerHeight / 2) * 0.0005;
-    });
-
-    starClock = new THREE.Clock();
-    animate();
-}
-
-function createStarCloud() {
-    const geo = new THREE.BufferGeometry();
-    const pos = new Float32Array(CLOUD_COUNT * 3);
-    const col = new Float32Array(CLOUD_COUNT * 3);
-    for (let i = 0; i < CLOUD_COUNT; i++) {
-        const theta = Math.random() * Math.PI * 2;
-        const phi = Math.acos((Math.random() * 2) - 1);
-        const radius = 360 + Math.pow(Math.random(), 1.05) * 280;
-        pos[i*3] = radius * Math.sin(phi) * Math.cos(theta);
-        pos[i*3+1] = radius * Math.cos(phi) * 0.7;
-        pos[i*3+2] = radius * Math.sin(phi) * Math.sin(theta);
-        const cc = new THREE.Color(Math.random()<0.55?'#0a1628':'#1a1040');
-        cc.offsetHSL((Math.random()-0.5)*0.12, 0.18, (Math.random()-0.5)*0.18);
-        col[i*3] = cc.r * 0.42; col[i*3+1] = cc.g * 0.42; col[i*3+2] = cc.b * 0.6;
-    }
-    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-    geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
-    starCloud = new THREE.Points(geo, new THREE.ShaderMaterial({
-        uniforms: { uTime: { value: 0 } },
-        vertexShader: `uniform float uTime; varying vec3 vColor; void main() { vColor = color; vec3 p = position; float dist = length(p.xz); p.y += sin(uTime*0.3+dist*0.01)*1.2; vec4 mv = modelViewMatrix * vec4(p,1.0); gl_PointSize = (950.0/-mv.z); gl_Position = projectionMatrix * mv; }`,
-        fragmentShader: `varying vec3 vColor; void main() { vec2 c = gl_PointCoord - vec2(0.5); float d = length(c); if(d>0.5) discard; gl_FragColor = vec4(vColor, exp(-d*1.8)*0.35); }`,
-        transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, vertexColors: true
-    }));
-    scene.add(starCloud);
-}
-
-function createGalacticHalo() {
-    const geo = new THREE.BufferGeometry();
-    const pos = new Float32Array(HALO_COUNT * 3);
-    const col = new Float32Array(HALO_COUNT * 3);
-    const haloStops = [
-        new THREE.Color('#6366f1'),
-        new THREE.Color('#a855f7'),
-        new THREE.Color('#ec4899'),
-        new THREE.Color('#818cf8')
-    ];
-    for (let i = 0; i < HALO_COUNT; i++) {
-        const radius = 28 + Math.pow(Math.random(), 0.72) * 335;
-        const arm = i % 4;
-        const theta = arm * Math.PI * 0.5 + Math.log(radius) * 2.35 + (Math.random()-0.5) * (0.65 + radius * 0.002);
-        const haze = (Math.random()-0.5) * radius * 0.34;
-        pos[i*3] = Math.cos(theta) * radius + Math.cos(theta + Math.PI * 0.5) * haze;
-        pos[i*3+2] = Math.sin(theta) * radius + Math.sin(theta + Math.PI * 0.5) * haze;
-        pos[i*3+1] = (Math.random()-0.5) * (34 / (radius * 0.035 + 1));
-        const band = Math.min(0.999, radius / 363);
-        let hc;
-        if (band < 0.34) hc = haloStops[3].clone().lerp(haloStops[1], band / 0.34);
-        else if (band < 0.68) hc = haloStops[1].clone().lerp(haloStops[0], (band - 0.34) / 0.34);
-        else hc = haloStops[0].clone().lerp(haloStops[2], (band - 0.68) / 0.32);
-        hc.multiplyScalar(0.16 + Math.random() * 0.24);
-        col[i*3]=hc.r; col[i*3+1]=hc.g; col[i*3+2]=hc.b;
-    }
-    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-    geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
-    galacticHalo = new THREE.Points(geo, new THREE.ShaderMaterial({
-        uniforms: { uTime: { value: 0 } },
-        vertexShader: `uniform float uTime; varying vec3 vColor; void main() { vColor = color; vec3 p = position; float dist = length(p.xz); p.y += sin(uTime*0.22+dist*0.018)*1.05; vec4 mv = modelViewMatrix * vec4(p,1.0); gl_PointSize = (1150.0/-mv.z); gl_Position = projectionMatrix * mv; }`,
-        fragmentShader: `varying vec3 vColor; void main() { vec2 c = gl_PointCoord - vec2(0.5); float d = length(c); if(d>0.5) discard; float mist = smoothstep(0.5, 0.0, d); gl_FragColor = vec4(vColor, mist*0.42); }`,
-        transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, vertexColors: true
-    }));
-    scene.add(galacticHalo);
-}
-
-function createGalaxyStars() {
-    const geo = new THREE.BufferGeometry();
-    const pos = new Float32Array(STAR_COUNT * 3);
-    const col = new Float32Array(STAR_COUNT * 3);
-    const colorStops = [
-        new THREE.Color('#FFFFFF'), new THREE.Color('#e0e7ff'), new THREE.Color('#a5b4fc'),
-        new THREE.Color('#818cf8'), new THREE.Color('#a855f7'), new THREE.Color('#6366f1'),
-        new THREE.Color('#ec4899'), new THREE.Color('#0a1628')
-    ];
-    for (let i = 0; i < STAR_COUNT; i++) {
-        let x, y, z, radius;
-        if (i < STAR_COUNT * 0.32) {
-            radius = Math.pow(Math.random(), 1.6) * 10;
-            const theta = Math.random() * Math.PI * 2;
-            const phi = Math.acos((Math.random() * 2) - 1);
-            x = radius * Math.sin(phi) * Math.cos(theta);
-            y = radius * Math.cos(phi) * 0.35;
-            z = radius * Math.sin(phi) * Math.sin(theta);
-            const t = radius / 10;
-            let bc = colorStops[0].clone().lerp(colorStops[1], t*0.5);
-            bc.lerp(colorStops[2], t);
-            addColorNoise(bc, 0.12);
-            col[i*3]=bc.r*1.7; col[i*3+1]=bc.g*1.6; col[i*3+2]=bc.b*1.5;
-        } else {
-            radius = Math.pow(Math.random(), 1.06) * 315 + 12;
-            const armIndex = i % 4;
-            const spiralFactor = 0.28;
-            const armAngle = (armIndex * Math.PI * 2) / 4;
-            const currentAngle = armAngle + Math.log(radius) / spiralFactor;
-            const randomOffset = (Math.pow(Math.random(), 2.4) * (Math.random()<0.5?1:-1)) * 0.24 * radius;
-            x = Math.cos(currentAngle) * radius + Math.cos(Math.random()*Math.PI*2) * randomOffset;
-            z = Math.sin(currentAngle) * radius + Math.sin(Math.random()*Math.PI*2) * randomOffset;
-            y = (Math.random() - 0.5) * (50 / (radius*0.09 + 1));
-            let bc, t;
-            if (radius < 45) { t = (radius-12)/33; bc = colorStops[2].clone().lerp(colorStops[3], t); }
-            else if (radius < 100) { t = (radius-45)/55; bc = colorStops[3].clone().lerp(colorStops[4], t); }
-            else if (radius < 170) { t = (radius-100)/70; bc = colorStops[4].clone().lerp(colorStops[5], t); }
-            else if (radius < 230) { t = (radius-170)/60; bc = colorStops[5].clone().lerp(colorStops[6], t); }
-            else { t = (radius-230)/52; bc = colorStops[6].clone().lerp(colorStops[7], t); }
-            if (Math.random()<0.06) bc.lerp(colorStops[Math.floor(Math.random()*6)], 0.35);
-            addColorNoise(bc, 0.18);
-            col[i*3]=bc.r*1.35; col[i*3+1]=bc.g*1.25; col[i*3+2]=bc.b*1.45;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>薪火 · 非遗数字展馆</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;900&family=Cinzel:wght@400;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/han/han.css">
+    <script src="https://lib.baomitu.com/three.js/0.160.0/three.min.js"></script>
+    <script src="js/gsap.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        pos[i*3]=x; pos[i*3+1]=y; pos[i*3+2]=z;
-    }
-    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-    geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
-    galaxySystem = new THREE.Points(geo, new THREE.ShaderMaterial({
-        uniforms: { uTime: { value: 0 } },
-        vertexShader: `uniform float uTime; varying vec3 vColor; void main() { vColor = color; vec3 p = position; float dist = length(p.xz); p.y += sin(uTime*1.1+dist*0.045)*0.35; vec4 mv = modelViewMatrix * vec4(p,1.0); gl_PointSize = (280.0/-mv.z)*(0.65+0.35*sin(uTime*3.2+dist*0.18)); gl_Position = projectionMatrix * mv; }`,
-        fragmentShader: `varying vec3 vColor; void main() { vec2 c = gl_PointCoord - vec2(0.5); float d = length(c); if(d>0.5) discard; float core=exp(-d*8.5); float halo=exp(-d*3.2)*0.45; gl_FragColor = vec4(vColor, (core+halo)*0.92); }`,
-        transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, vertexColors: true
-    }));
-    scene.add(galaxySystem);
-}
 
-function createDustNebula() {
-    const geo = new THREE.BufferGeometry();
-    const pos = new Float32Array(DUST_COUNT * 3);
-    const col = new Float32Array(DUST_COUNT * 3);
-    const dustColors = ['#818cf8','#a855f7','#ec4899','#6366f1','#c7d2fe','#FFFFFF'];
-    for (let i = 0; i < DUST_COUNT; i++) {
-        const radius = Math.pow(Math.random(), 0.82) * 340 + 8;
-        const armIndex = i % 4;
-        const spiralFactor = 0.27;
-        const armAngle = (armIndex * Math.PI * 2) / 4;
-        const currentAngle = armAngle + Math.log(radius) / spiralFactor;
-        const randomOffset = (Math.random() - 0.5) * 0.62 * radius;
-        pos[i*3] = Math.cos(currentAngle) * radius + Math.cos(Math.random()*Math.PI*2) * randomOffset;
-        pos[i*3+2] = Math.sin(currentAngle) * radius + Math.sin(Math.random()*Math.PI*2) * randomOffset;
-        pos[i*3+1] = (Math.random()-0.5) * (70/(radius*0.075+1));
-        const rand = Math.random();
-        let dc;
-        if (rand<0.25) dc = new THREE.Color(dustColors[0]);
-        else if (rand<0.45) dc = new THREE.Color(dustColors[1]);
-        else if (rand<0.65) dc = new THREE.Color(dustColors[2]);
-        else if (rand<0.82) dc = new THREE.Color(dustColors[3]);
-        else if (rand<0.92) dc = new THREE.Color(dustColors[4]);
-        else dc = new THREE.Color(dustColors[5]);
-        dc.multiplyScalar(0.24 + Math.random()*0.32);
-        col[i*3]=dc.r; col[i*3+1]=dc.g; col[i*3+2]=dc.b;
-    }
-    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-    geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
-    dustNebula = new THREE.Points(geo, new THREE.ShaderMaterial({
-        uniforms: { uTime: { value: 0 } },
-        vertexShader: `uniform float uTime; varying vec3 vColor; void main() { vColor = color; vec3 p = position; float dist = length(p.xz); p.y += sin(uTime*0.55+dist*0.035)*0.9; vec4 mv = modelViewMatrix * vec4(p,1.0); gl_PointSize = (780.0/-mv.z); gl_Position = projectionMatrix * mv; }`,
-        fragmentShader: `varying vec3 vColor; void main() { vec2 c = gl_PointCoord - vec2(0.5); float d = length(c); if(d>0.5) discard; gl_FragColor = vec4(vColor, exp(-d*2.2)*0.68); }`,
-        transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, vertexColors: true
-    }));
-    scene.add(dustNebula);
-}
+        body,
+        html {
+            height: 100%;
+            overflow: hidden;
+            background: #050810;
+            color: #e8eaf0;
+            font-family: 'Noto Serif SC', serif;
+        }
 
-function createDarkDust() {
-    const geo = new THREE.BufferGeometry();
-    const pos = new Float32Array(DARK_DUST_COUNT * 3);
-    const col = new Float32Array(DARK_DUST_COUNT * 3);
-    for (let i = 0; i < DARK_DUST_COUNT; i++) {
-        const radius = Math.pow(Math.random(), 1.28) * 320 + 15;
-        const angle = Math.log(radius) * 0.33 + (i % 12) * (Math.PI*2/12);
-        const offset = (Math.random()-0.5) * 0.28 * radius;
-        pos[i*3] = Math.cos(angle) * radius + offset * Math.sin(angle);
-        pos[i*3+1] = (Math.random()-0.5) * 18;
-        pos[i*3+2] = Math.sin(angle) * radius - offset * Math.cos(angle);
-        const dc = new THREE.Color('#050810');
-        dc.multiplyScalar(0.45 + Math.random()*0.25);
-        col[i*3]=dc.r; col[i*3+1]=dc.g; col[i*3+2]=dc.b;
-    }
-    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-    geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
-    darkDust = new THREE.Points(geo, new THREE.ShaderMaterial({
-        uniforms: { uTime: { value: 0 } },
-        vertexShader: `uniform float uTime; varying vec3 vColor; void main() { vColor = color; vec3 p = position; float dist = length(p.xz); p.y += sin(uTime*0.4+dist*0.02)*0.5; vec4 mv = modelViewMatrix * vec4(p,1.0); gl_PointSize = (620.0/-mv.z); gl_Position = projectionMatrix * mv; }`,
-        fragmentShader: `varying vec3 vColor; void main() { vec2 c = gl_PointCoord - vec2(0.5); float d = length(c); if(d>0.5) discard; gl_FragColor = vec4(vColor, exp(-d*2.0)*0.5); }`,
-        transparent: true, blending: THREE.NormalBlending, depthWrite: false, vertexColors: true
-    }));
-    scene.add(darkDust);
-}
+        #canvas-container {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+        }
 
-function createCoreGlow() {
-    const geo = new THREE.BufferGeometry();
-    const pos = new Float32Array(CORE_GLOW_COUNT * 3);
-    const col = new Float32Array(CORE_GLOW_COUNT * 3);
-    for (let i = 0; i < CORE_GLOW_COUNT; i++) {
-        const radius = Math.pow(Math.random(), 1.65) * 13;
-        const theta = Math.random() * Math.PI * 2;
-        const phi = Math.acos((Math.random() * 2) - 1);
-        pos[i*3] = radius * Math.sin(phi) * Math.cos(theta);
-        pos[i*3+1] = radius * Math.cos(phi) * 0.3;
-        pos[i*3+2] = radius * Math.sin(phi) * Math.sin(theta);
-        const cc = new THREE.Color('#FFFFFF');
-        cc.lerp(new THREE.Color('#a5b4fc'), radius/13);
-        cc.multiplyScalar(1.45 + Math.random()*0.9);
-        col[i*3]=cc.r; col[i*3+1]=cc.g; col[i*3+2]=cc.b;
-    }
-    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-    geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
-    coreGlow = new THREE.Points(geo, new THREE.ShaderMaterial({
-        uniforms: { uTime: { value: 0 } },
-        vertexShader: `uniform float uTime; varying vec3 vColor; void main() { vColor = color; vec3 p = position; float dist = length(p.xz); p.y += sin(uTime*1.8+dist*0.8)*0.18; vec4 mv = modelViewMatrix * vec4(p,1.0); gl_PointSize = (260.0/-mv.z)*(1.0+0.45*sin(uTime*2.5+dist*0.55)); gl_Position = projectionMatrix * mv; }`,
-        fragmentShader: `varying vec3 vColor; void main() { vec2 c = gl_PointCoord - vec2(0.5); float d = length(c); if(d>0.5) discard; float core=exp(-d*10.0); float halo=exp(-d*2.2)*0.8; gl_FragColor = vec4(vColor, (core+halo)*1.15); }`,
-        transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, vertexColors: true
-    }));
-    scene.add(coreGlow);
-}
+        /* 顶部导航 */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.5rem 2.5rem;
+        }
 
-function createBrightStarField() {
-    const geo = new THREE.BufferGeometry();
-    const pos = new Float32Array(BRIGHT_STAR_COUNT * 3);
-    const col = new Float32Array(BRIGHT_STAR_COUNT * 3);
-    const size = new Float32Array(BRIGHT_STAR_COUNT);
-    const starColors = ['#FFFFFF','#e0e7ff','#a5b4fc','#818cf8','#c4b5fd'];
-    for (let i = 0; i < BRIGHT_STAR_COUNT; i++) {
-        const radius = 35 + Math.pow(Math.random(), 0.9) * 390;
-        const theta = Math.random() * Math.PI * 2;
-        const height = (Math.random()-0.5) * 155;
-        pos[i*3] = Math.cos(theta) * radius;
-        pos[i*3+1] = height;
-        pos[i*3+2] = Math.sin(theta) * radius;
-        const sc = new THREE.Color(starColors[Math.floor(Math.random()*starColors.length)]);
-        sc.multiplyScalar(1.0 + Math.random()*0.9);
-        col[i*3]=sc.r; col[i*3+1]=sc.g; col[i*3+2]=sc.b;
-        size[i]=0.65+Math.random()*1.65;
-    }
-    geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
-    geo.setAttribute('color', new THREE.BufferAttribute(col,3));
-    geo.setAttribute('aSize', new THREE.BufferAttribute(size,1));
-    brightStarField = new THREE.Points(geo, new THREE.ShaderMaterial({
-        uniforms: { uTime: { value: 0 } },
-        vertexShader: `attribute float aSize; uniform float uTime; varying vec3 vColor; varying float vPulse; void main() { vColor = color; vPulse = 0.65 + 0.35*sin(uTime*2.4 + aSize*9.0 + position.x*0.02); vec4 mv = modelViewMatrix * vec4(position,1.0); gl_PointSize = aSize * (900.0/-mv.z) * vPulse; gl_Position = projectionMatrix * mv; }`,
-        fragmentShader: `varying vec3 vColor; varying float vPulse; void main() { vec2 c = gl_PointCoord - vec2(0.5); float d = length(c); if(d>0.5) discard; float core=exp(-d*18.0); float rays=(1.0-smoothstep(0.02,0.5,abs(c.x)))*0.18 + (1.0-smoothstep(0.02,0.5,abs(c.y)))*0.18; float halo=exp(-d*3.0)*0.55; gl_FragColor = vec4(vColor, (core+halo+rays)*vPulse); }`,
-        transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, vertexColors: true
-    }));
-    scene.add(brightStarField);
-}
+        .nav__logo {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-family: 'Cinzel', serif;
+            font-size: 0.85rem;
+            letter-spacing: 4px;
+            color: #c8cdd8;
+        }
 
-// 拖动控制
-let isDragging = false;
-let dragStartX = 0;
-let dragOffsetX = 0;
-let targetOffsetX = 0;
+        .nav__logo-mark {
+            width: 36px;
+            height: 36px;
+            border: 1.5px solid #c8cdd8;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            opacity: 0.8;
+        }
 
-document.addEventListener('mousedown', (e) => {
-    isDragging = true;
-    dragStartX = e.clientX;
-});
-document.addEventListener('mousemove', (e) => {
-    if (!isDragging) return;
-    const delta = e.clientX - dragStartX;
-    targetOffsetX = delta * 0.05;
-});
-document.addEventListener('mouseup', () => { isDragging = false; });
-document.addEventListener('mouseleave', () => { isDragging = false; });
+        .nav__links {
+            display: flex;
+            gap: 3rem;
+        }
 
-function animate() {
-    requestAnimationFrame(animate);
-    const time = starClock.getElapsedTime();
-    if (starCloud) { starCloud.rotation.y = -time*0.018; starCloud.material.uniforms.uTime.value = time; }
-    if (galacticHalo) { galacticHalo.rotation.y = -time*0.028; galacticHalo.material.uniforms.uTime.value = time; }
-    if (galaxySystem) { galaxySystem.rotation.y = -time*0.055; galaxySystem.material.uniforms.uTime.value = time; }
-    if (dustNebula) { dustNebula.rotation.y = -time*0.038; dustNebula.material.uniforms.uTime.value = time; }
-    if (darkDust) { darkDust.rotation.y = -time*0.065; darkDust.material.uniforms.uTime.value = time; }
-    if (coreGlow) { coreGlow.rotation.y = -time*0.08; coreGlow.material.uniforms.uTime.value = time; }
-    if (brightStarField) { brightStarField.rotation.y = -time*0.012; brightStarField.material.uniforms.uTime.value = time; }
+        .nav__link {
+            font-family: 'Cinzel', serif;
+            font-size: 0.75rem;
+            letter-spacing: 3px;
+            color: #8892a8;
+            text-decoration: none;
+            transition: color 0.3s;
+            cursor: pointer;
+        }
 
-    // 平滑回到目标位置
-    dragOffsetX += (targetOffsetX - dragOffsetX) * 0.08;
+        .nav__link:hover {
+            color: #e8eaf0;
+        }
 
-    // 拖动 + 自动漂浮
-    camera.position.x = Math.sin(time*0.12)*6 + dragOffsetX * 1.5;
-    camera.position.y = 32 + Math.cos(time*0.18)*3.2;
-    camera.position.z = 64 + Math.sin(time*0.08)*3;
-    camera.rotation.y = dragOffsetX * 0.005;
+        .nav__button {
+            width: 40px;
+            height: 40px;
+            border: 1.5px solid #8892a8;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #8892a8;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
 
-    camera.lookAt(0 + dragOffsetX * 0.5, 1.5, -8);
-    renderer.render(scene, camera);
-}
+        .nav__button:hover {
+            border-color: #e8eaf0;
+            color: #e8eaf0;
+        }
 
-initGalaxy();
+        /* 主标题区 */
+        .hero {
+            position: fixed;
+            left: 5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 10;
+            max-width: 600px;
+        }
 
-// ===== 交互 =====
-function showToast(msg) {
-    const toast = document.createElement('div');
-    toast.style.cssText = 'position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.8);color:#fff;padding:0.8rem 2rem;border-radius:30px;font-size:0.8rem;z-index:1000;';
-    toast.textContent = msg || '即将开启';
-    document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 2000);
-}
+        .hero__title {
+            font-size: clamp(2.5rem, 5.5vw, 4.5rem);
+            font-weight: 900;
+            line-height: 1.15;
+            letter-spacing: 0.05em;
+            color: #f0f2f8;
+            margin-bottom: 2rem;
+        }
 
-function enterHall() {
-    window.location.href = 'hall.html';
-}
+        .hero__subtitle {
+            font-size: 0.9rem;
+            letter-spacing: 3px;
+            color: #8892a8;
+            margin-bottom: 3rem;
+            line-height: 1.8;
+        }
 
-function enterCraftsman() {
-    window.location.href = 'craftsman.html';
-}
+        .hero__cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 1rem 2rem;
+            border: 1px solid #8892a8;
+            border-radius: 2px;
+            color: #e8eaf0;
+            text-decoration: none;
+            font-size: 0.8rem;
+            letter-spacing: 3px;
+            transition: all 0.3s;
+            cursor: pointer;
+            background: transparent;
+            font-family: inherit;
+        }
 
-function enterEasterEgg() {
-    window.location.href = 'easter-egg.html';
-}
+        .hero__cta:hover {
+            background: #e8eaf0;
+            color: #050810;
+        }
 
-// 滚动进度条
-window.addEventListener('scroll', () => {
-    const h = document.documentElement;
-    const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
-    document.getElementById('progressBar').style.width = pct + '%';
-});
+        /* 底部进度条 */
+        .progress {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.1);
+        }
 
-// GSAP 入场动画
-gsap.from('.hero__title', { opacity: 0, y: 50, duration: 1.5, ease: 'power3.out', delay: 0.3 });
-gsap.from('.nav', { opacity: 0, y: -20, duration: 1, ease: 'power2.out' });
-gsap.from('.hero__cta', { opacity: 0, y: 20, duration: 1, ease: 'power2.out', delay: 0.8 });
-</script>
+        .progress__bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="canvas-container"></div>
+
+    <!-- 顶部导航 -->
+    <nav class="nav">
+        <div class="nav__logo">
+            <div class="nav__logo-mark">薪</div>
+            <span>XINHUO HERITAGE</span>
+        </div>
+        <div class="nav__links">
+            <a class="nav__link" onclick="enterHall()">数字展馆</a>
+            <a class="nav__link" onclick="enterCraftsman()">匠人故事</a>
+            <a class="nav__link" onclick="enterEasterEgg()">技艺互动</a>
+        </div>
+        <div class="nav__button">↓</div>
+    </nav>
+
+    <!-- 主标题 -->
+    <section class="hero">
+        <h1 class="hero__title">
+            以数字之光<br>
+            照见千年<br>
+            非遗之美
+        </h1>
+        <p class="hero__subtitle">
+            — 薪火相传，让传统在指尖流转中焕发新生 —
+        </p>
+        <button class="hero__cta" onclick="enterHall()">
+            进入展馆 →
+        </button>
+    </section>
+
+    <!-- 底部进度 -->
+    <div class="progress">
+        <div class="progress__bar" id="progressBar"></div>
+    </div>
+
+    <script>
+        // ==================== 银河粒子（蓝紫暗色调） ====================
+        let scene, camera, renderer;
+        let starCloud, galacticHalo, galaxySystem, dustNebula, darkDust, coreGlow, brightStarField;
+        let mouseX = 0, mouseY = 0;
+        let starClock;
+
+        const STAR_COUNT = 210000;
+        const DUST_COUNT = 95000;
+        const DARK_DUST_COUNT = 28000;
+        const CORE_GLOW_COUNT = 18000;
+        const CLOUD_COUNT = 65000;
+        const HALO_COUNT = 42000;
+        const BRIGHT_STAR_COUNT = 1600;
+
+        function addColorNoise(color, amount) {
+            color.r += (Math.random() - 0.5) * amount;
+            color.g += (Math.random() - 0.5) * amount;
+            color.b += (Math.random() - 0.5) * amount;
+            color.r = Math.max(0, Math.min(1, color.r));
+            color.g = Math.max(0, Math.min(1, color.g));
+            color.b = Math.max(0, Math.min(1, color.b));
+        }
+
+        function initGalaxy() {
+            const container = document.getElementById('canvas-container');
+            scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x050810, 0.00082);
+
+            camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1200);
+            camera.position.set(0, 32, 64);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.4;
+            container.appendChild(renderer.domElement);
+
+            createStarCloud();
+            createGalacticHalo();
+            createGalaxyStars();
+            createDustNebula();
+            createDarkDust();
+            createCoreGlow();
+            createBrightStarField();
+
+            scene.rotation.x = 0.34;
+            scene.rotation.z = -0.16;
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+            document.addEventListener('mousemove', (e) => {
+                mouseX = (e.clientX - window.innerWidth / 2) * 0.0005;
+                mouseY = (e.clientY - window.innerHeight / 2) * 0.0005;
+            });
+
+            starClock = new THREE.Clock();
+            animate();
+        }
+
+        function createStarCloud() {
+            const geo = new THREE.BufferGeometry();
+            const pos = new Float32Array(CLOUD_COUNT * 3);
+            const col = new Float32Array(CLOUD_COUNT * 3);
+            for (let i = 0; i < CLOUD_COUNT; i++) {
+                const theta = Math.random() * Math.PI * 2;
+                const phi = Math.acos((Math.random() * 2) - 1);
+                const radius = 360 + Math.pow(Math.random(), 1.05) * 280;
+                pos[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
+                pos[i * 3 + 1] = radius * Math.cos(phi) * 0.7;
+                pos[i * 3 + 2] = radius * Math.sin(phi) * Math.sin(theta);
+                const cc = new THREE.Color(Math.random() < 0.55 ? '#0a1628' : '#1a1040');
+                cc.offsetHSL((Math.random() - 0.5) * 0.12, 0.18, (Math.random() - 0.5) * 0.18);
+                col[i * 3] = cc.r * 0.42; col[i * 3 + 1] = cc.g * 0.42; col[i * 3 + 2] = cc.b * 0.6;
+            }
+            geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+            geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+            starCloud = new THREE.Points(geo, new THREE.ShaderMaterial({
+                uniforms: { uTime: { value: 0 } },
+                vertexShader: `uniform float uTime; varying vec3 vColor; void main() { vColor = color; vec3 p = position; float dist = length(p.xz); p.y += sin(uTime*0.3+dist*0.01)*1.2; vec4 mv = modelViewMatrix * vec4(p,1.0); gl_PointSize = (950.0/-mv.z); gl_Position = projectionMatrix * mv; }`,
+                fragmentShader: `varying vec3 vColor; void main() { vec2 c = gl_PointCoord - vec2(0.5); float d = length(c); if(d>0.5) discard; gl_FragColor = vec4(vColor, exp(-d*1.8)*0.35); }`,
+                transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, vertexColors: true
+            }));
+            scene.add(starCloud);
+        }
+
+        function createGalacticHalo() {
+            const geo = new THREE.BufferGeometry();
+            const pos = new Float32Array(HALO_COUNT * 3);
+            const col = new Float32Array(HALO_COUNT * 3);
+            const haloStops = [
+                new THREE.Color('#6366f1'),
+                new THREE.Color('#a855f7'),
+                new THREE.Color('#ec4899'),
+                new THREE.Color('#818cf8')
+            ];
+            for (let i = 0; i < HALO_COUNT; i++) {
+                const radius = 28 + Math.pow(Math.random(), 0.72) * 335;
+                const arm = i % 4;
+                const theta = arm * Math.PI * 0.5 + Math.log(radius) * 2.35 + (Math.random() - 0.5) * (0.65 + radius * 0.002);
+                const haze = (Math.random() - 0.5) * radius * 0.34;
+                pos[i * 3] = Math.cos(theta) * radius + Math.cos(theta + Math.PI * 0.5) * haze;
+                pos[i * 3 + 2] = Math.sin(theta) * radius + Math.sin(theta + Math.PI * 0.5) * haze;
+                pos[i * 3 + 1] = (Math.random() - 0.5) * (34 / (radius * 0.035 + 1));
+                const band = Math.min(0.999, radius / 363);
+                let hc;
+                if (band < 0.34) hc = haloStops[3].clone().lerp(haloStops[1], band / 0.34);
+                else if (band < 0.68) hc = haloStops[1].clone().lerp(haloStops[0], (band - 0.34) / 0.34);
+                else hc = haloStops[0].clone().lerp(haloStops[2], (band - 0.68) / 0.32);
+                hc.multiplyScalar(0.16 + Math.random() * 0.24);
+                col[i * 3] = hc.r; col[i * 3 + 1] = hc.g; col[i * 3 + 2] = hc.b;
+            }
+            geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+            geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+            galacticHalo = new THREE.Points(geo, new THREE.ShaderMaterial({
+                uniforms: { uTime: { value: 0 } },
+                vertexShader: `uniform float uTime; varying vec3 vColor; void main() { vColor = color; vec3 p = position; float dist = length(p.xz); p.y += sin(uTime*0.22+dist*0.018)*1.05; vec4 mv = modelViewMatrix * vec4(p,1.0); gl_PointSize = (1150.0/-mv.z); gl_Position = projectionMatrix * mv; }`,
+                fragmentShader: `varying vec3 vColor; void main() { vec2 c = gl_PointCoord - vec2(0.5); float d = length(c); if(d>0.5) discard; float mist = smoothstep(0.5, 0.0, d); gl_FragColor = vec4(vColor, mist*0.42); }`,
+                transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, vertexColors: true
+            }));
+            scene.add(galacticHalo);
+        }
+
+        function createGalaxyStars() {
+            const geo = new THREE.BufferGeometry();
+            const pos = new Float32Array(STAR_COUNT * 3);
+            const col = new Float32Array(STAR_COUNT * 3);
+            const colorStops = [
+                new THREE.Color('#FFFFFF'), new THREE.Color('#e0e7ff'), new THREE.Color('#a5b4fc'),
+                new THREE.Color('#818cf8'), new THREE.Color('#a855f7'), new THREE.Color('#6366f1'),
+                new THREE.Color('#ec4899'), new THREE.Color('#0a1628')
+            ];
+            for (let i = 0; i < STAR_COUNT; i++) {
+                let x, y, z, radius;
+                if (i < STAR_COUNT * 0.32) {
+                    radius = Math.pow(Math.random(), 1.6) * 10;
+                    const theta = Math.random() * Math.PI * 2;
+                    const phi = Math.acos((Math.random() * 2) - 1);
+                    x = radius * Math.sin(phi) * Math.cos(theta);
+                    y = radius * Math.cos(phi) * 0.35;
+                    z = radius * Math.sin(phi) * Math.sin(theta);
+                    const t = radius / 10;
+                    let bc = colorStops[0].clone().lerp(colorStops[1], t * 0.5);
+                    bc.lerp(colorStops[2], t);
+                    addColorNoise(bc, 0.12);
+                    col[i * 3] = bc.r * 1.7; col[i * 3 + 1] = bc.g * 1.6; col[i * 3 + 2] = bc.b * 1.5;
+                } else {
+                    radius = Math.pow(Math.random(), 1.06) * 315 + 12;
+                    const armIndex = i % 4;
+                    const spiralFactor = 0.28;
+                    const armAngle = (armIndex * Math.PI * 2) / 4;
+                    const currentAngle = armAngle + Math.log(radius) / spiralFactor;
+                    const randomOffset = (Math.pow(Math.random(), 2.4) * (Math.random() < 0.5 ? 1 : -1)) * 0.24 * radius;
+                    x = Math.cos(currentAngle) * radius + Math.cos(Math.random() * Math.PI * 2) * randomOffset;
+                    z = Math.sin(currentAngle) * radius + Math.sin(Math.random() * Math.PI * 2) * randomOffset;
+                    y = (Math.random() - 0.5) * (50 / (radius * 0.09 + 1));
+                    let bc, t;
+                    if (radius < 45) { t = (radius - 12) / 33; bc = colorStops[2].clone().lerp(colorStops[3], t); }
+                    else if (radius < 100) { t = (radius - 45) / 55; bc = colorStops[3].clone().lerp(colorStops[4], t); }
+                    else if (radius < 170) { t = (radius - 100) / 70; bc = colorStops[4].clone().lerp(colorStops[5], t); }
+                    else if (radius < 230) { t = (radius - 170) / 60; bc = colorStops[5].clone().lerp(colorStops[6], t); }
+                    else { t = (radius - 230) / 52; bc = colorStops[6].clone().lerp(colorStops[7], t); }
+                    if (Math.random() < 0.06) bc.lerp(colorStops[Math.floor(Math.random() * 6)], 0.35);
+                    addColorNoise(bc, 0.18);
+                    col[i * 3] = bc.r * 1.35; col[i * 3 + 1] = bc.g * 1.25; col[i * 3 + 2] = bc.b * 1.45;
+                }
+                pos[i * 3] = x; pos[i * 3 + 1] = y; pos[i * 3 + 2] = z;
+            }
+            geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+            geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+            galaxySystem = new THREE.Points(geo, new THREE.ShaderMaterial({
+                uniforms: { uTime: { value: 0 } },
+                vertexShader: `uniform float uTime; varying vec3 vColor; void main() { vColor = color; vec3 p = position; float dist = length(p.xz); p.y += sin(uTime*1.1+dist*0.045)*0.35; vec4 mv = modelViewMatrix * vec4(p,1.0); gl_PointSize = (280.0/-mv.z)*(0.65+0.35*sin(uTime*3.2+dist*0.18)); gl_Position = projectionMatrix * mv; }`,
+                fragmentShader: `varying vec3 vColor; void main() { vec2 c = gl_PointCoord - vec2(0.5); float d = length(c); if(d>0.5) discard; float core=exp(-d*8.5); float halo=exp(-d*3.2)*0.45; gl_FragColor = vec4(vColor, (core+halo)*0.92); }`,
+                transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, vertexColors: true
+            }));
+            scene.add(galaxySystem);
+        }
+
+        function createDustNebula() {
+            const geo = new THREE.BufferGeometry();
+            const pos = new Float32Array(DUST_COUNT * 3);
+            const col = new Float32Array(DUST_COUNT * 3);
+            const dustColors = ['#818cf8', '#a855f7', '#ec4899', '#6366f1', '#c7d2fe', '#FFFFFF'];
+            for (let i = 0; i < DUST_COUNT; i++) {
+                const radius = Math.pow(Math.random(), 0.82) * 340 + 8;
+                const armIndex = i % 4;
+                const spiralFactor = 0.27;
+                const armAngle = (armIndex * Math.PI * 2) / 4;
+                const currentAngle = armAngle + Math.log(radius) / spiralFactor;
+                const randomOffset = (Math.random() - 0.5) * 0.62 * radius;
+                pos[i * 3] = Math.cos(currentAngle) * radius + Math.cos(Math.random() * Math.PI * 2) * randomOffset;
+                pos[i * 3 + 2] = Math.sin(currentAngle) * radius + Math.sin(Math.random() * Math.PI * 2) * randomOffset;
+                pos[i * 3 + 1] = (Math.random() - 0.5) * (70 / (radius * 0.075 + 1));
+                const rand = Math.random();
+                let dc;
+                if (rand < 0.25) dc = new THREE.Color(dustColors[0]);
+                else if (rand < 0.45) dc = new THREE.Color(dustColors[1]);
+                else if (rand < 0.65) dc = new THREE.Color(dustColors[2]);
+                else if (rand < 0.82) dc = new THREE.Color(dustColors[3]);
+                else if (rand < 0.92) dc = new THREE.Color(dustColors[4]);
+                else dc = new THREE.Color(dustColors[5]);
+                dc.multiplyScalar(0.24 + Math.random() * 0.32);
+                col[i * 3] = dc.r; col[i * 3 + 1] = dc.g; col[i * 3 + 2] = dc.b;
+            }
+            geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+            geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+            dustNebula = new THREE.Points(geo, new THREE.ShaderMaterial({
+                uniforms: { uTime: { value: 0 } },
+                vertexShader: `uniform float uTime; varying vec3 vColor; void main() { vColor = color; vec3 p = position; float dist = length(p.xz); p.y += sin(uTime*0.55+dist*0.035)*0.9; vec4 mv = modelViewMatrix * vec4(p,1.0); gl_PointSize = (780.0/-mv.z); gl_Position = projectionMatrix * mv; }`,
+                fragmentShader: `varying vec3 vColor; void main() { vec2 c = gl_PointCoord - vec2(0.5); float d = length(c); if(d>0.5) discard; gl_FragColor = vec4(vColor, exp(-d*2.2)*0.68); }`,
+                transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, vertexColors: true
+            }));
+            scene.add(dustNebula);
+        }
+
+        function createDarkDust() {
+            const geo = new THREE.BufferGeometry();
+            const pos = new Float32Array(DARK_DUST_COUNT * 3);
+            const col = new Float32Array(DARK_DUST_COUNT * 3);
+            for (let i = 0; i < DARK_DUST_COUNT; i++) {
+                const radius = Math.pow(Math.random(), 1.28) * 320 + 15;
+                const angle = Math.log(radius) * 0.33 + (i % 12) * (Math.PI * 2 / 12);
+                const offset = (Math.random() - 0.5) * 0.28 * radius;
+                pos[i * 3] = Math.cos(angle) * radius + offset * Math.sin(angle);
+                pos[i * 3 + 1] = (Math.random() - 0.5) * 18;
+                pos[i * 3 + 2] = Math.sin(angle) * radius - offset * Math.cos(angle);
+                const dc = new THREE.Color('#050810');
+                dc.multiplyScalar(0.45 + Math.random() * 0.25);
+                col[i * 3] = dc.r; col[i * 3 + 1] = dc.g; col[i * 3 + 2] = dc.b;
+            }
+            geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+            geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+            darkDust = new THREE.Points(geo, new THREE.ShaderMaterial({
+                uniforms: { uTime: { value: 0 } },
+                vertexShader: `uniform float uTime; varying vec3 vColor; void main() { vColor = color; vec3 p = position; float dist = length(p.xz); p.y += sin(uTime*0.4+dist*0.02)*0.5; vec4 mv = modelViewMatrix * vec4(p,1.0); gl_PointSize = (620.0/-mv.z); gl_Position = projectionMatrix * mv; }`,
+                fragmentShader: `varying vec3 vColor; void main() { vec2 c = gl_PointCoord - vec2(0.5); float d = length(c); if(d>0.5) discard; gl_FragColor = vec4(vColor, exp(-d*2.0)*0.5); }`,
+                transparent: true, blending: THREE.NormalBlending, depthWrite: false, vertexColors: true
+            }));
+            scene.add(darkDust);
+        }
+
+        function createCoreGlow() {
+            const geo = new THREE.BufferGeometry();
+            const pos = new Float32Array(CORE_GLOW_COUNT * 3);
+            const col = new Float32Array(CORE_GLOW_COUNT * 3);
+            for (let i = 0; i < CORE_GLOW_COUNT; i++) {
+                const radius = Math.pow(Math.random(), 1.65) * 13;
+                const theta = Math.random() * Math.PI * 2;
+                const phi = Math.acos((Math.random() * 2) - 1);
+                pos[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
+                pos[i * 3 + 1] = radius * Math.cos(phi) * 0.3;
+                pos[i * 3 + 2] = radius * Math.sin(phi) * Math.sin(theta);
+                const cc = new THREE.Color('#FFFFFF');
+                cc.lerp(new THREE.Color('#a5b4fc'), radius / 13);
+                cc.multiplyScalar(1.45 + Math.random() * 0.9);
+                col[i * 3] = cc.r; col[i * 3 + 1] = cc.g; col[i * 3 + 2] = cc.b;
+            }
+            geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+            geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+            coreGlow = new THREE.Points(geo, new THREE.ShaderMaterial({
+                uniforms: { uTime: { value: 0 } },
+                vertexShader: `uniform float uTime; varying vec3 vColor; void main() { vColor = color; vec3 p = position; float dist = length(p.xz); p.y += sin(uTime*1.8+dist*0.8)*0.18; vec4 mv = modelViewMatrix * vec4(p,1.0); gl_PointSize = (260.0/-mv.z)*(1.0+0.45*sin(uTime*2.5+dist*0.55)); gl_Position = projectionMatrix * mv; }`,
+                fragmentShader: `varying vec3 vColor; void main() { vec2 c = gl_PointCoord - vec2(0.5); float d = length(c); if(d>0.5) discard; float core=exp(-d*10.0); float halo=exp(-d*2.2)*0.8; gl_FragColor = vec4(vColor, (core+halo)*1.15); }`,
+                transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, vertexColors: true
+            }));
+            scene.add(coreGlow);
+        }
+
+        function createBrightStarField() {
+            const geo = new THREE.BufferGeometry();
+            const pos = new Float32Array(BRIGHT_STAR_COUNT * 3);
+            const col = new Float32Array(BRIGHT_STAR_COUNT * 3);
+            const size = new Float32Array(BRIGHT_STAR_COUNT);
+            const starColors = ['#FFFFFF', '#e0e7ff', '#a5b4fc', '#818cf8', '#c4b5fd'];
+            for (let i = 0; i < BRIGHT_STAR_COUNT; i++) {
+                const radius = 35 + Math.pow(Math.random(), 0.9) * 390;
+                const theta = Math.random() * Math.PI * 2;
+                const height = (Math.random() - 0.5) * 155;
+                pos[i * 3] = Math.cos(theta) * radius;
+                pos[i * 3 + 1] = height;
+                pos[i * 3 + 2] = Math.sin(theta) * radius;
+                const sc = new THREE.Color(starColors[Math.floor(Math.random() * starColors.length)]);
+                sc.multiplyScalar(1.0 + Math.random() * 0.9);
+                col[i * 3] = sc.r; col[i * 3 + 1] = sc.g; col[i * 3 + 2] = sc.b;
+                size[i] = 0.65 + Math.random() * 1.65;
+            }
+            geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+            geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+            geo.setAttribute('aSize', new THREE.BufferAttribute(size, 1));
+            brightStarField = new THREE.Points(geo, new THREE.ShaderMaterial({
+                uniforms: { uTime: { value: 0 } },
+                vertexShader: `attribute float aSize; uniform float uTime; varying vec3 vColor; varying float vPulse; void main() { vColor = color; vPulse = 0.65 + 0.35*sin(uTime*2.4 + aSize*9.0 + position.x*0.02); vec4 mv = modelViewMatrix * vec4(position,1.0); gl_PointSize = aSize * (900.0/-mv.z) * vPulse; gl_Position = projectionMatrix * mv; }`,
+                fragmentShader: `varying vec3 vColor; varying float vPulse; void main() { vec2 c = gl_PointCoord - vec2(0.5); float d = length(c); if(d>0.5) discard; float core=exp(-d*18.0); float rays=(1.0-smoothstep(0.02,0.5,abs(c.x)))*0.18 + (1.0-smoothstep(0.02,0.5,abs(c.y)))*0.18; float halo=exp(-d*3.0)*0.55; gl_FragColor = vec4(vColor, (core+halo+rays)*vPulse); }`,
+                transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, vertexColors: true
+            }));
+            scene.add(brightStarField);
+        }
+
+        // 拖动控制
+        let isDragging = false;
+        let dragStartX = 0;
+        let dragOffsetX = 0;
+        let targetOffsetX = 0;
+
+        document.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            dragStartX = e.clientX;
+        });
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            const delta = e.clientX - dragStartX;
+            targetOffsetX = delta * 0.05;
+        });
+        document.addEventListener('mouseup', () => { isDragging = false; });
+        document.addEventListener('mouseleave', () => { isDragging = false; });
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const time = starClock.getElapsedTime();
+            if (starCloud) { starCloud.rotation.y = -time * 0.018; starCloud.material.uniforms.uTime.value = time; }
+            if (galacticHalo) { galacticHalo.rotation.y = -time * 0.028; galacticHalo.material.uniforms.uTime.value = time; }
+            if (galaxySystem) { galaxySystem.rotation.y = -time * 0.055; galaxySystem.material.uniforms.uTime.value = time; }
+            if (dustNebula) { dustNebula.rotation.y = -time * 0.038; dustNebula.material.uniforms.uTime.value = time; }
+            if (darkDust) { darkDust.rotation.y = -time * 0.065; darkDust.material.uniforms.uTime.value = time; }
+            if (coreGlow) { coreGlow.rotation.y = -time * 0.08; coreGlow.material.uniforms.uTime.value = time; }
+            if (brightStarField) { brightStarField.rotation.y = -time * 0.012; brightStarField.material.uniforms.uTime.value = time; }
+
+            // 平滑回到目标位置
+            dragOffsetX += (targetOffsetX - dragOffsetX) * 0.08;
+
+            // 拖动 + 自动漂浮
+            camera.position.x = Math.sin(time * 0.12) * 6 + dragOffsetX * 1.5;
+            camera.position.y = 32 + Math.cos(time * 0.18) * 3.2;
+            camera.position.z = 64 + Math.sin(time * 0.08) * 3;
+            camera.rotation.y = dragOffsetX * 0.005;
+
+            camera.lookAt(0 + dragOffsetX * 0.5, 1.5, -8);
+            renderer.render(scene, camera);
+        }
+
+        initGalaxy();
+
+        // ===== 交互 =====
+        function showToast(msg) {
+            const toast = document.createElement('div');
+            toast.style.cssText = 'position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.8);color:#fff;padding:0.8rem 2rem;border-radius:30px;font-size:0.8rem;z-index:1000;';
+            toast.textContent = msg || '即将开启';
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2000);
+        }
+
+        function enterHall() {
+            window.location.href = 'hall.html';
+        }
+
+        function enterCraftsman() {
+            window.location.href = 'craftsman.html';
+        }
+
+        function enterEasterEgg() {
+            window.location.href = 'easter-egg.html';
+        }
+
+        // 滚动进度条
+        window.addEventListener('scroll', () => {
+            const h = document.documentElement;
+            const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+            document.getElementById('progressBar').style.width = pct + '%';
+        });
+
+        // GSAP 入场动画
+        gsap.from('.hero__title', { opacity: 0, y: 50, duration: 1.5, ease: 'power3.out', delay: 0.3 });
+        gsap.from('.nav', { opacity: 0, y: -20, duration: 1, ease: 'power2.out' });
+        gsap.from('.hero__cta', { opacity: 0, y: 20, duration: 1, ease: 'power2.out', delay: 0.8 });
+    </script>
 </body>
+
 </html>
