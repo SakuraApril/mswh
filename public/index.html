@@ -1,132 +1,119 @@
 <!DOCTYPE html>
-<html lang="zh-CN" data-theme="celadon">
+<html lang="zh-CN" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>薪火 · 非遗数字展馆</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;900&family=Cinzel:wght@400;600&display=swap" rel="stylesheet">
-<!-- Han Design 中国风设计系统 -->
-<link rel="stylesheet" href="css/han.css">
+<link rel="stylesheet" href="css/han/han.css">
 <script src="https://lib.baomitu.com/three.js/0.160.0/three.min.js"></script>
-<!-- Tailwind CSS（保留 CDN，本地太大） -->
-<script src="https://cdn.tailwindcss.com"></script>
-<!-- GSAP 动画（本地） -->
 <script src="js/gsap.min.js"></script>
-<!-- Lenis 平滑滚动（本地） -->
-<script src="js/lenis.min.js"></script>
-<!-- MediaPipe 手势识别 -->
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.min.js"></script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body, html { height: 100%; overflow: hidden; background: #0a0a0a; color: #f5e6c8; font-family: 'Noto Serif SC', serif; }
+  body, html { height: 100%; overflow: hidden; background: #050810; color: #e8eaf0; font-family: 'Noto Serif SC', serif; }
 
   #canvas-container { position: fixed; inset: 0; z-index: 1; }
-  #hubble-lens {
-    position: fixed; inset: 0; z-index: 2; pointer-events: none;
-    background: radial-gradient(circle at 50% 50%, transparent 25%, rgba(0,0,0,0.3) 60%, rgba(0,0,0,0.9) 100%);
-  }
 
-  .ui-layer {
-    position: fixed; inset: 0; z-index: 10;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    padding: 2rem;
+  /* 顶部导航 */
+  .nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.5rem 2.5rem;
   }
-
-  .eyebrow { font-family: 'Cinzel', serif; font-size: 0.75rem; letter-spacing: 8px; color: #c9a96e; text-transform: uppercase; margin-bottom: 1rem; opacity: 0.7; }
-  .title {
-    font-size: clamp(3rem, 6vw, 5rem); font-weight: 900; letter-spacing: 0.4em; text-indent: 0.4em;
-    background: linear-gradient(180deg, #f5e6c8 0%, #c9a96e 50%, #8b6914 100%);
-    -webkit-background-clip: text; background-clip: text; color: transparent;
-    filter: drop-shadow(0 0 30px rgba(201,169,110,0.5));
-    margin-bottom: 0.8rem;
+  .nav__logo {
+    display: flex; align-items: center; gap: 0.8rem;
+    font-family: 'Cinzel', serif; font-size: 0.85rem; letter-spacing: 4px;
+    color: #c8cdd8;
   }
-  .subtitle { font-size: 0.9rem; letter-spacing: 6px; color: #c9a96e; opacity: 0.6; margin-bottom: 4rem; }
-
-  .portals { display: flex; gap: 3rem; flex-wrap: wrap; justify-content: center; }
-
-  .portal {
-    width: 220px; height: 280px; border-radius: 16px;
-    border: 1px solid rgba(201,169,110,0.3);
-    background: rgba(20,15,10,0.6);
-    backdrop-filter: blur(15px);
-    cursor: pointer;
-    display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
-    padding: 1.5rem;
-    position: relative;
-    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-    overflow: hidden;
+  .nav__logo-mark {
+    width: 36px; height: 36px; border: 1.5px solid #c8cdd8; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; opacity: 0.8;
   }
-  .portal::before {
-    content: ''; position: absolute; inset: 0;
-    background: radial-gradient(circle at 50% 80%, rgba(201,169,110,0.15), transparent 70%);
-    opacity: 0; transition: opacity 0.4s;
+  .nav__links { display: flex; gap: 3rem; }
+  .nav__link {
+    font-family: 'Cinzel', serif; font-size: 0.75rem; letter-spacing: 3px;
+    color: #8892a8; text-decoration: none; transition: color 0.3s; cursor: pointer;
   }
-  .portal:hover {
-    transform: translateY(-12px);
-    border-color: rgba(201,169,110,0.8);
-    box-shadow: 0 0 50px rgba(201,169,110,0.3);
+  .nav__link:hover { color: #e8eaf0; }
+  .nav__button {
+    width: 40px; height: 40px; border: 1.5px solid #8892a8; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: #8892a8; font-size: 0.9rem; transition: all 0.3s; cursor: pointer;
   }
-  .portal:hover::before { opacity: 1; }
+  .nav__button:hover { border-color: #e8eaf0; color: #e8eaf0; }
 
-  .portal .icon { font-size: 3rem; margin-bottom: auto; margin-top: 2rem; opacity: 0.8; }
-  .portal h2 { font-size: 1.3rem; font-weight: 600; letter-spacing: 0.3em; text-indent: 0.3em; margin-bottom: 0.3rem; color: #f5e6c8; }
-  .portal .en { font-family: 'Cinzel', serif; font-size: 0.6rem; letter-spacing: 3px; color: #c9a96e; opacity: 0.6; text-transform: uppercase; }
-  .portal .desc { font-size: 0.7rem; color: #c9a96e; opacity: 0.5; margin-top: 0.5rem; letter-spacing: 1px; }
-
-  /* 三个入口的不同色调 */
-  .portal.hall .icon { color: #c9a96e; }
-  .portal.craftsman .icon { color: #c0392b; }
-  .portal.interactive .icon { color: #2a9d8f; }
-
-  .toast {
-    position: fixed; bottom: 3rem; left: 50%; transform: translateX(-50%);
-    background: rgba(20,15,10,0.9); border: 1px solid rgba(201,169,110,0.4);
-    padding: 0.8rem 2rem; border-radius: 30px; font-size: 0.85rem; letter-spacing: 2px;
-    opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 100;
+  /* 主标题区 */
+  .hero {
+    position: fixed; left: 5rem; top: 50%; transform: translateY(-50%);
+    z-index: 10; max-width: 600px;
   }
-  .toast.show { opacity: 1; }
+  .hero__title {
+    font-size: clamp(2.5rem, 5.5vw, 4.5rem); font-weight: 900;
+    line-height: 1.15; letter-spacing: 0.05em;
+    color: #f0f2f8; margin-bottom: 2rem;
+  }
+  .hero__subtitle {
+    font-size: 0.9rem; letter-spacing: 3px; color: #8892a8;
+    margin-bottom: 3rem; line-height: 1.8;
+  }
+  .hero__cta {
+    display: inline-flex; align-items: center; gap: 0.8rem;
+    padding: 1rem 2rem; border: 1px solid #8892a8; border-radius: 2px;
+    color: #e8eaf0; text-decoration: none; font-size: 0.8rem; letter-spacing: 3px;
+    transition: all 0.3s; cursor: pointer; background: transparent;
+    font-family: inherit;
+  }
+  .hero__cta:hover { background: #e8eaf0; color: #050810; }
+
+  /* 底部进度条 */
+  .progress {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+    height: 3px; background: rgba(255,255,255,0.1);
+  }
+  .progress__bar {
+    height: 100%; width: 0%; background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
+    transition: width 0.3s;
+  }
 </style>
 </head>
 <body>
-  <!-- 摄像头（隐藏，用于手势识别） -->
-  <video id="hand-video" style="display: none;" playsinline></video>
-  <canvas id="hand-canvas" style="display: none;"></canvas>
-
   <div id="canvas-container"></div>
-  <div id="hubble-lens"></div>
 
-  <div class="ui-layer">
-    <div class="eyebrow">Intangible Cultural Heritage</div>
-    <h1 class="title">薪 火</h1>
-    <div class="subtitle">— 非 遗 数 字 展 馆 —</div>
-
-    <div class="portals">
-      <div class="portal hall" onclick="enterHall()">
-        <div class="icon">🏛</div>
-        <h2>数字展馆</h2>
-        <div class="en">Gallery</div>
-        <div class="desc">非遗项目全景展示</div>
-      </div>
-      <div class="portal craftsman" onclick="showToast()">
-        <div class="icon">🪡</div>
-        <h2>匠人故事</h2>
-        <div class="en">Craftsmen</div>
-        <div class="desc">传承人的半生坚守</div>
-      </div>
-      <div class="portal interactive" onclick="showToast()">
-        <div class="icon">✂️</div>
-        <h2>技艺互动</h2>
-        <div class="en">Interactive</div>
-        <div class="desc">亲手体验非遗之美</div>
-      </div>
+  <!-- 顶部导航 -->
+  <nav class="nav">
+    <div class="nav__logo">
+      <div class="nav__logo-mark">薪</div>
+      <span>XINHUO HERITAGE</span>
     </div>
-  </div>
+    <div class="nav__links">
+      <a class="nav__link" onclick="enterHall()">数字展馆</a>
+      <a class="nav__link" onclick="enterCraftsman()">匠人故事</a>
+      <a class="nav__link" onclick="enterEasterEgg()">技艺互动</a>
+    </div>
+    <div class="nav__button">↓</div>
+  </nav>
 
-  <div class="toast" id="toast">即将开启，敬请期待</div>
+  <!-- 主标题 -->
+  <section class="hero">
+    <h1 class="hero__title">
+      以数字之光<br>
+      照见千年<br>
+      非遗之美
+    </h1>
+    <p class="hero__subtitle">
+      — 薪火相传，让传统在指尖流转中焕发新生 —
+    </p>
+    <button class="hero__cta" onclick="enterHall()">
+      进入展馆 →
+    </button>
+  </section>
+
+  <!-- 底部进度 -->
+  <div class="progress"><div class="progress__bar" id="progressBar"></div></div>
 
 <script>
-// ==================== 国风银河粒子（46万） ====================
+// ==================== 银河粒子（蓝紫暗色调） ====================
 let scene, camera, renderer;
 let starCloud, galacticHalo, galaxySystem, dustNebula, darkDust, coreGlow, brightStarField;
 let mouseX = 0, mouseY = 0;
@@ -137,7 +124,7 @@ const DUST_COUNT        = 95000;
 const DARK_DUST_COUNT   = 28000;
 const CORE_GLOW_COUNT   = 18000;
 const CLOUD_COUNT       = 65000;
-const HALO_COUNT        = 42000;
+const HALO_COUNT       = 42000;
 const BRIGHT_STAR_COUNT = 1600;
 
 function addColorNoise(color, amount) {
@@ -152,7 +139,7 @@ function addColorNoise(color, amount) {
 function initGalaxy() {
     const container = document.getElementById('canvas-container');
     scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x000001, 0.00082);
+    scene.fog = new THREE.FogExp2(0x050810, 0.00082);
 
     camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1200);
     camera.position.set(0, 32, 64);
@@ -161,7 +148,7 @@ function initGalaxy() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.55;
+    renderer.toneMappingExposure = 1.4;
     container.appendChild(renderer.domElement);
 
     createStarCloud();
@@ -200,7 +187,7 @@ function createStarCloud() {
         pos[i*3] = radius * Math.sin(phi) * Math.cos(theta);
         pos[i*3+1] = radius * Math.cos(phi) * 0.7;
         pos[i*3+2] = radius * Math.sin(phi) * Math.sin(theta);
-        const cc = new THREE.Color(Math.random()<0.55?'#1a1208':'#2d1f0e');
+        const cc = new THREE.Color(Math.random()<0.55?'#0a1628':'#1a1040');
         cc.offsetHSL((Math.random()-0.5)*0.12, 0.18, (Math.random()-0.5)*0.18);
         col[i*3] = cc.r * 0.42; col[i*3+1] = cc.g * 0.42; col[i*3+2] = cc.b * 0.6;
     }
@@ -220,10 +207,10 @@ function createGalacticHalo() {
     const pos = new Float32Array(HALO_COUNT * 3);
     const col = new Float32Array(HALO_COUNT * 3);
     const haloStops = [
-        new THREE.Color('#8b6914'),
-        new THREE.Color('#c0392b'),
-        new THREE.Color('#2a9d8f'),
-        new THREE.Color('#e9c46a')
+        new THREE.Color('#6366f1'),
+        new THREE.Color('#a855f7'),
+        new THREE.Color('#ec4899'),
+        new THREE.Color('#818cf8')
     ];
     for (let i = 0; i < HALO_COUNT; i++) {
         const radius = 28 + Math.pow(Math.random(), 0.72) * 335;
@@ -257,9 +244,9 @@ function createGalaxyStars() {
     const pos = new Float32Array(STAR_COUNT * 3);
     const col = new Float32Array(STAR_COUNT * 3);
     const colorStops = [
-        new THREE.Color('#FFFFFF'), new THREE.Color('#f5e6c8'), new THREE.Color('#e9c46a'),
-        new THREE.Color('#c0392b'), new THREE.Color('#8b6914'), new THREE.Color('#2a9d8f'),
-        new THREE.Color('#e76f51'), new THREE.Color('#1a1208')
+        new THREE.Color('#FFFFFF'), new THREE.Color('#e0e7ff'), new THREE.Color('#a5b4fc'),
+        new THREE.Color('#818cf8'), new THREE.Color('#a855f7'), new THREE.Color('#6366f1'),
+        new THREE.Color('#ec4899'), new THREE.Color('#0a1628')
     ];
     for (let i = 0; i < STAR_COUNT; i++) {
         let x, y, z, radius;
@@ -312,7 +299,7 @@ function createDustNebula() {
     const geo = new THREE.BufferGeometry();
     const pos = new Float32Array(DUST_COUNT * 3);
     const col = new Float32Array(DUST_COUNT * 3);
-    const dustColors = ['#e9c46a','#c0392b','#2a9d8f','#e76f51','#f5e6c8','#FFFFFF'];
+    const dustColors = ['#818cf8','#a855f7','#ec4899','#6366f1','#c7d2fe','#FFFFFF'];
     for (let i = 0; i < DUST_COUNT; i++) {
         const radius = Math.pow(Math.random(), 0.82) * 340 + 8;
         const armIndex = i % 4;
@@ -356,7 +343,7 @@ function createDarkDust() {
         pos[i*3] = Math.cos(angle) * radius + offset * Math.sin(angle);
         pos[i*3+1] = (Math.random()-0.5) * 18;
         pos[i*3+2] = Math.sin(angle) * radius - offset * Math.cos(angle);
-        const dc = new THREE.Color('#0a0a0a');
+        const dc = new THREE.Color('#050810');
         dc.multiplyScalar(0.45 + Math.random()*0.25);
         col[i*3]=dc.r; col[i*3+1]=dc.g; col[i*3+2]=dc.b;
     }
@@ -383,7 +370,7 @@ function createCoreGlow() {
         pos[i*3+1] = radius * Math.cos(phi) * 0.3;
         pos[i*3+2] = radius * Math.sin(phi) * Math.sin(theta);
         const cc = new THREE.Color('#FFFFFF');
-        cc.lerp(new THREE.Color('#e9c46a'), radius/13);
+        cc.lerp(new THREE.Color('#a5b4fc'), radius/13);
         cc.multiplyScalar(1.45 + Math.random()*0.9);
         col[i*3]=cc.r; col[i*3+1]=cc.g; col[i*3+2]=cc.b;
     }
@@ -403,7 +390,7 @@ function createBrightStarField() {
     const pos = new Float32Array(BRIGHT_STAR_COUNT * 3);
     const col = new Float32Array(BRIGHT_STAR_COUNT * 3);
     const size = new Float32Array(BRIGHT_STAR_COUNT);
-    const starColors = ['#FFFFFF','#f5e6c8','#e9c46a','#c0392b','#2a9d8f'];
+    const starColors = ['#FFFFFF','#e0e7ff','#a5b4fc','#818cf8','#c4b5fd'];
     for (let i = 0; i < BRIGHT_STAR_COUNT; i++) {
         const radius = 35 + Math.pow(Math.random(), 0.9) * 390;
         const theta = Math.random() * Math.PI * 2;
@@ -428,6 +415,24 @@ function createBrightStarField() {
     scene.add(brightStarField);
 }
 
+// 拖动控制
+let isDragging = false;
+let dragStartX = 0;
+let dragOffsetX = 0;
+let targetOffsetX = 0;
+
+document.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    dragStartX = e.clientX;
+});
+document.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    const delta = e.clientX - dragStartX;
+    targetOffsetX = delta * 0.05;
+});
+document.addEventListener('mouseup', () => { isDragging = false; });
+document.addEventListener('mouseleave', () => { isDragging = false; });
+
 function animate() {
     requestAnimationFrame(animate);
     const time = starClock.getElapsedTime();
@@ -438,147 +443,54 @@ function animate() {
     if (darkDust) { darkDust.rotation.y = -time*0.065; darkDust.material.uniforms.uTime.value = time; }
     if (coreGlow) { coreGlow.rotation.y = -time*0.08; coreGlow.material.uniforms.uTime.value = time; }
     if (brightStarField) { brightStarField.rotation.y = -time*0.012; brightStarField.material.uniforms.uTime.value = time; }
-    camera.position.x = Math.sin(time*0.12)*6;
+
+    // 平滑回到目标位置
+    dragOffsetX += (targetOffsetX - dragOffsetX) * 0.08;
+
+    // 拖动 + 自动漂浮
+    camera.position.x = Math.sin(time*0.12)*6 + dragOffsetX * 1.5;
     camera.position.y = 32 + Math.cos(time*0.18)*3.2;
     camera.position.z = 64 + Math.sin(time*0.08)*3;
-    camera.lookAt(0, 1.5, -8);
+    camera.rotation.y = dragOffsetX * 0.005;
+
+    camera.lookAt(0 + dragOffsetX * 0.5, 1.5, -8);
     renderer.render(scene, camera);
 }
 
-// 启动
 initGalaxy();
 
 // ===== 交互 =====
-function showToast() {
-    const toast = document.getElementById('toast');
-    toast.classList.add('show');
-    clearTimeout(toast._t);
-    toast._t = setTimeout(() => toast.classList.remove('show'), 1800);
+function showToast(msg) {
+    const toast = document.createElement('div');
+    toast.style.cssText = 'position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.8);color:#fff;padding:0.8rem 2rem;border-radius:30px;font-size:0.8rem;z-index:1000;';
+    toast.textContent = msg || '即将开启';
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 2000);
 }
 
 function enterHall() {
     window.location.href = 'hall.html';
 }
 
-// ===== GSAP 入场动画（先注释掉，等调试好再开） =====
-// gsap.from('.title', { opacity: 0, y: 50, duration: 1.5, ease: 'power3.out', delay: 0.3 });
-// gsap.from('.eyebrow', { opacity: 0, y: 20, duration: 1, ease: 'power2.out', delay: 0.1 });
-// gsap.from('.subtitle', { opacity: 0, y: 20, duration: 1, ease: 'power2.out', delay: 0.6 });
-// gsap.from('.portal', { opacity: 0, y: 60, duration: 1.2, stagger: 0.2, ease: 'power3.out', delay: 0.8 });
+function enterCraftsman() {
+    window.location.href = 'craftsman.html';
+}
 
-// 卡片 hover 用 GSAP 加强
-document.querySelectorAll('.portal').forEach(p => {
-    p.addEventListener('mouseenter', () => {
-        gsap.to(p, { scale: 1.05, duration: 0.3, ease: 'power2.out' });
-    });
-    p.addEventListener('mouseleave', () => {
-        gsap.to(p, { scale: 1, duration: 0.3, ease: 'power2.out' });
-    });
+function enterEasterEgg() {
+    window.location.href = 'easter-egg.html';
+}
+
+// 滚动进度条
+window.addEventListener('scroll', () => {
+    const h = document.documentElement;
+    const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+    document.getElementById('progressBar').style.width = pct + '%';
 });
 
-// ===== Lenis 平滑滚动 =====
-const lenis = new Lenis({
-    duration: 1.2,
-    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t))
-});
-function raf(time) {
-    lenis.raf(time);
-    requestAnimationFrame(raf);
-}
-requestAnimationFrame(raf);
-
-// ===== 手势识别 =====
-let gestureCooldown = false;  // 防抖，避免连续触发
-let lastGestureTime = 0;
-
-function countFingers(landmarks) {
-    // landmarks 是21个手部关键点
-    // 判断每根手指是否伸出（指尖比指节更远离手腕）
-    const fingers = [
-        [4, 3],   // 拇指
-        [8, 6],   // 食指
-        [12, 10], // 中指
-        [16, 14], // 无名指
-        [20, 18]  // 小指
-    ];
-    let count = 0;
-    for (const [tip, pip] of fingers) {
-        // 指尖 y 坐标比指节小 = 伸出（假设手是正立的）
-        if (landmarks[tip].y < landmarks[pip].y) {
-            count++;
-        }
-    }
-    return count;
-}
-
-function onHandResults(results) {
-    const now = Date.now();
-    if (gestureCooldown || now - lastGestureTime < 2000) return;  // 2秒冷却
-
-    if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-        const landmarks = results.multiHandLandmarks[0];
-        const fingerCount = countFingers(landmarks);
-
-        // 显示提示
-        showToast(`检测到 ${fingerCount} 根手指`);
-
-        // 触发跳转
-        if (fingerCount === 1) {
-            gestureCooldown = true;
-            lastGestureTime = now;
-            showToast('进入数字展馆...');
-            setTimeout(() => window.location.href = 'hall.html', 800);
-        } else if (fingerCount === 2) {
-            gestureCooldown = true;
-            lastGestureTime = now;
-            showToast('匠人故事即将开启...');
-        } else if (fingerCount === 3) {
-            gestureCooldown = true;
-            lastGestureTime = now;
-            showToast('技艺互动即将开启...');
-        }
-    }
-}
-
-// 初始化手势识别
-async function initGesture() {
-    try {
-        const hands = new Hands({
-            locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
-        });
-        hands.setOptions({
-            maxNumHands: 1,
-            modelComplexity: 1,
-            minDetectionConfidence: 0.7,
-            minTrackingConfidence: 0.5
-        });
-        hands.onResults(onHandResults);
-
-        const videoElement = document.getElementById('hand-video');
-        const camera = new Camera(videoElement, {
-            onFrame: async () => { await hands.send({ image: videoElement }); },
-            width: 640,
-            height: 480
-        });
-        await camera.start();
-        showToast('手势识别已开启（1指=展馆 2指=匠人 3指=互动）');
-    } catch (e) {
-        console.log('摄像头权限被拒绝，手势识别未启动');
-    }
-}
-
-// 启动手势识别
-initGesture();
-
-// 鼠标视差
-document.addEventListener('mousemove', (e) => {
-    const cx = (e.clientX / window.innerWidth - 0.5);
-    const cy = (e.clientY / window.innerHeight - 0.5);
-    document.querySelectorAll('.portal').forEach((p, i) => {
-        const depth = (i + 1) * 4;
-        p.style.translate = `${cx * depth}px ${cy * depth}px`;
-    });
-});
+// GSAP 入场动画
+gsap.from('.hero__title', { opacity: 0, y: 50, duration: 1.5, ease: 'power3.out', delay: 0.3 });
+gsap.from('.nav', { opacity: 0, y: -20, duration: 1, ease: 'power2.out' });
+gsap.from('.hero__cta', { opacity: 0, y: 20, duration: 1, ease: 'power2.out', delay: 0.8 });
 </script>
 </body>
 </html>
