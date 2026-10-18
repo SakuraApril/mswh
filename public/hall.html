@@ -1,177 +1,202 @@
 <!DOCTYPE html>
-<html lang="zh-CN" data-theme="celadon">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>数字展馆 · 薪火</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;900&family=Cinzel:wght@400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/han/han.css">
+<title>数字展馆 | 薪火非遗</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;900&display=swap" rel="stylesheet">
+<script src="js/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <style>
-  body { background: var(--han-bg); color: var(--han-fg); font-family: 'Noto Serif SC', serif; }
-  
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0a0a; color: #f5f2eb; font-family: 'Noto Serif SC', serif;
+    overflow-x: hidden;
+  }
+
+  /* 顶部导航 */
+  .nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1.5rem 3rem; mix-blend-mode: difference;
+  }
+  .nav__logo { font-size: 1rem; letter-spacing: 0.2em; }
+  .nav__links { display: flex; gap: 2rem; font-size: 0.8rem; }
+  .nav__links a { color: #fff; text-decoration: none; opacity: 0.7; transition: opacity 0.3s; }
+  .nav__links a:hover { opacity: 1; }
+
+  /* 英雄区 */
   .hero {
-    min-height: 60vh;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    text-align: center; padding: 4rem 2rem;
+    height: 100vh; display: flex; flex-direction: column;
+    justify-content: center; padding: 0 5rem;
   }
-  .hero h1 {
-    font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 900; letter-spacing: 0.3em; text-indent: 0.3em;
-    margin-bottom: 1rem;
+  .hero__title {
+    font-size: clamp(4rem, 12vw, 10rem); font-weight: 900;
+    line-height: 1.1; letter-spacing: 0.05em;
   }
-  .hero p { opacity: 0.7; letter-spacing: 2px; }
+  .hero__title span { display: block; }
+  .hero__sub {
+    margin-top: 3rem; font-size: 1rem; color: #888;
+    max-width: 500px; line-height: 1.8;
+  }
+  .hero__scroll {
+    position: absolute; bottom: 3rem; left: 5rem;
+    font-size: 0.8rem; color: #666; letter-spacing: 0.2em;
+    animation: bounce 2s infinite;
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(10px); }
+  }
 
-  .gallery {
-    max-width: 1200px; margin: 0 auto; padding: 2rem;
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 2.5rem;
+  /* 展品列表 */
+  .exhibits { padding: 5rem 0; }
+  .exhibit {
+    padding: 6rem 5rem; border-top: 1px solid #222;
+    display: grid; grid-template-columns: 80px 1fr 2fr; gap: 3rem;
+    align-items: center; cursor: pointer; transition: background 0.4s;
+    position: relative; overflow: hidden;
+  }
+  .exhibit:hover { background: #111; }
+  .exhibit__num {
+    font-size: 1rem; color: #555; font-weight: 600;
+  }
+  .exhibit__name {
+    font-size: clamp(2rem, 5vw, 4rem); font-weight: 900;
+    letter-spacing: 0.1em; line-height: 1.2;
+  }
+  .exhibit__desc {
+    font-size: 0.9rem; color: #777; line-height: 1.8;
+    opacity: 0; transform: translateX(30px); transition: all 0.4s;
+  }
+  .exhibit:hover .exhibit__desc { opacity: 1; transform: translateX(0); }
+
+  /* 展品背景图 hover */
+  .exhibit__bg {
+    position: absolute; right: 5rem; top: 50%; transform: translateY(-50%) scale(0.8);
+    width: 300px; height: 400px; background-size: cover; background-position: center;
+    opacity: 0; transition: all 0.5s; pointer-events: none;
+    filter: grayscale(0.3);
+  }
+  .exhibit:hover .exhibit__bg {
+    opacity: 0.3; transform: translateY(-50%) scale(1);
   }
 
-  .card-wrap { padding: 1rem; }
-
-  .back {
-    position: fixed; top: 2rem; left: 2rem; z-index: 100;
-    text-decoration: none; color: var(--han-fg); opacity: 0.6; transition: opacity 0.3s;
+  /* 底部 */
+  .footer {
+    padding: 5rem; text-align: center; color: #555; font-size: 0.8rem;
+    border-top: 1px solid #222;
   }
-  .back:hover { opacity: 1; }
 </style>
 </head>
 <body>
-  <a href="index.html" class="back">← 返回</a>
-
-  <!-- 顶部导航 -->
-  <nav class="han-navbar">
-    <div class="han-navbar__inner">
-      <div class="han-navbar__brand"><span>薪火</span></div>
-      <div class="han-navbar__menu">
-        <div class="han-navbar__item han-navbar__item--active"><a href="#">数字展馆</a></div>
-        <div class="han-navbar__item"><a href="#">匠人故事</a></div>
-        <div class="han-navbar__item"><a href="#">技艺互动</a></div>
-      </div>
+  <!-- 导航 -->
+  <nav class="nav">
+    <div class="nav__logo">薪火 · XINHUO</div>
+    <div class="nav__links">
+      <a href="index.html">首页</a>
+      <a href="hall.html">数字展馆</a>
+      <a href="craftsman.html">匠人故事</a>
+      <a href="easter-egg.html">技艺互动</a>
     </div>
   </nav>
 
-  <!-- 标题区 -->
+  <!-- 英雄区 -->
   <section class="hero">
-    <h1>数字展馆</h1>
-    <p>— 以数字之光，照见千年匠心 —</p>
-    <div style="margin-top: 2rem;">
-      <span class="han-stamp han-stamp--2char han-stamp--sm">非遗</span>
+    <h1 class="hero__title">
+      <span>非遗</span>
+      <span>之美</span>
+    </h1>
+    <p class="hero__sub">
+      六件瑰宝，千年传承。每一件都凝结着匠人的心血与时光的沉淀。
+    </p>
+    <div class="hero__scroll">↓ 向下滚动</div>
+  </section>
+
+  <!-- 展品列表 -->
+  <section class="exhibits">
+    <div class="exhibit">
+      <div class="exhibit__num">01</div>
+      <div class="exhibit__name">苏绣</div>
+      <div class="exhibit__desc">
+        苏州刺绣，以针代笔，以线晕色。双面绣精巧绝伦，一针一线皆成画卷。
+      </div>
+      <div class="exhibit__bg" style="background-image: url('https://images.unsplash.com/photo-1582560475193-3c0d4d0f0f9a?w=600');"></div>
+    </div>
+
+    <div class="exhibit">
+      <div class="exhibit__num">02</div>
+      <div class="exhibit__name">青瓷</div>
+      <div class="exhibit__desc">
+        龙泉青瓷，青如玉、明如镜、薄如纸、声如磬。雨过天青云破处，这般颜色做将来。
+      </div>
+      <div class="exhibit__bg" style="background-image: url('https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?w=600');"></div>
+    </div>
+
+    <div class="exhibit">
+      <div class="exhibit__num">03</div>
+      <div class="exhibit__name">剪纸</div>
+      <div class="exhibit__desc">
+        一纸一剪，大千世界。从窗花到民俗，红色的剪刀剪出千年的烟火人间。
+      </div>
+      <div class="exhibit__bg" style="background-image: url('https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=600');"></div>
+    </div>
+
+    <div class="exhibit">
+      <div class="exhibit__num">04</div>
+      <div class="exhibit__name">漆器</div>
+      <div class="exhibit__desc">
+        髹饰千年，光泽如镜。雕漆、螺钿、描金，每一层漆都要等待数月。
+      </div>
+      <div class="exhibit__bg" style="background-image: url('https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=600');"></div>
+    </div>
+
+    <div class="exhibit">
+      <div class="exhibit__num">05</div>
+      <div class="exhibit__name">皮影</div>
+      <div class="exhibit__desc">
+        一口道尽千古事，双手挥舞百万兵。驴皮雕影，灯光投影，戏台上的人间百态。
+      </div>
+      <div class="exhibit__bg" style="background-image: url('https://images.unsplash.com/photo-1509048191080-d2984bad6ae5?w=600');"></div>
+    </div>
+
+    <div class="exhibit">
+      <div class="exhibit__num">06</div>
+      <div class="exhibit__name">木雕</div>
+      <div class="exhibit__desc">
+        东阳木雕，巧夺天工。从梁枋门窗到案头摆件，一刀一刻皆是匠心。
+      </div>
+      <div class="exhibit__bg" style="background-image: url('https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=600');"></div>
     </div>
   </section>
 
-  <div class="han-divider-ink"><span class="han-divider-dot"></span></div>
+  <!-- 底部 -->
+  <div class="footer">
+    薪火 · 非遗数字展馆 | 匠心传承，非遗焕新
+  </div>
 
-  <!-- 展品区 -->
-  <section class="gallery">
-    <!-- 刺绣 -->
-    <div class="card-wrap">
-      <div class="han-card-scroll">
-        <div class="han-card-scroll__header">
-          <h3>苏绣</h3>
-          <span class="han-tag">国家级</span>
-        </div>
-        <div class="han-card-scroll__body">
-          <p>一针一线，绣尽江南烟雨。苏州刺绣以针代笔，以线代墨，将千年文脉缝入方寸之间。</p>
-        </div>
-        <div class="han-card-scroll__footer">
-          <button class="han-btn-seal han-btn-seal--sm">观 展</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 陶瓷 -->
-    <div class="card-wrap">
-      <div class="han-card-scroll">
-        <div class="han-card-scroll__header">
-          <h3>青瓷</h3>
-          <span class="han-tag">国家级</span>
-        </div>
-        <div class="han-card-scroll__body">
-          <p>雨过天青云破处，者般颜色作将来。龙泉青瓷的釉色，是文人心中的那一抹天青。</p>
-        </div>
-        <div class="han-card-scroll__footer">
-          <button class="han-btn-seal han-btn-seal--sm">观 展</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 剪纸 -->
-    <div class="card-wrap">
-      <div class="han-card-scroll">
-        <div class="han-card-scroll__header">
-          <h3>剪纸</h3>
-          <span class="han-tag">世界级</span>
-        </div>
-        <div class="han-card-scroll__body">
-          <p>一纸一剪，剪出人间百态。从窗花到喜字，剪纸是中国人最朴素的艺术表达。</p>
-        </div>
-        <div class="han-card-scroll__footer">
-          <button class="han-btn-seal han-btn-seal--sm">观 展</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 漆器 -->
-    <div class="card-wrap">
-      <div class="han-card-scroll">
-        <div class="han-card-scroll__header">
-          <h3>漆器</h3>
-          <span class="han-tag">国家级</span>
-        </div>
-        <div class="han-card-scroll__body">
-          <p>百里千刀一斤漆，雕漆工艺需百道工序。乌黑沉稳的漆色，是时间打磨出的光泽。</p>
-        </div>
-        <div class="han-card-scroll__footer">
-          <button class="han-btn-seal han-btn-seal--sm">观 展</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 皮影 -->
-    <div class="card-wrap">
-      <div class="han-card-scroll">
-        <div class="han-card-scroll__header">
-          <h3>皮影</h3>
-          <span class="han-tag">世界级</span>
-        </div>
-        <div class="han-card-scroll__body">
-          <p>一口叙说千古事，双手对舞百万兵。光影之间，演绎着中国人的千年故事。</p>
-        </div>
-        <div class="han-card-scroll__footer">
-          <button class="han-btn-seal han-btn-seal--sm">观 展</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 木雕 -->
-    <div class="card-wrap">
-      <div class="han-card-scroll">
-        <div class="han-card-scroll__header">
-          <h3>木雕</h3>
-          <span class="han-tag">国家级</span>
-        </div>
-        <div class="han-card-scroll__body">
-          <p>一木一世界，一刀一乾坤。从家具到建筑，木雕是中国匠人最沉默的表达。</p>
-        </div>
-        <div class="han-card-scroll__footer">
-          <button class="han-btn-seal han-btn-seal--sm">观 展</button>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <div class="han-divider-ink han-divider-ink--brush"><span class="han-divider-dot"></span></div>
-
-  <footer style="text-align: center; padding: 3rem; opacity: 0.5; font-size: 0.8rem;">
-    <p>薪火 · 非遗数字展馆</p>
-  </footer>
-
-<script src="js/gsap.min.js"></script>
 <script>
-  // 卡片入场动画
-  gsap.from('.han-card-scroll', {
-    opacity: 0, y: 40, duration: 0.8, stagger: 0.15, ease: 'power3.out'
+  // 注册 ScrollTrigger
+  gsap.registerPlugin(ScrollTrigger);
+
+  // 入场动画
+  gsap.from('.hero__title span', {
+    opacity: 0, y: 100, duration: 1.2, stagger: 0.2, ease: 'power3.out'
   });
-  gsap.from('.hero h1', { opacity: 0, y: 30, duration: 1, ease: 'power2.out' });
+  gsap.from('.hero__sub', {
+    opacity: 0, y: 30, duration: 1, delay: 0.8, ease: 'power2.out'
+  });
+
+  // 滚动时逐个出现
+  gsap.utils.toArray('.exhibit').forEach((exhibit) => {
+    gsap.from(exhibit, {
+      opacity: 0, y: 50, duration: 0.8, ease: 'power2.out',
+      scrollTrigger: {
+        trigger: exhibit,
+        start: 'top 80%',
+      }
+    });
+  });
 </script>
 </body>
 </html>

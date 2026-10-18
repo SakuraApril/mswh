@@ -4,148 +4,268 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>梅兰芳 · 京剧大师 | 薪火非遗</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;900&family=Cinzel:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;900&display=swap" rel="stylesheet">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body, html { height: 100%; overflow: hidden; background: #050505; color: #e8e8e8; font-family: 'Noto Serif SC', serif; }
-
-  /* 背景字母画布 */
-  #letters-canvas { position: fixed; inset: 0; z-index: 1; }
-
-  /* 中央人像 */
-  .portrait {
-    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    z-index: 5; width: 420px; height: 580px;
-    background: radial-gradient(ellipse at center, rgba(168,85,247,0.15) 0%, transparent 70%);
-    display: flex; align-items: center; justify-content: center;
-  }
-  .portrait__img {
-    width: 100%; height: 100%; object-fit: cover; opacity: 0.75;
-    filter: contrast(1.3) brightness(0.85) saturate(0.8) hue-rotate(-10deg);
-    mask-image: radial-gradient(ellipse at center, black 50%, transparent 85%);
-    -webkit-mask-image: radial-gradient(ellipse at center, black 50%, transparent 85%);
-  }
-  .portrait__wireframe {
-    position: absolute; inset: 0;
-    background:
-      linear-gradient(rgba(139,92,246,0.1) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(139,92,246,0.1) 1px, transparent 1px);
-    background-size: 20px 20px;
-    pointer-events: none;
+  body {
+    background: #f5f2eb; color: #333; font-family: 'Noto Serif SC', serif;
+    line-height: 1.8;
   }
 
-  /* 左侧内容 */
-  .left-panel {
-    position: fixed; top: 0; left: 0; z-index: 10;
-    padding: 3rem 3.5rem; max-width: 480px;
+  /* 漂浮汉字背景 */
+  #letters-canvas {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    opacity: 0.15;
   }
-  .left-panel__title {
-    font-size: 3.5rem; font-weight: 900; letter-spacing: 0.1em;
-    color: #f0f0f0; margin-bottom: 1.5rem; line-height: 1.1;
+
+  /* 顶部导航 */
+  .top-nav {
+    background: #1a1a1a; color: #fff; padding: 1rem 4rem;
+    display: flex; justify-content: space-between; align-items: center;
+    position: relative; z-index: 10;
   }
-  .left-panel__bio {
-    font-size: 0.85rem; line-height: 1.9; color: #999;
-    margin-bottom: 2.5rem; letter-spacing: 0.05em;
+  .top-nav__logo { font-size: 1.2rem; letter-spacing: 0.2em; }
+  .top-nav__links { display: flex; gap: 2.5rem; font-size: 0.9rem; }
+  .top-nav__links a { color: #ccc; text-decoration: none; transition: color 0.3s; }
+  .top-nav__links a:hover { color: #fff; }
+
+  /* 面包屑 */
+  .breadcrumb {
+    padding: 1.2rem 4rem; font-size: 0.85rem; color: #999;
+    background: #faf8f3; border-bottom: 1px solid #e5e0d5;
   }
-  .left-panel__section-title {
-    font-size: 1.2rem; font-weight: 600; color: #ddd;
-    margin-bottom: 1.2rem; letter-spacing: 0.1em;
+  .breadcrumb a { color: #999; text-decoration: none; }
+  .breadcrumb a:hover { color: #333; }
+
+  /* 主体 */
+  .container {
+    max-width: 1200px; margin: 0 auto; padding: 3rem 2rem;
+    display: grid; grid-template-columns: 1fr 380px; gap: 3rem;
+    position: relative; z-index: 10;
   }
-  .timeline { display: flex; flex-direction: column; gap: 1rem; }
+
+  /* 左侧主内容 */
+  .main-content {}
+  .main-title {
+    font-size: 2.5rem; font-weight: 900; margin-bottom: 0.5rem;
+    letter-spacing: 0.1em; color: #1a1a1a;
+  }
+  .main-subtitle {
+    font-size: 1rem; color: #999; margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem; border-bottom: 2px solid #c9a96e;
+  }
+
+  /* 人物大图 */
+  .portrait-wrap {
+    margin-bottom: 2.5rem; position: relative;
+  }
+  .portrait-wrap img {
+    width: 100%; border-radius: 2px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  }
+  .portrait-caption {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.7));
+    color: #fff; padding: 2rem 1.5rem 1rem; font-size: 0.9rem;
+  }
+
+  /* 简介 */
+  .section-title {
+    font-size: 1.3rem; font-weight: 600; margin: 2.5rem 0 1.2rem;
+    padding-left: 0.8rem; border-left: 3px solid #c9a96e;
+  }
+  .bio-text {
+    font-size: 0.95rem; line-height: 2; color: #555; margin-bottom: 1.5rem;
+  }
+
+  /* 生平年表 */
+  .timeline {
+    border-left: 2px solid #e5e0d5; padding-left: 2rem; margin: 1.5rem 0;
+  }
   .timeline__item {
-    display: flex; gap: 1.2rem; font-size: 0.8rem; line-height: 1.6;
+    position: relative; padding-bottom: 1.5rem;
+  }
+  .timeline__item::before {
+    content: ''; position: absolute; left: -2.4rem; top: 0.6rem;
+    width: 10px; height: 10px; border-radius: 50%; background: #c9a96e;
   }
   .timeline__year {
-    color: #a855f7; font-weight: 600; min-width: 90px;
-    letter-spacing: 0.05em;
+    font-weight: 600; color: #1a1a1a; font-size: 1rem;
   }
-  .timeline__desc { color: #888; }
+  .timeline__desc {
+    font-size: 0.9rem; color: #777; margin-top: 0.3rem;
+  }
 
-  /* 右侧标签 */
-  .tags-panel {
-    position: fixed; top: 0; right: 0; z-index: 10;
-    padding: 3rem 3.5rem;
+  /* 右侧边栏 */
+  .sidebar {}
+  .sidebar-card {
+    background: #fff; border: 1px solid #e5e0d5; border-radius: 2px;
+    padding: 1.5rem; margin-bottom: 1.5rem;
   }
-  .tag {
-    position: relative;
-    padding: 0.5rem 1rem; border: 1px solid #444; border-radius: 2px;
-    font-size: 0.75rem; letter-spacing: 0.1em; color: #ccc;
-    margin-bottom: 2rem; background: rgba(0,0,0,0.6);
-    cursor: pointer; transition: all 0.3s;
+  .sidebar-card__title {
+    font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem;
+    padding-bottom: 0.8rem; border-bottom: 1px solid #e5e0d5;
   }
-  .tag:hover { border-color: #a855f7; color: #fff; }
-  .tag::before {
-    content: ''; position: absolute; right: -60px; top: 50%;
-    width: 60px; height: 1px; background: #333;
+  .sidebar-list { list-style: none; }
+  .sidebar-list li {
+    padding: 0.6rem 0; border-bottom: 1px dashed #eee;
+    font-size: 0.9rem; color: #666;
   }
-  .tag--1 { transform: translateY(0); }
-  .tag--2 { transform: translateY(30px); margin-right: 2rem; }
-  .tag--3 { transform: translateY(60px); margin-right: 4rem; }
-  .tag--4 { transform: translateY(90px); margin-right: 2rem; }
+  .sidebar-list li:last-child { border-bottom: none; }
+  .sidebar-list li span { color: #999; font-size: 0.8rem; margin-right: 0.5rem; }
 
-  /* 返回按钮 */
-  .back-btn {
-    position: fixed; bottom: 2rem; left: 2.5rem; z-index: 100;
-    padding: 0.7rem 1.5rem; border: 1px solid #555; border-radius: 2px;
-    color: #ccc; font-size: 0.8rem; letter-spacing: 0.1em;
-    background: transparent; cursor: pointer; transition: all 0.3s;
-    text-decoration: none;
+  /* 数据卡片 */
+  .stat-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
   }
-  .back-btn:hover { border-color: #a855f7; color: #fff; }
+  .stat-item {
+    text-align: center; padding: 1rem; background: #faf8f3;
+  }
+  .stat-num {
+    font-size: 1.8rem; font-weight: 900; color: #c9a96e;
+  }
+  .stat-label {
+    font-size: 0.8rem; color: #999; margin-top: 0.3rem;
+  }
+
+  /* 底部 */
+  .footer {
+    background: #1a1a1a; color: #666; text-align: center;
+    padding: 2rem; font-size: 0.8rem; margin-top: 3rem;
+  }
 </style>
 </head>
 <body>
   <canvas id="letters-canvas"></canvas>
 
-  <!-- 中央人像 -->
-  <div class="portrait">
-    <div class="portrait__wireframe"></div>
-    <img src="images/meilanfang.jpg" alt="梅兰芳贵妃醉酒剧照" class="portrait__img">
+  <!-- 顶部导航 -->
+  <nav class="top-nav">
+    <div class="top-nav__logo">薪火 · 非遗数字展馆</div>
+    <div class="top-nav__links">
+      <a href="index.html">首页</a>
+      <a href="hall.html">数字展馆</a>
+      <a href="craftsman.html">匠人故事</a>
+      <a href="easter-egg.html">技艺互动</a>
+    </div>
+  </nav>
+
+  <!-- 面包屑 -->
+  <div class="breadcrumb">
+    <a href="index.html">首页</a> &gt; <a href="craftsman.html">匠人故事</a> &gt; 梅兰芳
   </div>
 
-  <!-- 左侧：简介 + 时间线 -->
-  <div class="left-panel">
-    <h1 class="left-panel__title">梅兰芳</h1>
-    <p class="left-panel__bio">
-      名澜，字畹华。中国京剧表演艺术大师，"梅派"艺术创始人。
-      他以男旦之身，将京剧推向世界舞台，被列为"世界三大表演体系"之一。
-      一生演过百余出戏，塑造了无数经典女性形象。
-    </p>
-    <h2 class="left-panel__section-title">生平年表</h2>
-    <div class="timeline">
-      <div class="timeline__item">
-        <span class="timeline__year">1894</span>
-        <span class="timeline__desc">出生于北京京剧世家，8岁学戏</span>
+  <!-- 主体 -->
+  <div class="container">
+    <!-- 左侧主内容 -->
+    <div class="main-content">
+      <h1 class="main-title">梅兰芳</h1>
+      <p class="main-subtitle">京剧表演艺术大师 · 梅派艺术创始人</p>
+
+      <!-- 人物大图 -->
+      <div class="portrait-wrap">
+        <img src="images/meilanfang.png" alt="梅兰芳《贵妃醉酒》剧照">
+        <div class="portrait-caption">
+          梅兰芳在《贵妃醉酒》中饰演杨玉环
+        </div>
       </div>
-      <div class="timeline__item">
-        <span class="timeline__year">1913</span>
-        <span class="timeline__desc">首次赴上海演出，轰动上海滩</span>
+
+      <!-- 简介 -->
+      <h2 class="section-title">人物简介</h2>
+      <p class="bio-text">
+        梅兰芳（1894—1961），名澜，字畹华，祖籍江苏泰州，出生于北京京剧世家。
+        中国京剧表演艺术大师，"梅派"艺术创始人。他以男旦之身，将京剧推向世界舞台，
+        被列为"世界三大表演体系"之一。一生演过百余出戏，塑造了无数经典女性形象，
+        代表作有《贵妃醉酒》《霸王别姬》《牡丹亭》等。
+      </p>
+
+      <!-- 生平年表 -->
+      <h2 class="section-title">生平年表</h2>
+      <div class="timeline">
+        <div class="timeline__item">
+          <div class="timeline__year">1894年</div>
+          <div class="timeline__desc">出生于北京京剧世家，8岁学戏，10岁登台</div>
+        </div>
+        <div class="timeline__item">
+          <div class="timeline__year">1913年</div>
+          <div class="timeline__desc">首次赴上海演出，轰动上海滩，艺术风格渐趋成熟</div>
+        </div>
+        <div class="timeline__item">
+          <div class="timeline__year">1930年</div>
+          <div class="timeline__desc">赴美演出，将京剧艺术介绍给世界，获美国波莫纳学院荣誉博士</div>
+        </div>
+        <div class="timeline__item">
+          <div class="timeline__year">1950年</div>
+          <div class="timeline__desc">任中国京剧院院长，致力于京剧传承与发展</div>
+        </div>
+        <div class="timeline__item">
+          <div class="timeline__year">1961年</div>
+          <div class="timeline__desc">在北京逝世，享年67岁</div>
+        </div>
       </div>
-      <div class="timeline__item">
-        <span class="timeline__year">1930</span>
-        <span class="timeline__desc">赴美演出，将京剧介绍给世界</span>
+
+      <!-- 艺术成就 -->
+      <h2 class="section-title">艺术成就</h2>
+      <p class="bio-text">
+        梅兰芳创立了"梅派"艺术，其唱腔雍容华贵、圆润流畅，表演端庄典雅、美不胜收。
+        他突破了传统京剧的局限，在唱腔、表演、服装、化妆等方面都进行了大胆创新。
+        抗日战争时期，他蓄须明志，拒绝为日伪演出，表现了崇高的民族气节。
+      </p>
+    </div>
+
+    <!-- 右侧边栏 -->
+    <div class="sidebar">
+      <!-- 代表作品 -->
+      <div class="sidebar-card">
+        <h3 class="sidebar-card__title">代表作品</h3>
+        <ul class="sidebar-list">
+          <li><span>京剧</span>贵妃醉酒</li>
+          <li><span>京剧</span>霸王别姬</li>
+          <li><span>昆曲</span>牡丹亭</li>
+          <li><span>京剧</span>宇宙锋</li>
+          <li><span>京剧</span>生死恨</li>
+          <li><span>昆曲</span>断桥</li>
+        </ul>
       </div>
-      <div class="timeline__item">
-        <span class="timeline__year">1950</span>
-        <span class="timeline__desc">任中国京剧院院长，致力于传承</span>
+
+      <!-- 艺术数据 -->
+      <div class="sidebar-card">
+        <h3 class="sidebar-card__title">艺术数据</h3>
+        <div class="stat-grid">
+          <div class="stat-item">
+            <div class="stat-num">100+</div>
+            <div class="stat-label">代表剧目</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num">50+</div>
+            <div class="stat-label">艺术传人</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num">9</div>
+            <div class="stat-label">访演出国家</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num">67</div>
+            <div class="stat-label">从艺年限</div>
+          </div>
+        </div>
       </div>
-      <div class="timeline__item">
-        <span class="timeline__year">1961</span>
-        <span class="timeline__desc">逝世，享年67岁</span>
+
+      <!-- 所属分类 -->
+      <div class="sidebar-card">
+        <h3 class="sidebar-card__title">所属分类</h3>
+        <ul class="sidebar-list">
+          <li><span>门类</span>传统戏剧</li>
+          <li><span>剧种</span>京剧</li>
+          <li><span>行当</span>旦角（男旦）</li>
+          <li><span>流派</span>梅派</li>
+        </ul>
       </div>
     </div>
   </div>
 
-  <!-- 右侧标签 -->
-  <div class="tags-panel">
-    <div class="tag tag--1">贵妃醉酒</div>
-    <div class="tag tag--2">霸王别姬</div>
-    <div class="tag tag--3">牡丹亭</div>
-    <div class="tag tag--4">梅派传人</div>
+  <!-- 底部 -->
+  <div class="footer">
+    薪火 · 非遗数字展馆 | 匠心传承，非遗焕新
   </div>
-
-  <!-- 返回 -->
-  <a href="index.html" class="back-btn">← 返回首页</a>
 
 <script>
 // ==================== 漂浮汉字背景 ====================
@@ -156,8 +276,8 @@ function resize() { W = canvas.width = window.innerWidth; H = canvas.height = wi
 resize();
 window.addEventListener('resize', resize);
 
-const chars = '京剧梅兰芳贵妃醉酒霸王别姬牡丹亭水袖凤冠旦角生净末丑唱念做打西皮二黄锣鼓胡琴脸谱髯口翎子祥云如意';
-const charCount = 200;
+const chars = '生旦净末丑唱念做打西皮二黄锣鼓胡琴脸谱髯口翎子祥云如意京剧梅兰芳贵妃醉酒霸王别姬牡丹亭水袖凤冠';
+const charCount = 150;
 const particles = [];
 
 for (let i = 0; i < charCount; i++) {
@@ -167,42 +287,25 @@ for (let i = 0; i < charCount; i++) {
     size: 14 + Math.random() * 28,
     speedX: (Math.random() - 0.5) * 0.3,
     speedY: (Math.random() - 0.5) * 0.2,
-    opacity: 0.05 + Math.random() * 0.2,
-    color: Math.random() < 0.6 ? '#a855f7' : (Math.random() < 0.5 ? '#6366f1' : '#ec4899'),
+    color: '#8b5a2b',
     char: chars[Math.floor(Math.random() * chars.length)]
   });
 }
 
-let mouseX = 0, mouseY = 0;
-document.addEventListener('mousemove', (e) => {
-  mouseX = (e.clientX - W / 2) * 0.001;
-  mouseY = (e.clientY - H / 2) * 0.001;
-});
-
 function animate() {
   ctx.clearRect(0, 0, W, H);
-
   particles.forEach(p => {
     p.x += p.speedX;
     p.y += p.speedY;
-
-    // 鼠标视差
-    p.x += mouseX * p.size * 0.1;
-    p.y += mouseY * p.size * 0.1;
-
-    // 边界循环
     if (p.x < -50) p.x = W + 50;
     if (p.x > W + 50) p.x = -50;
     if (p.y < -50) p.y = H + 50;
     if (p.y > H + 50) p.y = -50;
-
     ctx.font = p.size + 'px "Noto Serif SC", serif';
     ctx.fillStyle = p.color;
-    ctx.globalAlpha = p.opacity;
+    ctx.globalAlpha = 0.8;
     ctx.fillText(p.char, p.x, p.y);
   });
-
-  ctx.globalAlpha = 1;
   requestAnimationFrame(animate);
 }
 animate();
