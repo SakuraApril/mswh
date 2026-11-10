@@ -4,11 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>梅兰芳 · 京剧大师 | 薪火非遗</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;900&display=swap" media="print" onload="this.media='all'">
 <style>
+  /* 本地字体子集：断网也保持版式 */
+  @font-face { font-family: "Noto Serif SC Local"; src: url("fonts/notoserif-ui-400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+  @font-face { font-family: "Noto Serif SC Local"; src: url("fonts/notoserif-ui-600.woff2") format("woff2"); font-weight: 600; font-display: swap; }
+  @font-face { font-family: "Noto Serif SC Local"; src: url("fonts/notoserif-ui-900.woff2") format("woff2"); font-weight: 900; font-display: swap; }
+
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
-    background: #f5f2eb; color: #333; font-family: 'Noto Serif SC', serif;
+    background: #f5f2eb; color: #333; font-family: 'Noto Serif SC Local', 'Noto Serif SC', serif;
     line-height: 1.8;
   }
 

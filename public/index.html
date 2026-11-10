@@ -5,14 +5,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>薪火 · 非遗数字展馆</title>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;900&family=Cinzel:wght@400;600&display=swap"
-        rel="stylesheet">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;900&family=Cinzel:wght@400;600&display=swap" media="print" onload="this.media='all'">
     <link rel="stylesheet" href="css/han/han.css">
-    <script src="https://lib.baomitu.com/three.js/0.160.0/three.min.js"></script>
+    <script src="js/three.min.js"></script>
     <script src="js/gsap.min.js"></script>
-    <style>
-        * {
+        <style>
+        /* 本地字体子集：断网也保持版式（在线时上面那条 Google Fonts 再兜生僻字） */
+        @font-face { font-family: "Noto Serif SC Local"; src: url("fonts/notoserif-ui-400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+        @font-face { font-family: "Noto Serif SC Local"; src: url("fonts/notoserif-ui-600.woff2") format("woff2"); font-weight: 600; font-display: swap; }
+        @font-face { font-family: "Noto Serif SC Local"; src: url("fonts/notoserif-ui-900.woff2") format("woff2"); font-weight: 900; font-display: swap; }
+        @font-face { font-family: "Cinzel Local"; src: url("fonts/cinzel-400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+        @font-face { font-family: "Cinzel Local"; src: url("fonts/cinzel-600.woff2") format("woff2"); font-weight: 600; font-display: swap; }
+* {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -24,7 +28,7 @@
             overflow: hidden;
             background: #050810;
             color: #e8eaf0;
-            font-family: 'Noto Serif SC', serif;
+            font-family: 'Noto Serif SC Local', 'Noto Serif SC', serif;
         }
 
         #canvas-container {
@@ -50,7 +54,7 @@
             display: flex;
             align-items: center;
             gap: 0.8rem;
-            font-family: 'Cinzel', serif;
+            font-family: 'Cinzel Local', 'Cinzel', serif;
             font-size: 0.85rem;
             letter-spacing: 4px;
             color: #c8cdd8;
@@ -74,7 +78,7 @@
         }
 
         .nav__link {
-            font-family: 'Cinzel', serif;
+            font-family: 'Cinzel Local', 'Cinzel', serif;
             font-size: 0.75rem;
             letter-spacing: 3px;
             color: #8892a8;

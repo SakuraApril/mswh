@@ -4,199 +4,1587 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>数字展馆 | 薪火非遗</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700;900&family=Cinzel:wght@400;600&display=swap" media="print" onload="this.media='all'">
 <script src="js/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="js/ScrollTrigger.min.js"></script>
+<script src="js/lenis.min.js"></script>
 <style>
+  /* 本地字体子集（覆盖本页全部用字），断网也不掉版式；在线时上面的 Google Fonts 再兜一层生僻字 */
+  @font-face {
+    font-family: "Noto Serif SC Local";
+    src: url("fonts/notoserif-sc-400.woff2") format("woff2");
+    font-weight: 400; font-style: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: "Noto Serif SC Local";
+    src: url("fonts/notoserif-sc-500.woff2") format("woff2");
+    font-weight: 500; font-style: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: "Noto Serif SC Local";
+    src: url("fonts/notoserif-sc-600.woff2") format("woff2");
+    font-weight: 600; font-style: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: "Noto Serif SC Local";
+    src: url("fonts/notoserif-sc-900.woff2") format("woff2");
+    font-weight: 900; font-style: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: "Cinzel Local";
+    src: url("fonts/cinzel-400.woff2") format("woff2");
+    font-weight: 400; font-style: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: "Cinzel Local";
+    src: url("fonts/cinzel-600.woff2") format("woff2");
+    font-weight: 600; font-style: normal; font-display: swap;
+  }
+
+  :root {
+    --bg: #080808;
+    --bg-elevated: #111111;
+    --line: rgba(255, 255, 255, 0.08);
+    --text: #f4f0e6;
+    --muted: #8a857a;
+    --dim: #5c574f;
+    --gold: #c4a574;
+    --gold-soft: rgba(196, 165, 116, 0.18);
+    --serif: "Noto Serif SC Local", "Noto Serif SC", "Songti SC", "SimSun", "宋体", serif;
+    --latin: "Cinzel Local", "Cinzel", "Noto Serif SC Local", "Noto Serif SC", serif;
+  }
+
   * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: auto; }
+  html.lenis, html.lenis body { height: auto; }
+  .lenis.lenis-smooth { scroll-behavior: auto !important; }
+  .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+
   body {
-    background: #0a0a0a; color: #f5f2eb; font-family: 'Noto Serif SC', serif;
+    background: #120e0b;
+    color: var(--text);
+    font-family: var(--serif);
     overflow-x: hidden;
+    cursor: default;
   }
 
-  /* 顶部导航 */
+  /* full-page fixed atmosphere photo */
+  .page-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .page-bg__fallback {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 90% 70% at 70% 20%, #3a2a1c 0%, transparent 55%),
+      radial-gradient(ellipse 60% 50% at 10% 80%, #2a1c14 0%, transparent 50%),
+      linear-gradient(165deg, #2a2018 0%, #120e0b 45%, #1a1510 100%);
+  }
+  .page-bg__img {
+    position: absolute;
+    inset: -3%;
+    width: 106%;
+    height: 106%;
+    background-image: url("images/hall-hero.jpg");
+    background-size: cover;
+    background-position: center 30%;
+    filter: saturate(0.85) contrast(1.05) brightness(0.72);
+    opacity: 0.88;
+    transform: scale(1.03);
+    animation: heroKen 32s ease-in-out infinite alternate;
+  }
+  .page-bg__veil {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(to bottom, rgba(18,14,11,0.35) 0%, rgba(18,14,11,0.45) 40%, rgba(18,14,11,0.62) 70%, rgba(18,14,11,0.78) 100%),
+      linear-gradient(to right, rgba(18,14,11,0.55) 0%, rgba(18,14,11,0.28) 45%, rgba(18,14,11,0.4) 100%),
+      radial-gradient(ellipse 55% 45% at 75% 20%, rgba(196,165,116,0.16), transparent 60%);
+  }
+  .page-content {
+    position: relative;
+    z-index: 1;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 50;
+    opacity: 0.045;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  a { color: inherit; text-decoration: none; }
+  button { font: inherit; border: 0; background: none; color: inherit; cursor: pointer; }
+
+  /* progress */
+  .progress {
+    position: fixed;
+    top: 0; left: 0;
+    height: 2px;
+    width: 0%;
+    background: linear-gradient(90deg, transparent, var(--gold));
+    z-index: 200;
+    transform-origin: left center;
+  }
+
+  /* cursor glow (desktop) */
+  .cursor-glow {
+    position: fixed;
+    width: 280px;
+    height: 280px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 3;
+    background: radial-gradient(circle, rgba(196,165,116,0.12), transparent 70%);
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    mix-blend-mode: screen;
+  }
+  body.has-pointer .cursor-glow.is-on { opacity: 1; }
+
+  /* nav */
   .nav {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 1.5rem 3rem; mix-blend-mode: difference;
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.35rem clamp(1.25rem, 4vw, 3rem);
+    background: linear-gradient(to bottom, rgba(8,8,8,0.75), rgba(8,8,8,0));
+    backdrop-filter: blur(0px);
+    transition: background 0.35s ease, backdrop-filter 0.35s ease;
   }
-  .nav__logo { font-size: 1rem; letter-spacing: 0.2em; }
-  .nav__links { display: flex; gap: 2rem; font-size: 0.8rem; }
-  .nav__links a { color: #fff; text-decoration: none; opacity: 0.7; transition: opacity 0.3s; }
-  .nav__links a:hover { opacity: 1; }
+  .nav.is-scrolled {
+    background: rgba(8, 8, 8, 0.72);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav__logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-family: var(--latin);
+    font-size: 0.78rem;
+    letter-spacing: 0.28em;
+    color: var(--text);
+  }
+  .nav__mark {
+    width: 34px; height: 34px;
+    border: 1px solid rgba(196, 165, 116, 0.55);
+    border-radius: 50%;
+    display: grid; place-items: center;
+    font-family: var(--serif);
+    font-size: 0.95rem;
+    color: var(--gold);
+  }
+  .nav__links {
+    display: flex;
+    gap: clamp(1.25rem, 3vw, 2.5rem);
+    font-family: var(--serif);
+    font-size: 0.86rem;
+    letter-spacing: 0.18em;
+  }
+  .nav__links a {
+    color: var(--muted);
+    transition: color 0.3s ease;
+    position: relative;
+  }
+  .nav__links a::after {
+    content: "";
+    position: absolute;
+    left: 0; bottom: -0.35rem;
+    width: 100%; height: 1px;
+    background: var(--gold);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.35s ease;
+  }
+  .nav__links a:hover,
+  .nav__links a.is-active { color: var(--text); }
+  .nav__links a.is-active::after,
+  .nav__links a:hover::after { transform: scaleX(1); }
 
-  /* 英雄区 */
+  /* hero */
   .hero {
-    height: 100vh; display: flex; flex-direction: column;
-    justify-content: center; padding: 0 5rem;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 8rem clamp(1.25rem, 5vw, 5rem) 7.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero__ambient {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      linear-gradient(to right, rgba(18,14,11,0.42) 0%, rgba(18,14,11,0.12) 50%, rgba(18,14,11,0.2) 100%),
+      linear-gradient(to top, rgba(18,14,11,0.55) 0%, rgba(18,14,11,0.08) 50%, rgba(18,14,11,0.2) 100%);
+  }
+  @keyframes heroKen {
+    0% { transform: scale(1.03) translate3d(0, 0, 0); }
+    100% { transform: scale(1.1) translate3d(-1.2%, -0.8%, 0); }
+  }
+  .hero > *:not(.hero__ambient) {
+    position: relative;
+    z-index: 1;
+  }
+  .hero__eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    color: var(--gold);
+    font-family: var(--latin);
+    font-size: 0.72rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+  }
+  .hero__eyebrow-line {
+    width: 48px; height: 1px; background: var(--gold); opacity: 0.7;
   }
   .hero__title {
-    font-size: clamp(4rem, 12vw, 10rem); font-weight: 900;
-    line-height: 1.1; letter-spacing: 0.05em;
+    font-size: clamp(3.6rem, 14vw, 9.5rem);
+    font-weight: 900;
+    line-height: 0.95;
+    letter-spacing: 0.04em;
+    text-shadow: 0 8px 40px rgba(0,0,0,0.45), 0 2px 12px rgba(0,0,0,0.35);
   }
-  .hero__title span { display: block; }
+  .hero__title .line {
+    display: block;
+    overflow: hidden;
+  }
+  .hero__title .line span {
+    display: block;
+    will-change: transform;
+  }
+  .hero__bottom {
+    margin-top: clamp(2.5rem, 6vw, 4.5rem);
+    margin-bottom: 0.5rem;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: start;
+    width: 100%;
+    max-width: none;
+  }
+  .hero__copy {
+    max-width: 28rem;
+    justify-self: start;
+  }
   .hero__sub {
-    margin-top: 3rem; font-size: 1rem; color: #888;
-    max-width: 500px; line-height: 1.8;
+    font-size: clamp(0.95rem, 1.5vw, 1.05rem);
+    color: var(--muted);
+    line-height: 2;
+    max-width: none;
+  }
+  .hero__meta {
+    justify-self: end;
+    align-self: start;
+    text-align: right;
+    font-family: var(--latin);
+    font-size: 0.82rem;
+    letter-spacing: 0.22em;
+    color: var(--dim);
+    line-height: 1.9;
+    margin-top: 0;
+    padding-top: 0.15em; /* optical top align with Chinese body */
+  }
+  .hero__meta strong {
+    display: block;
+    color: var(--gold);
+    font-weight: 600;
+    margin-bottom: 0.2rem;
   }
   .hero__scroll {
-    position: absolute; bottom: 3rem; left: 5rem;
-    font-size: 0.8rem; color: #666; letter-spacing: 0.2em;
-    animation: bounce 2s infinite;
+    position: static;
+    margin-top: 1.35rem;
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.85rem;
+    color: var(--muted);
+    font-size: 0.8rem;
+    letter-spacing: 0.28em;
+    font-family: var(--serif);
+    opacity: 0.85;
+    pointer-events: none;
   }
-  @keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(10px); }
+  .hero__scroll-bar {
+    width: 1px;
+    height: 28px;
+    background: linear-gradient(to bottom, var(--gold), transparent);
+    position: relative;
+    overflow: hidden;
+    flex: 0 0 auto;
+  }
+  .hero__scroll-bar i {
+    position: absolute;
+    left: 0; top: -40%;
+    width: 100%; height: 40%;
+    background: #fff;
+    animation: scrollPulse 2.2s ease-in-out infinite;
+  }
+  @keyframes scrollPulse {
+    0% { top: -40%; opacity: 0; }
+    30% { opacity: 1; }
+    100% { top: 110%; opacity: 0; }
   }
 
-  /* 展品列表 */
-  .exhibits { padding: 5rem 0; }
+  /* section label */
+  .section-head {
+    padding: 0 clamp(1.25rem, 5vw, 5rem) 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    border-bottom: 1px solid var(--line);
+    margin: 0 clamp(1.25rem, 5vw, 5rem);
+    position: relative;
+  }
+  .section-head__title {
+    font-family: var(--latin);
+    font-size: 0.72rem;
+    letter-spacing: 0.32em;
+    color: var(--gold);
+  }
+  .section-head__count {
+    font-size: 0.8rem;
+    color: var(--dim);
+    letter-spacing: 0.12em;
+  }
+
+  /* exhibits */
+  .exhibits {
+    padding: 0 0 4rem;
+    position: relative;
+    background: linear-gradient(to bottom, rgba(18,14,11,0.28), rgba(18,14,11,0.5));
+    /* height of the hover view plate — each row reserves this much room so the
+       artwork is never cropped by the row's overflow */
+    --view-h: clamp(17rem, 21vw, 23rem);
+  }
   .exhibit {
-    padding: 6rem 5rem; border-top: 1px solid #222;
-    display: grid; grid-template-columns: 80px 1fr 2fr; gap: 3rem;
-    align-items: center; cursor: pointer; transition: background 0.4s;
-    position: relative; overflow: hidden;
+    position: relative;
+    display: grid;
+    grid-template-columns: 88px minmax(0, 1.1fr) minmax(0, 1.6fr);
+    gap: 0 clamp(1rem, 3vw, 2.5rem);
+    align-items: center;
+    /* 行高由内容决定并整体居中，不再把多余空间摊到两行里 */
+    align-content: center;
+    min-height: calc(var(--view-h) + 3rem);
+    padding: clamp(2.4rem, 5vw, 4.2rem) clamp(1.25rem, 5vw, 5rem);
+    padding-right: clamp(1.25rem, 5vw, 5rem);
+    border-bottom: 1px solid var(--line);
+    cursor: pointer;
+    isolation: isolate;
+    overflow: hidden;
+    transition: background 0.45s ease;
   }
-  .exhibit:hover { background: #111; }
+  .exhibit::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(196,165,116,0.12), rgba(18,14,11,0.25) 55%, transparent 100%);
+    opacity: 0;
+    transition: opacity 0.45s ease;
+    z-index: -1;
+  }
+  .exhibit:hover,
+  .exhibit:focus-visible {
+    outline: none;
+  }
+  .exhibit:hover::before,
+  .exhibit.is-active::before { opacity: 1; }
+
   .exhibit__num {
-    font-size: 1rem; color: #555; font-weight: 600;
+    grid-column: 1;
+    grid-row: 1 / -1;
+    align-self: center;
+    font-family: var(--latin);
+    font-size: 1.2rem;
+    letter-spacing: 0.18em;
+    color: var(--dim);
+    transition: color 0.35s ease;
   }
+  .exhibit:hover .exhibit__num,
+  .exhibit.is-active .exhibit__num { color: var(--gold); }
+
   .exhibit__name {
-    font-size: clamp(2rem, 5vw, 4rem); font-weight: 900;
-    letter-spacing: 0.1em; line-height: 1.2;
+    grid-column: 2;
+    grid-row: 1;
+    font-size: clamp(2rem, 5.5vw, 4.4rem);
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    line-height: 1.05;
+    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), color 0.35s ease;
   }
+  .exhibit:hover .exhibit__name {
+    transform: translateX(0.35rem);
+    color: #fff;
+  }
+
   .exhibit__desc {
-    font-size: 0.9rem; color: #777; line-height: 1.8;
-    opacity: 0; transform: translateX(30px); transition: all 0.4s;
+    grid-column: 2 / -1;
+    grid-row: 2;
+    align-self: start;
+    margin-top: 1.05rem;
+    font-size: 1.05rem;
+    color: var(--muted);
+    line-height: 1.9;
+    /* 右侧要留出悬停展品卡的位置，文字不会钻到图片底下 */
+    max-width: min(44rem, calc(100% - 20rem));
+    text-wrap: balance;
+    opacity: 0.35;
+    transform: translateY(12px);
+    transition: opacity 0.45s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
   }
-  .exhibit:hover .exhibit__desc { opacity: 1; transform: translateX(0); }
+  .exhibit:hover .exhibit__desc,
+  .exhibit.is-active .exhibit__desc {
+    opacity: 1;
+    transform: translateY(0);
+  }
 
-  /* 展品背景图 hover */
-  .exhibit__bg {
-    position: absolute; right: 5rem; top: 50%; transform: translateY(-50%) scale(0.8);
-    width: 300px; height: 400px; background-size: cover; background-position: center;
-    opacity: 0; transition: all 0.5s; pointer-events: none;
-    filter: grayscale(0.3);
+  /* 展签信息行：产地 · 材质 · 技法 */
+  .exhibit__meta {
+    grid-column: 2 / -1;
+    grid-row: 3;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 1.1rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.14em;
+    color: var(--dim);
+    transition: color 0.4s ease;
   }
-  .exhibit:hover .exhibit__bg {
-    opacity: 0.3; transform: translateY(-50%) scale(1);
+  .exhibit__meta i {
+    display: block;
+    width: 3px; height: 3px;
+    border-radius: 50%;
+    background: rgba(196, 165, 116, 0.55);
+  }
+  .exhibit:hover .exhibit__meta,
+  .exhibit.is-active .exhibit__meta { color: var(--muted); }
+
+  /* 章节标尺 */
+  .hall-index {
+    position: fixed;
+    left: clamp(0.4rem, 0.9vw, 0.9rem);
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 60;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+  }
+  .hall-index.is-visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .hall-index__item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    border: 0;
+    padding: 0;
+    background: none;
+    font-family: var(--latin);
+    font-size: 0.6rem;
+    letter-spacing: 0.14em;
+    color: var(--dim);
+    cursor: pointer;
+    transition: color 0.3s ease;
+  }
+  .hall-index__tick {
+    display: block;
+    width: 12px; height: 1px;
+    background: currentColor;
+    opacity: 0.5;
+    transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease;
+  }
+  /* 序号平时收起来，只在当前/悬停时露出，避免和行内编号打架 */
+  .hall-index__num {
+    opacity: 0;
+    transform: translateX(-4px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+  .hall-index__item:hover { color: var(--text); }
+  .hall-index__item.is-current { color: var(--gold); }
+  .hall-index__item.is-current .hall-index__tick { width: 26px; opacity: 1; }
+  .hall-index__item.is-current .hall-index__num,
+  .hall-index__item:hover .hall-index__num {
+    opacity: 1;
+    transform: none;
+  }
+  @media (max-width: 1280px) {
+    .hall-index { display: none; }
   }
 
-  /* 底部 */
+  .exhibit__action {
+    position: absolute;
+    right: clamp(0.35rem, 1.5vw, 0.85rem);
+    top: 50%;
+    transform: translateY(-50%) translateX(8px);
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    font-family: var(--latin);
+    font-size: 0.68rem;
+    letter-spacing: 0.2em;
+    color: var(--dim);
+    opacity: 0;
+    transition: all 0.4s ease;
+    pointer-events: none;
+    width: 2.6rem;
+  }
+  .exhibit:hover .exhibit__action,
+  .exhibit.is-active .exhibit__action {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+    color: var(--gold);
+  }
+  .exhibit__action-icon {
+    width: 34px; height: 34px;
+    border: 1px solid rgba(196,165,116,0.45);
+    border-radius: 50%;
+    display: grid; place-items: center;
+    transition: background 0.35s ease, transform 0.35s ease;
+  }
+  .exhibit:hover .exhibit__action-icon {
+    background: var(--gold-soft);
+    transform: rotate(-35deg);
+  }
+
+  .exhibit__visual {
+    position: absolute;
+    right: clamp(3.2rem, 5.5vw, 4.8rem);
+    top: 50%;
+    height: var(--view-h);
+    width: auto;
+    aspect-ratio: 3 / 4;
+    transform: translateY(-50%) scale(0.92) rotate(2deg);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 1;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.55);
+    transition: opacity 0.5s ease, transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .exhibit__visual img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    filter: saturate(0.85) contrast(1.05);
+    transform: scale(1.08);
+    /* 从下往上“揭幕”，比单纯淡入更有展开感 */
+    clip-path: inset(0 0 100% 0);
+    transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1), clip-path 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .exhibit__visual.is-contain { background: #171717; }
+  .exhibit__visual.is-contain img {
+    object-fit: contain !important;
+    filter: none !important;
+    transform: none !important;
+  }
+  .exhibit:hover .exhibit__visual.is-contain img {
+    transform: none !important;
+  }
+  .exhibit__visual::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(8,8,8,0.35), transparent 45%);
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .exhibit:hover .exhibit__visual,
+  .exhibit.is-active .exhibit__visual {
+    opacity: 0.72;
+    transform: translateY(-50%) scale(1) rotate(0deg);
+  }
+  .exhibit:hover .exhibit__visual img,
+  .exhibit.is-active .exhibit__visual img {
+    transform: scale(1);
+    clip-path: inset(0 0 0 0);
+  }
+
+  /* footer */
   .footer {
-    padding: 5rem; text-align: center; color: #555; font-size: 0.8rem;
-    border-top: 1px solid #222;
+    padding: 5rem clamp(1.25rem, 5vw, 5rem) 3rem;
+    border-top: 1px solid var(--line);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 1.5rem;
+    color: var(--dim);
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    background: rgba(18,14,11,0.45);
+  }
+  .footer strong {
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  /* detail overlay */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+    display: grid;
+    place-items: center;
+    padding: 1.25rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease;
+  }
+  .overlay.is-open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .overlay__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.72);
+    backdrop-filter: blur(10px);
+  }
+  .overlay__panel {
+    /* light-theme overrides scoped to the card only; page stays dark */
+    --text: #26221b;
+    --muted: #5d564b;
+    --dim: #8a8275;
+    --gold: #9a7638;
+    --line: rgba(30, 25, 18, 0.14);
+    position: relative;
+    width: min(980px, 100%);
+    max-height: min(860px, 92vh);
+    overflow: auto;
+    background: #fbf7ee;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    display: grid;
+    grid-template-columns: 1.05fr 1fr;
+    box-shadow: 0 30px 90px rgba(0,0,0,0.4);
+    transform: translateY(24px) scale(0.98);
+    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .overlay.is-open .overlay__panel {
+    transform: translateY(0) scale(1);
+  }
+  .overlay__media {
+    position: relative;
+    min-height: 360px;
+    background: #ece3d3;
+  }
+  .overlay__media img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .overlay__media.is-contain { background: #171717; }
+  .overlay__media img.is-contain { object-fit: contain; }
+  .overlay__media::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, transparent 55%, rgba(251,247,238,0.45));
+  }
+  .overlay__body {
+    padding: clamp(1.5rem, 4vw, 2.75rem);
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  .overlay__kicker {
+    font-family: var(--latin);
+    font-size: 0.7rem;
+    letter-spacing: 0.28em;
+    color: var(--gold);
+  }
+  .overlay__title {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 900;
+    letter-spacing: 0.14em;
+    color: var(--text);
+  }
+  .overlay__text {
+    color: var(--muted);
+    line-height: 2;
+    font-size: 0.95rem;
+  }
+  .overlay__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    margin-top: 0.5rem;
+  }
+  .overlay__tag {
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 0.35rem 0.85rem;
+    font-size: 0.75rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+  .overlay__close {
+    position: absolute;
+    top: 1rem; right: 1rem;
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,0.7);
+    color: var(--text);
+    display: grid; place-items: center;
+    z-index: 2;
+    transition: border-color 0.3s ease, color 0.3s ease;
+  }
+  .overlay__close:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+  .overlay__cta {
+    margin-top: auto;
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.85rem 1.25rem;
+    border: 1px solid rgba(154,118,56,0.5);
+    border-radius: 999px;
+    color: var(--gold);
+    font-family: var(--latin);
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    transition: background 0.3s ease, color 0.3s ease;
+  }
+  .overlay__cta:hover {
+    background: var(--gold);
+    color: #fbf7ee;
+  }
+  .overlay__foot {
+    margin-top: auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .overlay__foot .overlay__cta { margin-top: 0; }
+  .overlay__nav {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .overlay__nav-btn {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    color: var(--muted);
+    display: grid; place-items: center;
+    font-size: 0.95rem;
+    transition: border-color 0.3s ease, color 0.3s ease, background 0.3s ease;
+  }
+  .overlay__nav-btn:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: rgba(154, 118, 56, 0.08);
+  }
+  .overlay__nav-pos {
+    font-family: var(--latin);
+    font-size: 0.68rem;
+    letter-spacing: 0.2em;
+    color: var(--dim);
+    min-width: 4.2em;
+    text-align: center;
+  }
+
+  /* 序厅 */
+  .prologue {
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: clamp(4rem, 8vw, 7rem) clamp(1.25rem, 5vw, 5rem) clamp(3.5rem, 7vw, 6rem);
+    display: grid;
+    gap: clamp(2rem, 4vw, 3rem);
+  }
+  .prologue__label,
+  .epilogue__label {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-family: var(--latin);
+    font-size: 0.7rem;
+    letter-spacing: 0.32em;
+    color: var(--gold);
+  }
+  .prologue__label-line {
+    width: 48px; height: 1px;
+    background: currentColor;
+    opacity: 0.7;
+  }
+  .prologue__lead {
+    margin-top: 1.4rem;
+    font-size: clamp(1.3rem, 2.5vw, 2rem);
+    font-weight: 600;
+    line-height: 1.9;
+    letter-spacing: 0.05em;
+    color: var(--text);
+    max-width: 42rem;
+  }
+  .prologue__body {
+    display: grid;
+    grid-template-columns: minmax(0, 24rem) minmax(0, 1fr);
+    gap: clamp(1.5rem, 4vw, 3.5rem);
+    align-items: start;
+  }
+  .prologue__text {
+    color: var(--muted);
+    line-height: 2;
+    font-size: 0.95rem;
+  }
+  .prologue__map {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: clamp(0.5rem, 1.2vw, 1rem);
+  }
+  .prologue__item {
+    display: grid;
+    gap: 0.6rem;
+    border: 0;
+    padding: 0;
+    background: none;
+    text-align: left;
+    cursor: pointer;
+    color: var(--dim);
+    transition: color 0.35s ease;
+  }
+  .prologue__thumb {
+    position: relative;
+    display: block;
+    aspect-ratio: 3 / 4;
+    border-radius: 3px;
+    overflow: hidden;
+    background: #171717;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.35s ease;
+  }
+  .prologue__thumb img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    filter: saturate(0.8) contrast(1.05) brightness(0.82);
+    transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1), filter 0.5s ease;
+  }
+  .prologue__item:hover { color: var(--gold); }
+  .prologue__item:hover .prologue__thumb {
+    transform: translateY(-4px);
+    border-color: rgba(196, 165, 116, 0.5);
+  }
+  .prologue__item:hover .prologue__thumb img {
+    transform: scale(1.05);
+    filter: saturate(0.95) contrast(1.05) brightness(1);
+  }
+  .prologue__name {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    font-size: 0.82rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+  .prologue__name em {
+    font-family: var(--latin);
+    font-style: normal;
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    color: var(--gold);
+    opacity: 0.85;
+  }
+
+  /* 尾厅 */
+  .epilogue {
+    max-width: 1500px;
+    margin: clamp(3rem, 6vw, 5rem) auto 0;
+    padding: clamp(3rem, 6vw, 5rem) clamp(1.25rem, 5vw, 5rem);
+    border-top: 1px solid var(--line);
+    display: grid;
+    gap: 1.4rem;
+    background: linear-gradient(to bottom, rgba(18, 14, 11, 0.15), rgba(18, 14, 11, 0.55));
+  }
+  .epilogue__lead {
+    font-size: clamp(1.6rem, 3.2vw, 2.5rem);
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    color: var(--text);
+  }
+  .epilogue__text {
+    max-width: 46rem;
+    color: var(--muted);
+    line-height: 2.1;
+    font-size: 0.95rem;
+  }
+
+  /* 详情里的工艺四步 + 细节放大 */
+  .overlay__media {
+    overflow: hidden;
+    cursor: zoom-in;
+  }
+  .overlay__media img {
+    transform-origin: center;
+    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .overlay__media.is-zoomed img {
+    transform: scale(1.9);
+    transition: transform 0.12s linear;
+  }
+  .overlay__hint {
+    position: absolute;
+    left: 1rem; bottom: 1rem;
+    z-index: 2;
+    padding: 0.3rem 0.7rem;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.42);
+    color: rgba(251, 247, 238, 0.85);
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+  }
+  .overlay__media:hover .overlay__hint { opacity: 1; }
+  .overlay__steps {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.85rem;
+    margin-top: 0.4rem;
+  }
+  .overlay__step {
+    padding-top: 0.85rem;
+    border-top: 1px solid rgba(154, 118, 56, 0.35);
+  }
+  .overlay__step b {
+    display: block;
+    font-family: var(--latin);
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    margin-bottom: 0.4rem;
+  }
+  .overlay__step span {
+    display: block;
+    font-size: 0.78rem;
+    line-height: 1.75;
+    color: var(--muted);
+  }
+
+  /* responsive */
+  @media (max-width: 960px) {
+    .hero__bottom { grid-template-columns: 1fr; }
+    .hero__meta { justify-self: start; text-align: left; }
+    .exhibit {
+      grid-template-columns: 56px 1fr;
+      grid-template-areas:
+        "num name"
+        ". desc"
+        ". meta"
+        ". action";
+      gap: 0.85rem 1rem;
+    }
+    .exhibit__num { grid-area: num; }
+    .exhibit__name { grid-area: name; }
+    .exhibit__meta {
+      grid-area: meta;
+      margin-top: 0.75rem;
+      font-size: 0.72rem;
+    }
+    .exhibit__desc {
+      grid-area: desc;
+      opacity: 1;
+      transform: none;
+      max-width: none;
+      min-height: 0;
+    }
+    .exhibit__action {
+      grid-area: action;
+      justify-self: start;
+      opacity: 1;
+      transform: none;
+      margin-top: 0.35rem;
+    }
+    .exhibit__visual {
+      width: 160px;
+      height: auto;
+      opacity: 0.22;
+      right: 4.4rem;
+    }
+    .overlay__panel { grid-template-columns: 1fr; }
+    .overlay__media { min-height: 240px; max-height: 280px; }
+    .prologue__body { grid-template-columns: 1fr; }
+    .prologue__map { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+
+  @media (max-width: 720px) {
+    .nav__links { display: none; }
+    .hero { padding-bottom: 5rem; }
+    .hero__scroll { font-size: 0.72rem; margin-top: 1.1rem; }
+    .hero__scroll-bar { height: 24px; }
+    .overlay__steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .prologue__map { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation: none !important;
+      transition: none !important;
+      scroll-behavior: auto !important;
+    }
+    .page-bg__img { transform: none !important; animation: none !important; }
   }
 </style>
 </head>
 <body>
-  <!-- 导航 -->
-  <nav class="nav">
-    <div class="nav__logo">薪火 · XINHUO</div>
+  <div class="page-bg" aria-hidden="true">
+    <div class="page-bg__fallback"></div>
+    <div class="page-bg__img"></div>
+    <div class="page-bg__veil"></div>
+  </div>
+
+  <div class="progress" id="progress"></div>
+  <div class="cursor-glow" id="cursorGlow"></div>
+
+  <!-- 章节标尺：滚到哪个展柜，左侧 01—06 就亮到哪一格 -->
+  <nav class="hall-index" id="hallIndex" aria-label="展品索引"></nav>
+
+  <div class="page-content">
+  <nav class="nav" id="nav">
+    <a class="nav__logo" href="index.html">
+      <span class="nav__mark">薪</span>
+      <span>XINHUO</span>
+    </a>
     <div class="nav__links">
       <a href="index.html">首页</a>
-      <a href="hall.html">数字展馆</a>
+      <a class="is-active" href="hall.html">数字展馆</a>
       <a href="craftsman.html">匠人故事</a>
       <a href="easter-egg.html">技艺互动</a>
     </div>
   </nav>
 
-  <!-- 英雄区 -->
   <section class="hero">
+    <div class="hero__ambient"></div>
+    <div class="hero__eyebrow">
+      <span class="hero__eyebrow-line"></span>
+      <span>Digital Heritage Hall</span>
+    </div>
     <h1 class="hero__title">
-      <span>非遗</span>
-      <span>之美</span>
+      <span class="line"><span>非遗</span></span>
+      <span class="line"><span>之美</span></span>
     </h1>
-    <p class="hero__sub">
-      六件瑰宝，千年传承。每一件都凝结着匠人的心血与时光的沉淀。
+    <div class="hero__bottom">
+      <div class="hero__copy">
+        <p class="hero__sub">
+          六件瑰宝，千年传承。以数字展陈重新点亮匠心与时光——
+          在静默的光影里，看见一针一线、一瓷一影背后的文明温度。
+        </p>
+        <div class="hero__scroll">
+          <span>向下滚动</span>
+          <span class="hero__scroll-bar"><i></i></span>
+        </div>
+      </div>
+      <div class="hero__meta">
+        <strong>COLLECTION 01—06</strong>
+        苏绣 · 青瓷 · 剪纸<br>
+        漆器 · 皮影 · 木雕
+      </div>
+    </div>
+  </section>
+
+  <!-- 序厅 -->
+  <section class="prologue" id="prologue">
+    <div class="prologue__head">
+      <div class="prologue__label">
+        <span class="prologue__label-line"></span>
+        <span>序厅 · PROLOGUE</span>
+      </div>
+      <p class="prologue__lead">
+        六件器物，六种手艺。<br>
+        它们不在玻璃柜里，而在匠人的手上、火里、纸上与刀下。
+      </p>
+    </div>
+    <div class="prologue__body">
+      <p class="prologue__text">
+        本馆按「丝 · 瓷 · 纸 · 漆 · 影 · 木」依次铺陈，每件展品配有展签与工艺信息。
+        向下即是展厅——你也可以从下面任意一格直接走入某个展柜。
+      </p>
+      <div class="prologue__map" id="prologueMap" aria-label="展厅导览"></div>
+    </div>
+  </section>
+
+  <div class="section-head">
+    <div class="section-head__title">EXHIBITS</div>
+    <div class="section-head__count">06 WORKS</div>
+  </div>
+
+  <section class="exhibits" id="exhibits">
+    <!-- filled by JS for cleaner data -->
+  </section>
+
+  <!-- 尾厅 -->
+  <section class="epilogue">
+    <div class="epilogue__label">
+      <span class="prologue__label-line"></span>
+      <span>尾厅 · EPILOGUE</span>
+    </div>
+    <p class="epilogue__lead">见物，见人，见手艺。</p>
+    <p class="epilogue__text">
+      六种技艺都还没有消失，只是换了一批人在做。数字展陈能做的，是把它们从「听说过」
+      变成「看见过」——剩下的，交给愿意伸手的那一代人。
     </p>
-    <div class="hero__scroll">↓ 向下滚动</div>
   </section>
 
-  <!-- 展品列表 -->
-  <section class="exhibits">
-    <div class="exhibit">
-      <div class="exhibit__num">01</div>
-      <div class="exhibit__name">苏绣</div>
-      <div class="exhibit__desc">
-        苏州刺绣，以针代笔，以线晕色。双面绣精巧绝伦，一针一线皆成画卷。
-      </div>
-      <div class="exhibit__bg" style="background-image: url('https://images.unsplash.com/photo-1582560475193-3c0d4d0f0f9a?w=600');"></div>
-    </div>
+  <footer class="footer">
+    <div><strong>薪火 · 非遗数字展馆</strong></div>
+    <div>匠心传承，非遗焕新</div>
+  </footer>
 
-    <div class="exhibit">
-      <div class="exhibit__num">02</div>
-      <div class="exhibit__name">青瓷</div>
-      <div class="exhibit__desc">
-        龙泉青瓷，青如玉、明如镜、薄如纸、声如磬。雨过天青云破处，这般颜色做将来。
-      </div>
-      <div class="exhibit__bg" style="background-image: url('https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?w=600');"></div>
-    </div>
+  </div><!-- /.page-content -->
 
-    <div class="exhibit">
-      <div class="exhibit__num">03</div>
-      <div class="exhibit__name">剪纸</div>
-      <div class="exhibit__desc">
-        一纸一剪，大千世界。从窗花到民俗，红色的剪刀剪出千年的烟火人间。
+  <!-- detail overlay -->
+  <div class="overlay" id="overlay" aria-hidden="true">
+    <div class="overlay__backdrop" data-close></div>
+    <div class="overlay__panel" role="dialog" aria-modal="true" aria-labelledby="overlayTitle">
+      <button class="overlay__close" type="button" aria-label="关闭" data-close>✕</button>
+      <div class="overlay__media">
+        <img id="overlayImg" src="" alt="">
+        <span class="overlay__hint">移动鼠标看细节</span>
       </div>
-      <div class="exhibit__bg" style="background-image: url('https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=600');"></div>
-    </div>
-
-    <div class="exhibit">
-      <div class="exhibit__num">04</div>
-      <div class="exhibit__name">漆器</div>
-      <div class="exhibit__desc">
-        髹饰千年，光泽如镜。雕漆、螺钿、描金，每一层漆都要等待数月。
+      <div class="overlay__body">
+        <div class="overlay__kicker" id="overlayNum">01</div>
+        <h2 class="overlay__title" id="overlayTitle">苏绣</h2>
+        <p class="overlay__text" id="overlayText"></p>
+        <div class="overlay__tags" id="overlayTags"></div>
+        <ol class="overlay__steps" id="overlaySteps"></ol>
+        <div class="overlay__foot">
+          <button class="overlay__cta" type="button" data-close>返回展列 →</button>
+          <div class="overlay__nav">
+            <button class="overlay__nav-btn" type="button" data-nav="prev" aria-label="上一件">←</button>
+            <span class="overlay__nav-pos" id="overlayPos">01 / 06</span>
+            <button class="overlay__nav-btn" type="button" data-nav="next" aria-label="下一件">→</button>
+          </div>
+        </div>
       </div>
-      <div class="exhibit__bg" style="background-image: url('https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=600');"></div>
     </div>
-
-    <div class="exhibit">
-      <div class="exhibit__num">05</div>
-      <div class="exhibit__name">皮影</div>
-      <div class="exhibit__desc">
-        一口道尽千古事，双手挥舞百万兵。驴皮雕影，灯光投影，戏台上的人间百态。
-      </div>
-      <div class="exhibit__bg" style="background-image: url('https://images.unsplash.com/photo-1509048191080-d2984bad6ae5?w=600');"></div>
-    </div>
-
-    <div class="exhibit">
-      <div class="exhibit__num">06</div>
-      <div class="exhibit__name">木雕</div>
-      <div class="exhibit__desc">
-        东阳木雕，巧夺天工。从梁枋门窗到案头摆件，一刀一刻皆是匠心。
-      </div>
-      <div class="exhibit__bg" style="background-image: url('https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=600');"></div>
-    </div>
-  </section>
-
-  <!-- 底部 -->
-  <div class="footer">
-    薪火 · 非遗数字展馆 | 匠心传承，非遗焕新
   </div>
 
 <script>
-  // 注册 ScrollTrigger
+  const exhibits = [
+    {
+      num: "01",
+      id: "suxiu",
+      name: "苏绣",
+      desc: "苏州刺绣，以针代笔，以线晕色。双面绣精巧绝伦，一针一线皆成画卷。",
+      detail: "苏绣起源于苏州，是中国四大名绣之首。其针法细密、色彩雅致，尤以双面绣闻名——一面绣成，正反皆可成画。从花鸟人物到山水楼阁，绣娘以丝线捕捉光影与神韵，让布面成为可触的诗。",
+      tags: ["江南", "双面绣", "丝线"],
+      place: "江苏 · 苏州",
+      material: "丝绸",
+      craft: "双面绣",
+      steps: [
+        { t: "劈丝", d: "一根丝线劈作数十缕" },
+        { t: "上绷", d: "绸面绷紧，定住经纬" },
+        { t: "施针", d: "分层晕色，针脚藏线" },
+        { t: "装裱", d: "拓底上框，悬于素壁" }
+      ],
+      image: "images/suzhou-embroidery.jpg"
+    },
+    {
+      num: "02",
+      id: "qingci",
+      name: "青瓷",
+      desc: "龙泉青瓷，青如玉、明如镜、薄如纸、声如磬。雨过天青云破处，这般颜色做将来。",
+      detail: "龙泉青瓷以粉青、梅子青为至美，釉色如玉，静穆温润。窑火与泥土在千度之间对话，成就「青如玉、明如镜、薄如纸、声如磬」的审美理想。每一只器物，都是火与时间的合奏。",
+      tags: ["龙泉", "窑火", "釉色"],
+      place: "浙江 · 龙泉",
+      material: "瓷土",
+      craft: "粉青 · 梅子青",
+      steps: [
+        { t: "选矿", d: "瓷石与紫金土配比" },
+        { t: "拉坯", d: "轮制成型，修坯定壁" },
+        { t: "施釉", d: "多次挂釉，厚若凝脂" },
+        { t: "烧成", d: "龙窑高温，还原焰定色" }
+      ],
+      image: "images/celadon.jpg",
+      fit: "contain"
+    },
+    {
+      num: "03",
+      id: "jianzhi",
+      name: "剪纸",
+      desc: "一纸一剪，大千世界。从窗花到民俗，红色的剪刀剪出千年的烟火人间。",
+      detail: "剪纸是民间最普遍的装饰艺术之一。一把剪刀、一张红纸，便可裁出花鸟虫鱼、神话故事与节庆祝福。虚实相生的镂空语言，把日常生活剪成可传的纹样，贴在窗上，也贴进记忆。",
+      tags: ["民俗", "窗花", "镂空"],
+      place: "中国各地",
+      material: "红纸",
+      craft: "阴阳刻",
+      steps: [
+        { t: "起稿", d: "纸上勾出纹样底样" },
+        { t: "折叠", d: "多层对折，一刀多形" },
+        { t: "剪刻", d: "阴阳并用，镂空成画" },
+        { t: "展开", d: "铺平定型，贴于窗棂" }
+      ],
+      image: "images/papercut.jpg"
+    },
+    {
+      num: "04",
+      id: "qiqi",
+      name: "漆器",
+      desc: "髹饰千年，光泽如镜。雕漆、螺钿、描金，每一层漆都要等待数月。",
+      detail: "大漆取自漆树，需层层髹涂、反复打磨。雕漆、螺钿、描金等工艺，让器物在深沉的黑与朱红之间生出华彩。慢工出细活——有时一件漆器，要等上数月乃至数年。",
+      tags: ["大漆", "髹饰", "螺钿"],
+      place: "中国",
+      material: "天然大漆",
+      craft: "髹涂 · 螺钿",
+      steps: [
+        { t: "制胎", d: "木胎或脱胎先定其形" },
+        { t: "髹漆", d: "薄涂一层，阴干一夜" },
+        { t: "打磨", d: "层层研磨，推光见影" },
+        { t: "装饰", d: "雕漆、描金、嵌螺钿" }
+      ],
+      image: "images/lacquerware.jpg"
+    },
+    {
+      num: "05",
+      id: "piying",
+      name: "皮影",
+      desc: "一口道尽千古事，双手挥舞百万兵。驴皮雕影，灯光投影，戏台上的人间百态。",
+      detail: "皮影以兽皮雕镂人物，灯光透射，影动于幕。操手与嗓音同台，方寸幕布上演忠奸情仇。它是流动的戏，也是雕刻的画，在光与影的交界处讲述中国人的故事。",
+      tags: ["影戏", "雕刻", "光影"],
+      place: "陕西 · 河北",
+      material: "驴皮",
+      craft: "雕镂 · 染色",
+      steps: [
+        { t: "制皮", d: "刮薄晾透，通透如纸" },
+        { t: "雕镂", d: "刻刀镂出人物衣纹" },
+        { t: "敷彩", d: "矿物色层层罩染" },
+        { t: "装订", d: "缀结操杆，方能起舞" }
+      ],
+      image: "images/shadow-puppet.jpg"
+    },
+    {
+      num: "06",
+      id: "mudiao",
+      name: "木雕",
+      desc: "东阳木雕，巧夺天工。从梁枋门窗到案头摆件，一刀一刻皆是匠心。",
+      detail: "东阳木雕以平面浮雕见长，层次丰富、构图饱满。梁枋、门窗、家具与案头小品，皆可化木为画。刀锋过处，纹理苏醒，建筑与器物因此有了呼吸。",
+      tags: ["东阳", "浮雕", "建筑"],
+      place: "浙江 · 东阳",
+      material: "樟木",
+      craft: "平面浮雕",
+      steps: [
+        { t: "选材", d: "樟木红木，干燥定性" },
+        { t: "起稿", d: "白描上样，定其章法" },
+        { t: "打坯", d: "凿出粗形，分出层次" },
+        { t: "修光", d: "细刻打磨，刀痕化纹" }
+      ],
+      image: "images/woodcarving.jpg",
+      fit: "contain"
+    }
+  ];
+
+  const exhibitsRoot = document.getElementById("exhibits");
+  exhibitsRoot.innerHTML = exhibits.map((item, index) => `
+    <article class="exhibit" role="button" tabindex="0" data-index="${index}" data-id="${item.id}" aria-label="查看展品 ${item.name}">
+      <div class="exhibit__num">${item.num}</div>
+      <h2 class="exhibit__name">${item.name}</h2>
+      <p class="exhibit__desc">${item.desc}</p>
+      <p class="exhibit__meta">
+        <span>${item.place}</span><i></i>
+        <span>${item.material}</span><i></i>
+        <span>${item.craft}</span>
+      </p>
+      <div class="exhibit__action">
+        <span>VIEW</span>
+        <span class="exhibit__action-icon">↗</span>
+      </div>
+      <div class="exhibit__visual${item.fit === "contain" ? " is-contain" : ""}" aria-hidden="true">
+        <img src="${item.image}" alt="" loading="lazy">
+      </div>
+    </article>
+  `).join("");
+
+  // 序厅导览
+  const prologueMap = document.getElementById("prologueMap");
+  prologueMap.innerHTML = exhibits.map((item, i) => `
+    <button type="button" class="prologue__item" data-goto="${i}" aria-label="走到 ${item.name}">
+      <span class="prologue__thumb"><img src="${item.image}" alt="" loading="lazy"></span>
+      <span class="prologue__name"><em>${item.num}</em>${item.name}</span>
+    </button>
+  `).join("");
+
+  // 章节标尺 01—06
+  const hallIndex = document.getElementById("hallIndex");
+  const hallRows = [...document.querySelectorAll(".exhibit")];
+  hallIndex.innerHTML = exhibits.map((item, i) => `
+    <button type="button" class="hall-index__item" data-goto="${i}" aria-label="跳到 ${item.name}">
+      <span class="hall-index__tick"></span><span class="hall-index__num">${item.num}</span>
+    </button>
+  `).join("");
+  const hallRailItems = [...hallIndex.querySelectorAll(".hall-index__item")];
+  const markCurrent = (i) => hallRailItems.forEach((el, k) => el.classList.toggle("is-current", k === i));
+
+  function goToRow(i) {
+    const row = hallRows[i];
+    if (!row) return;
+    markCurrent(i);
+    if (lenis) lenis.scrollTo(row, { offset: -40 });
+    else row.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  hallRailItems.forEach((el) => {
+    el.addEventListener("click", () => goToRow(Number(el.dataset.goto)));
+  });
+  prologueMap.querySelectorAll("[data-goto]").forEach((el) => {
+    el.addEventListener("click", () => goToRow(Number(el.dataset.goto)));
+  });
+
+  if ("IntersectionObserver" in window) {
+    const sectionEl = document.getElementById("exhibits");
+    new IntersectionObserver((entries) => {
+      entries.forEach((e) => hallIndex.classList.toggle("is-visible", e.isIntersecting));
+    }, { rootMargin: "-30% 0px -30% 0px" }).observe(sectionEl);
+
+    const rowIO = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) markCurrent(Number(e.target.dataset.index));
+      });
+    }, { rootMargin: "-45% 0px -45% 0px" });
+    hallRows.forEach((row) => rowIO.observe(row));
+  }
+
+  // Lenis + ScrollTrigger
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let lenis = null;
+
   gsap.registerPlugin(ScrollTrigger);
 
-  // 入场动画
-  gsap.from('.hero__title span', {
-    opacity: 0, y: 100, duration: 1.2, stagger: 0.2, ease: 'power3.out'
-  });
-  gsap.from('.hero__sub', {
-    opacity: 0, y: 30, duration: 1, delay: 0.8, ease: 'power2.out'
-  });
+  if (!reduceMotion && window.Lenis) {
+    lenis = new Lenis({
+      duration: 1.15,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true
+    });
+    lenis.on("scroll", ScrollTrigger.update);
+    gsap.ticker.add((time) => lenis.raf(time * 1000));
+    gsap.ticker.lagSmoothing(0);
+  }
 
-  // 滚动时逐个出现
-  gsap.utils.toArray('.exhibit').forEach((exhibit) => {
-    gsap.from(exhibit, {
-      opacity: 0, y: 50, duration: 0.8, ease: 'power2.out',
-      scrollTrigger: {
-        trigger: exhibit,
-        start: 'top 80%',
+  // nav + progress
+  const nav = document.getElementById("nav");
+  const progress = document.getElementById("progress");
+  const onScrollUi = () => {
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    const p = max > 0 ? (window.scrollY / max) * 100 : 0;
+    progress.style.width = p + "%";
+    nav.classList.toggle("is-scrolled", window.scrollY > 24);
+  };
+  if (lenis) lenis.on("scroll", onScrollUi);
+  window.addEventListener("scroll", onScrollUi, { passive: true });
+  onScrollUi();
+
+  // cursor glow
+  const glow = document.getElementById("cursorGlow");
+  if (window.matchMedia("(pointer: fine)").matches) {
+    document.body.classList.add("has-pointer");
+    window.addEventListener("pointermove", (e) => {
+      glow.style.left = e.clientX + "px";
+      glow.style.top = e.clientY + "px";
+      glow.classList.add("is-on");
+    });
+    document.addEventListener("mouseleave", () => glow.classList.remove("is-on"));
+  }
+
+  // intro
+  if (!reduceMotion) {
+    gsap.from(".hero__eyebrow", { opacity: 0, y: 20, duration: 0.9, ease: "power2.out" });
+    gsap.from(".hero__title .line span", {
+      yPercent: 110,
+      duration: 1.15,
+      stagger: 0.12,
+      ease: "power3.out",
+      delay: 0.1
+    });
+    gsap.from([".hero__sub", ".hero__meta", ".hero__scroll", ".section-head"], {
+      opacity: 0,
+      y: 24,
+      duration: 0.9,
+      stagger: 0.08,
+      ease: "power2.out",
+      delay: 0.55
+    });
+    gsap.utils.toArray(".exhibit").forEach((el) => {
+      gsap.from(el, {
+        opacity: 0,
+        y: 48,
+        duration: 0.85,
+        ease: "power2.out",
+        scrollTrigger: {
+          trigger: el,
+          start: "top 88%"
+        }
+      });
+    });
+  }
+
+  // overlay
+  const overlay = document.getElementById("overlay");
+  const overlayImg = document.getElementById("overlayImg");
+  const overlayNum = document.getElementById("overlayNum");
+  const overlayTitle = document.getElementById("overlayTitle");
+  const overlayText = document.getElementById("overlayText");
+  const overlayTags = document.getElementById("overlayTags");
+  const overlaySteps = document.getElementById("overlaySteps");
+  const overlayMedia = document.querySelector(".overlay__media");
+  const overlayPos = document.getElementById("overlayPos");
+  const total = String(exhibits.length).padStart(2, "0");
+  let currentIndex = -1;
+
+  // 详情图：鼠标移动处放大，离开复位
+  if (window.matchMedia("(pointer: fine)").matches) {
+    overlayMedia.addEventListener("pointermove", (e) => {
+      const r = overlayMedia.getBoundingClientRect();
+      const x = ((e.clientX - r.left) / r.width) * 100;
+      const y = ((e.clientY - r.top) / r.height) * 100;
+      overlayImg.style.transformOrigin = x.toFixed(1) + "% " + y.toFixed(1) + "%";
+      overlayMedia.classList.add("is-zoomed");
+    });
+    overlayMedia.addEventListener("pointerleave", () => {
+      overlayMedia.classList.remove("is-zoomed");
+      overlayImg.style.transformOrigin = "center";
+    });
+  }
+
+  function syncHash(id) {
+    if (!window.history || !history.replaceState) return;
+    const base = location.pathname + location.search;
+    history.replaceState(null, "", id ? "#" + id : base);
+  }
+
+  function openExhibit(index) {
+    const item = exhibits[index];
+    if (!item) return;
+    currentIndex = index;
+    overlayNum.textContent = "EXHIBIT " + item.num;
+    overlayTitle.textContent = item.name;
+    overlayText.textContent = item.detail;
+    overlayImg.src = item.image;
+    overlayImg.alt = item.name;
+    overlayImg.classList.toggle("is-contain", item.fit === "contain");
+    document.querySelector(".overlay__media").classList.toggle("is-contain", item.fit === "contain");
+    overlayTags.innerHTML = item.tags.map((t) => `<span class="overlay__tag">${t}</span>`).join("");
+    if (overlaySteps) {
+      overlaySteps.innerHTML = (item.steps || []).map((s, i) => `
+        <li class="overlay__step">
+          <b>${String(i + 1).padStart(2, "0")} · ${s.t}</b>
+          <span>${s.d}</span>
+        </li>
+      `).join("");
+    }
+    overlayMedia.classList.remove("is-zoomed");
+    overlayImg.style.transformOrigin = "center";
+    if (overlayPos) overlayPos.textContent = item.num + " / " + total;
+    overlay.classList.add("is-open");
+    overlay.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+    if (lenis) lenis.stop();
+    syncHash(item.id);
+    // 同步左侧标尺
+    hallIndex.querySelectorAll(".hall-index__item").forEach((el, i) => {
+      el.classList.toggle("is-current", i === index);
+    });
+  }
+
+  function closeOverlay() {
+    overlay.classList.remove("is-open");
+    overlay.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+    if (lenis) lenis.start();
+    currentIndex = -1;
+    syncHash(null);
+  }
+
+  function stepExhibit(delta) {
+    if (currentIndex < 0) return;
+    const next = (currentIndex + delta + exhibits.length) % exhibits.length;
+    openExhibit(next);
+  }
+
+  document.querySelectorAll(".exhibit").forEach((el) => {
+    const open = () => openExhibit(Number(el.dataset.index));
+    el.addEventListener("click", open);
+    el.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        open();
       }
     });
+    el.addEventListener("mouseenter", () => el.classList.add("is-active"));
+    el.addEventListener("mouseleave", () => el.classList.remove("is-active"));
   });
+
+  overlay.querySelectorAll("[data-close]").forEach((el) => {
+    el.addEventListener("click", closeOverlay);
+  });
+  overlay.querySelectorAll("[data-nav]").forEach((el) => {
+    el.addEventListener("click", () => stepExhibit(el.dataset.nav === "next" ? 1 : -1));
+  });
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeOverlay();
+    if (!overlay.classList.contains("is-open")) return;
+    if (e.key === "ArrowRight") { e.preventDefault(); stepExhibit(1); }
+    if (e.key === "ArrowLeft") { e.preventDefault(); stepExhibit(-1); }
+  });
+
+  // 深链：#qingci 直接打开对应展品
+  function openFromHash() {
+    const id = decodeURIComponent(location.hash.replace(/^#/, ""));
+    if (!id) return;
+    const index = exhibits.findIndex((item) => item.id === id);
+    if (index >= 0) openExhibit(index);
+  }
+  openFromHash();
+  window.addEventListener("hashchange", openFromHash);
 </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
