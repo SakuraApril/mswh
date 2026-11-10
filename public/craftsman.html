@@ -1,319 +1,2472 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>梅兰芳 · 京剧大师 | 薪火非遗</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;900&display=swap" media="print" onload="this.media='all'">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>匠人故事 · 薪火非遗</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23a63a2c'/%3E%3Ctext x='32' y='43' font-size='34' text-anchor='middle' fill='%23e8e2d5' font-family='serif' font-weight='bold'%3E%E8%96%AA%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://miaoda.feishu.cn">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@400;600;900&family=Cinzel:wght@400;600&display=swap">
+<script>document.documentElement.classList.add('has-anim');</script>
 <style>
-  /* 本地字体子集：断网也保持版式 */
+  /* 本地字体子集：断网也保持版式（在线时上面的 CDN 再兜生僻字） */
   @font-face { font-family: "Noto Serif SC Local"; src: url("fonts/notoserif-ui-400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
   @font-face { font-family: "Noto Serif SC Local"; src: url("fonts/notoserif-ui-600.woff2") format("woff2"); font-weight: 600; font-display: swap; }
   @font-face { font-family: "Noto Serif SC Local"; src: url("fonts/notoserif-ui-900.woff2") format("woff2"); font-weight: 900; font-display: swap; }
-
+  @font-face { font-family: "Cinzel Local"; src: url("fonts/cinzel-400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+  @font-face { font-family: "Cinzel Local"; src: url("fonts/cinzel-600.woff2") format("woff2"); font-weight: 600; font-display: swap; }
+/* ==================== 设计令牌 ==================== */
+  :root {
+    --bg: #0b0b0d;
+    --bg-soft: #121215;
+    --ink: #e8e2d5;
+    --ink-dim: #9a948a;
+    --ink-faint: #5e5a52;
+    --gold: #c9a96e;
+    --red: #a63a2c;
+    --line: rgba(232, 226, 213, .14);
+    --serif: 'Noto Serif SC Local', 'Noto Serif SC', 'Songti SC', 'SimSun', serif;
+    --latin: 'Cinzel Local', 'Cinzel', 'Noto Serif SC', serif;
+    --ease: cubic-bezier(.22, 1, .36, 1);
+  }
   * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; overflow-x: clip; }
   body {
-    background: #f5f2eb; color: #333; font-family: 'Noto Serif SC Local', 'Noto Serif SC', serif;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--serif);
     line-height: 1.8;
+    overflow-x: hidden;
   }
-
-  /* 漂浮汉字背景 */
-  #letters-canvas {
-    position: fixed; inset: 0; z-index: 0; pointer-events: none;
-    opacity: 0.15;
+  /* 冰裂暗纹 + 双色环境光晕，破除纯黑的单调 */
+  body::before {
+    content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      radial-gradient(55% 40% at 85% 8%, rgba(201,169,110,.07), transparent 62%),
+      radial-gradient(50% 42% at 8% 85%, rgba(166,58,44,.06), transparent 62%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cg fill='none' stroke='%23e8e2d5' stroke-opacity='.045'%3E%3Cpath d='M0 80 40 40 80 80 120 40 160 80'/%3E%3Cpath d='M0 160 40 120 80 160 120 120 160 160'/%3E%3Cpath d='M80 0v160M0 0l80 80M160 0L80 80'/%3E%3C/g%3E%3C/svg%3E");
   }
+  #main, .site-footer { position: relative; z-index: 1; }
+  img { display: block; max-width: 100%; }
+  button { font-family: inherit; }
+  :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
 
-  /* 顶部导航 */
-  .top-nav {
-    background: #1a1a1a; color: #fff; padding: 1rem 4rem;
+  /* ==================== 固定层：噪点 / 进度条 ==================== */
+  .grain {
+    position: fixed; inset: -50%; z-index: 95; pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity: .055;
+    animation: grain-shift 9s steps(6) infinite;
+  }
+  @keyframes grain-shift {
+    0%,100% { transform: translate(0,0); } 20% { transform: translate(-2%,3%); }
+    40% { transform: translate(3%,-2%); } 60% { transform: translate(-3%,-3%); }
+    80% { transform: translate(2%,2%); }
+  }
+  .progress { position: fixed; top: 0; left: 0; right: 0; height: 2px; z-index: 100; }
+  .progress__bar { height: 100%; background: var(--gold); transform: scaleX(0); transform-origin: left; }
+
+  /* ==================== 顶部导航（移动优先） ==================== */
+  .topnav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
     display: flex; justify-content: space-between; align-items: center;
-    position: relative; z-index: 10;
+    padding: 1rem 1.5rem; color: #fff; mix-blend-mode: difference;
   }
-  .top-nav__logo { font-size: 1.2rem; letter-spacing: 0.2em; }
-  .top-nav__links { display: flex; gap: 2.5rem; font-size: 0.9rem; }
-  .top-nav__links a { color: #ccc; text-decoration: none; transition: color 0.3s; }
-  .top-nav__links a:hover { color: #fff; }
+  .topnav__logo { font-weight: 600; letter-spacing: .25em; font-size: .95rem; text-decoration: none; color: #fff; }
+  .topnav__links { display: none; gap: 2rem; }
+  .topnav__links a {
+    color: #fff; text-decoration: none; font-size: .8rem; letter-spacing: .15em;
+    opacity: .65; transition: opacity .3s;
+  }
+  .topnav__links a:hover, .topnav__links a[aria-current] { opacity: 1; }
+  .topnav__toggle {
+    background: none; border: none; color: #fff; width: 40px; height: 40px;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+  }
+  .topnav__toggle svg { width: 22px; height: 22px; }
+  .topnav__close { display: none; }
+  body.menu-open .topnav__open { display: none; }
+  body.menu-open .topnav__close { display: block; }
+  .mobile-menu {
+    position: fixed; inset: 0; z-index: 98; background: rgba(11,11,13,.97);
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    gap: 2.2rem; opacity: 0; visibility: hidden; transition: opacity .35s var(--ease), visibility .35s;
+  }
+  body.menu-open .mobile-menu { opacity: 1; visibility: visible; }
+  .mobile-menu a {
+    color: var(--ink); text-decoration: none; font-size: 1.5rem; letter-spacing: .3em;
+    transform: translateY(16px); transition: transform .4s var(--ease), color .3s;
+  }
+  body.menu-open .mobile-menu a { transform: translateY(0); }
+  .mobile-menu a:hover { color: var(--gold); }
 
-  /* 面包屑 */
-  .breadcrumb {
-    padding: 1.2rem 4rem; font-size: 0.85rem; color: #999;
-    background: #faf8f3; border-bottom: 1px solid #e5e0d5;
+  /* ==================== 章节指示器 ==================== */
+  .chapter-nav {
+    position: fixed; right: 1.8rem; top: 50%; transform: translateY(-50%);
+    z-index: 90; display: none; flex-direction: column; gap: .95rem;
   }
-  .breadcrumb a { color: #999; text-decoration: none; }
-  .breadcrumb a:hover { color: #333; }
+  .chapter-nav button {
+    display: flex; align-items: center; gap: .7rem; background: none; border: none;
+    color: var(--ink-faint); cursor: pointer; font-size: .72rem; letter-spacing: .2em;
+    transition: color .3s;
+  }
+  .chapter-nav .dot { width: 7px; height: 7px; border-radius: 50%; border: 1px solid currentColor; flex-shrink: 0; transition: background .3s; }
+  .chapter-nav button.is-active { color: var(--gold); }
+  .chapter-nav button.is-active .dot { background: var(--gold); }
 
-  /* 主体 */
-  .container {
-    max-width: 1200px; margin: 0 auto; padding: 3rem 2rem;
-    display: grid; grid-template-columns: 1fr 380px; gap: 3rem;
-    position: relative; z-index: 10;
+  /* ==================== Hero ==================== */
+  .hero { min-height: 100vh; display: flex; flex-direction: column; }
+  .hero__img { height: 46vh; overflow: hidden; }
+  .hero__img img { width: 100%; height: 100%; object-fit: cover; object-position: top center; }
+  .hero__text {
+    flex: 1; display: flex; flex-direction: column; justify-content: center;
+    padding: 3rem 1.5rem 4rem;
   }
+  .hero__kicker {
+    font-family: var(--latin); font-size: .72rem; letter-spacing: .4em;
+    color: var(--gold); margin-bottom: 1.2rem;
+  }
+  .hero__title {
+    font-size: clamp(3.2rem, 14vw, 6rem); font-weight: 900; line-height: 1.1;
+    letter-spacing: .08em;
+  }
+  .hero__role { margin-top: 1.2rem; color: var(--ink-dim); font-size: .95rem; letter-spacing: .12em; }
+  .hero__en { margin-top: .6rem; font-family: var(--latin); font-size: .72rem; letter-spacing: .3em; color: var(--ink-faint); }
+  .hero__line { width: 56px; height: 1px; background: var(--gold); margin: 2rem 0; }
+  .hero__scroll {
+    display: inline-flex; align-items: center; gap: .8rem; color: var(--ink-faint);
+    font-size: .75rem; letter-spacing: .3em; background: none; border: none; cursor: pointer;
+    padding: 0;
+  }
+  .hero__scroll svg { width: 14px; height: 22px; animation: scroll-hint 2.2s var(--ease) infinite; }
+  @keyframes scroll-hint { 0%,100% { transform: translateY(0); opacity:.5; } 50% { transform: translateY(7px); opacity:1; } }
 
-  /* 左侧主内容 */
-  .main-content {}
-  .main-title {
-    font-size: 2.5rem; font-weight: 900; margin-bottom: 0.5rem;
-    letter-spacing: 0.1em; color: #1a1a1a;
+  /* 无照片匠人的文字画像 */
+  .type-panel {
+    position: relative; width: 100%; height: 100%; min-height: 46vh;
+    display: flex; align-items: center; justify-content: center;
+    background:
+      radial-gradient(120% 90% at 50% 0%, #1a1a1f 0%, rgba(11,11,13,0) 60%),
+      var(--bg-soft);
+    overflow: hidden;
   }
-  .main-subtitle {
-    font-size: 1rem; color: #999; margin-bottom: 2.5rem;
-    padding-bottom: 1.5rem; border-bottom: 2px solid #c9a96e;
+  .type-panel::before {
+    content: ''; position: absolute; inset: 12px; border: 1px solid var(--line);
+    pointer-events: none;
   }
-
-  /* 人物大图 */
-  .portrait-wrap {
-    margin-bottom: 2.5rem; position: relative;
+  .type-panel__char {
+    position: absolute; font-weight: 900; line-height: 1; user-select: none;
+    font-size: min(46vh, 62vw); color: transparent;
+    -webkit-text-stroke: 1px rgba(201, 169, 110, .32);
+    animation: char-drift 9s ease-in-out infinite alternate;
   }
-  .portrait-wrap img {
-    width: 100%; border-radius: 2px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  @keyframes char-drift {
+    from { transform: translateY(-12px) rotate(-1.2deg); }
+    to { transform: translateY(14px) rotate(1.2deg); }
   }
-  .portrait-caption {
-    position: absolute; bottom: 0; left: 0; right: 0;
-    background: linear-gradient(transparent, rgba(0,0,0,0.7));
-    color: #fff; padding: 2rem 1.5rem 1rem; font-size: 0.9rem;
+  .type-panel__name {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    writing-mode: vertical-rl; font-size: clamp(2.4rem, 6vw, 3.6rem);
+    font-weight: 900; letter-spacing: .5em; color: var(--ink);
+    text-shadow: 0 0 30px rgba(11,11,13,.9);
   }
-
-  /* 简介 */
-  .section-title {
-    font-size: 1.3rem; font-weight: 600; margin: 2.5rem 0 1.2rem;
-    padding-left: 0.8rem; border-left: 3px solid #c9a96e;
+  .type-panel--story .type-panel__char { font-size: 300px; }
+  .type-panel--story .type-panel__name { font-size: clamp(1.9rem, 4vw, 2.7rem); }
+  .type-panel__craft {
+    position: absolute; bottom: 1.8rem; font-size: .75rem; letter-spacing: .45em;
+    color: var(--ink-faint);
   }
-  .bio-text {
-    font-size: 0.95rem; line-height: 2; color: #555; margin-bottom: 1.5rem;
-  }
-
-  /* 生平年表 */
-  .timeline {
-    border-left: 2px solid #e5e0d5; padding-left: 2rem; margin: 1.5rem 0;
-  }
-  .timeline__item {
-    position: relative; padding-bottom: 1.5rem;
-  }
-  .timeline__item::before {
-    content: ''; position: absolute; left: -2.4rem; top: 0.6rem;
-    width: 10px; height: 10px; border-radius: 50%; background: #c9a96e;
-  }
-  .timeline__year {
-    font-weight: 600; color: #1a1a1a; font-size: 1rem;
-  }
-  .timeline__desc {
-    font-size: 0.9rem; color: #777; margin-top: 0.3rem;
-  }
-
-  /* 右侧边栏 */
-  .sidebar {}
-  .sidebar-card {
-    background: #fff; border: 1px solid #e5e0d5; border-radius: 2px;
-    padding: 1.5rem; margin-bottom: 1.5rem;
-  }
-  .sidebar-card__title {
-    font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem;
-    padding-bottom: 0.8rem; border-bottom: 1px solid #e5e0d5;
-  }
-  .sidebar-list { list-style: none; }
-  .sidebar-list li {
-    padding: 0.6rem 0; border-bottom: 1px dashed #eee;
-    font-size: 0.9rem; color: #666;
-  }
-  .sidebar-list li:last-child { border-bottom: none; }
-  .sidebar-list li span { color: #999; font-size: 0.8rem; margin-right: 0.5rem; }
-
-  /* 数据卡片 */
-  .stat-grid {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
-  }
-  .stat-item {
-    text-align: center; padding: 1rem; background: #faf8f3;
-  }
-  .stat-num {
-    font-size: 1.8rem; font-weight: 900; color: #c9a96e;
-  }
-  .stat-label {
-    font-size: 0.8rem; color: #999; margin-top: 0.3rem;
+  .type-panel__seal {
+    position: absolute; top: 1.8rem; right: 1.8rem; width: 44px; height: 44px;
+    border: 2px solid var(--red); border-radius: 4px; color: var(--red);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 1.05rem; opacity: .7; transform: rotate(-6deg);
   }
 
-  /* 底部 */
-  .footer {
-    background: #1a1a1a; color: #666; text-align: center;
-    padding: 2rem; font-size: 0.8rem; margin-top: 3rem;
+  /* ==================== 通用章节 ==================== */
+  section { position: relative; }
+  .sec-head { max-width: 1180px; margin: 0 auto; padding: 0 1.5rem; }
+  .sec-head__index {
+    font-family: var(--latin); font-size: .72rem; letter-spacing: .35em;
+    color: var(--gold); display: block; margin-bottom: 1rem;
+  }
+  .sec-head h2 { font-size: clamp(2rem, 7vw, 3.2rem); font-weight: 900; letter-spacing: .08em; line-height: 1.25; }
+  .sec-head__sub { margin-top: 1rem; color: var(--ink-dim); font-size: .92rem; max-width: 640px; }
+
+  /* ==================== 匠人名录（切换器） ==================== */
+  .artisans { padding: 4.5rem 0 3.5rem; border-top: 1px solid var(--line); }
+  .artisans .sec-head { margin-bottom: 2.2rem; }
+  .artisans__list { max-width: 1180px; margin: 0 auto; padding: 0 1.5rem; display: grid; }
+  .artisan-card {
+    width: 100%; background: none; border: none; border-top: 1px solid var(--line);
+    color: var(--ink); text-align: left; cursor: pointer; padding: 1.35rem 0;
+    display: grid; grid-template-columns: 2.6rem minmax(0,1fr) auto; gap: .8rem; align-items: center;
+  }
+  .artisan-card:last-child { border-bottom: 1px solid var(--line); }
+  .artisan-card__num { font-family: var(--latin); font-size: .85rem; color: var(--gold); }
+  .artisan-card__name {
+    font-size: clamp(1.35rem, 4.5vw, 1.9rem); font-weight: 600; letter-spacing: .12em;
+    transition: color .3s, transform .3s var(--ease);
+  }
+  .artisan-card:hover .artisan-card__name { color: var(--gold); transform: translateX(6px); }
+  .artisan-card__meta { display: flex; align-items: center; gap: .9rem; color: var(--ink-faint); font-size: .78rem; letter-spacing: .15em; }
+  .artisan-card__tag {
+    display: none; color: var(--gold); border: 1px solid var(--gold);
+    padding: .12rem .6rem; font-size: .68rem; letter-spacing: .25em;
+  }
+  .artisan-card.is-active .artisan-card__name { color: var(--gold); }
+  .artisan-card.is-active .artisan-card__tag { display: inline-block; }
+  .artisan-card__craft-en { display: block; font-family: var(--latin); font-size: .68rem; letter-spacing: .3em; color: var(--ink-faint); margin-top: .2rem; }
+
+  /* 定场引言 */
+  .intro { padding: 7rem 1.5rem; }
+  .intro__quote { max-width: 1000px; margin: 0 auto; }
+  .reveal-line { display: block; overflow: hidden; }
+  .reveal-line > span { display: block; font-size: clamp(1.5rem, 5.2vw, 2.9rem); font-weight: 600; line-height: 1.55; }
+  .intro__note { margin-top: 2.5rem; color: var(--ink-faint); font-size: .85rem; letter-spacing: .2em; }
+
+  /* ==================== 人物故事 ==================== */
+  .story { padding: 3rem 1.5rem 5rem; }
+  .story .sec-head { padding: 0; margin-bottom: 3rem; }
+  .story__media { margin-bottom: 2.5rem; }
+  .story__media img { width: 100%; border: 1px solid var(--line); filter: contrast(1.03); }
+  .story__media figcaption { margin-top: .8rem; font-size: .78rem; color: var(--ink-faint); letter-spacing: .15em; }
+  .story__block { padding: 2.2rem 0; border-top: 1px solid var(--line); }
+  .story__block h3 { font-size: 1.25rem; font-weight: 600; letter-spacing: .15em; margin-bottom: 1rem; color: var(--gold); }
+  .story__block p { color: var(--ink-dim); font-size: .95rem; }
+
+  /* ==================== 剧照热点注解 ==================== */
+  .shot { position: relative; overflow: clip; }
+  .shot__hint {
+    position: absolute; left: .9rem; bottom: .8rem; z-index: 2;
+    font-size: .68rem; letter-spacing: .25em; color: var(--ink);
+    background: rgba(11,11,13,.72); padding: .3rem .7rem; backdrop-filter: blur(4px);
+  }
+  .hotspot {
+    position: absolute; z-index: 3; width: 36px; height: 36px; padding: 0;
+    transform: translate(-50%, -50%); background: none; border: none; cursor: pointer;
+  }
+  .hotspot__ring {
+    position: absolute; inset: 0; border-radius: 50%;
+    border: 1px solid rgba(201,169,110,.95);
+    animation: hs-pulse 2.4s var(--ease) infinite;
+  }
+  .hotspot__core {
+    position: absolute; inset: 13px; border-radius: 50%;
+    background: var(--gold); box-shadow: 0 0 10px rgba(201,169,110,.9);
+    transition: background .3s;
+  }
+  .hotspot[aria-expanded="true"] .hotspot__core { background: var(--red); }
+  @keyframes hs-pulse {
+    0% { transform: scale(.55); opacity: 1; }
+    70% { transform: scale(1.6); opacity: 0; }
+    100% { transform: scale(1.6); opacity: 0; }
+  }
+  .shot__card {
+    position: absolute; z-index: 4; width: min(255px, 72%);
+    background: rgba(16,16,19,.96); border: 1px solid var(--line);
+    border-left: 2px solid var(--gold); padding: .95rem 1.05rem;
+    opacity: 0; visibility: hidden; text-align: left;
+    transition: opacity .3s var(--ease), visibility .3s;
+    backdrop-filter: blur(3px);
+  }
+  .shot__card.is-open { opacity: 1; visibility: visible; }
+  .shot__card h4 { font-size: .95rem; color: var(--gold); letter-spacing: .15em; margin-bottom: .35rem; font-weight: 600; }
+  .shot__card p { font-size: .8rem; color: var(--ink-dim); line-height: 1.75; }
+  .shot__card--br { transform: translate(16px, 18px); }
+  .shot__card--bl { transform: translate(calc(-100% - 16px), 18px); }
+  .shot__card--tr { transform: translate(16px, calc(-100% - 18px)); }
+  .shot__card--tl { transform: translate(calc(-100% - 16px), calc(-100% - 18px)); }
+
+  /* ==================== 章节底字（watermark） ==================== */
+  .wm {
+    position: absolute; z-index: 0; right: -2%; bottom: 4%;
+    font-size: clamp(11rem, 26vw, 22rem); font-weight: 900; line-height: 1;
+    color: transparent; -webkit-text-stroke: 1px rgba(232, 226, 213, .08);
+    pointer-events: none; user-select: none;
+  }
+  .story .wm, .plays .wm, .vow .wm { right: 1%; }
+  #story > .sec-head, #story .story__grid, #plays > .sec-head, #plays .plays__list,
+  .vow .vow__inner { position: relative; z-index: 1; }
+
+  /* ==================== 逐字浮现 ==================== */
+  .reveal-line .ch { display: inline-block; }
+
+  /* 故事场景引子 */
+  .story__scene {
+    display: flex; align-items: center; gap: .7rem;
+    color: var(--gold); font-size: .82rem; letter-spacing: .18em; margin-bottom: .9rem;
+  }
+  .story__scene::before { content: ''; width: 18px; height: 1px; background: var(--gold); flex-shrink: 0; }
+
+  /* ==================== 金句 ==================== */
+  .quote { padding: 8rem 1.5rem; border-top: 1px solid var(--line); overflow: hidden; }
+  .quote__inner { max-width: 1000px; margin: 0 auto; text-align: center; position: relative; }
+  .quote__mark {
+    display: block; font-size: 4.5rem; line-height: 1; color: var(--red);
+    font-weight: 900; margin-bottom: 1.6rem; opacity: .8;
+  }
+  .quote__text .reveal-line > span { font-size: clamp(1.6rem, 5.6vw, 3rem); font-weight: 600; line-height: 1.6; justify-content: center; }
+  .quote__cite { display: block; margin-top: 2.2rem; color: var(--ink-faint); font-size: .85rem; letter-spacing: .25em; font-style: normal; }
+
+  /* ==================== 匠作细节 ==================== */
+  .trivia { padding: 5rem 0 6rem; border-top: 1px solid var(--line); }
+  .trivia .sec-head { margin-bottom: 2.8rem; }
+  .trivia__grid {
+    max-width: 1180px; margin: 0 auto; padding: 0 1.5rem;
+    display: grid; gap: 2.2rem; perspective: 1200px;
+  }
+  .trivia__card {
+    position: relative; border-top: 1px solid var(--line); padding: 1.3rem 1rem 1rem;
+    transition: border-color .3s, transform .35s var(--ease); cursor: pointer;
+    background: none; border-left: none; border-right: none; border-bottom: none;
+    color: inherit; text-align: left; font: inherit; width: 100%;
+    transform-style: preserve-3d; overflow: hidden;
+  }
+  .trivia__card:hover { border-top-color: var(--gold); }
+  .trivia__ghost {
+    position: absolute; right: .2rem; top: .6rem; font-size: 4.6rem; font-weight: 900;
+    color: transparent; -webkit-text-stroke: 1px rgba(232,226,213,.12); line-height: 1;
+    pointer-events: none; user-select: none;
+  }
+  .trivia__num {
+    font-size: .78rem; color: var(--gold); letter-spacing: .3em; margin-bottom: .7rem;
+    display: flex; align-items: baseline; gap: .8rem;
+  }
+  .trivia__num b { font-size: 1.15rem; font-weight: 600; letter-spacing: .12em; color: var(--ink); }
+  .trivia__num svg { width: 13px; height: 13px; margin-left: auto; transition: transform .4s var(--ease); opacity: .6; }
+  .trivia__card[aria-expanded="true"] .trivia__num svg { transform: rotate(45deg); opacity: 1; }
+  .trivia__card > p { font-size: .88rem; color: var(--ink-dim); }
+  .trivia__detail { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .55s var(--ease); }
+  .trivia__card[aria-expanded="true"] .trivia__detail { grid-template-rows: 1fr; }
+  .trivia__detail-inner { overflow: hidden; min-height: 0; }
+  .trivia__detail-inner p {
+    margin-top: .8rem; padding: .8rem 0 .2rem .9rem; font-size: .84rem; color: var(--ink-dim);
+    border-left: 2px solid rgba(201,169,110,.45);
+  }
+
+  /* ==================== 唱词跑马灯 ==================== */
+  .marquee { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 1.5rem 0; overflow: hidden; }
+  .marquee__track { display: flex; width: max-content; white-space: nowrap; animation: mq-run 38s linear infinite; }
+  .marquee__track:hover { animation-play-state: paused; }
+  .marquee__line {
+    font-size: clamp(1.15rem, 3vw, 1.8rem); letter-spacing: .3em; color: var(--ink-faint);
+    padding-right: 3.5rem; font-weight: 400;
+  }
+  .marquee__line em { color: var(--gold); font-style: normal; }
+  @keyframes mq-run { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  /* 章节标题金色下划线（滚动描绘） */
+  .sec-head h2 { position: relative; }
+  .sec-head h2::after {
+    content: ''; position: absolute; left: 0; bottom: -.55rem; width: 54px; height: 2px;
+    background: var(--gold); transform: scaleX(0); transform-origin: left;
+    transition: transform .9s var(--ease) .15s;
+  }
+  .sec-head.is-in h2::after { transform: scaleX(1); }
+
+  /* ==================== 非遗档案 ==================== */
+  .heritage {
+    border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+    background: rgba(201,169,110,.03);
+  }
+  .heritage__grid {
+    max-width: 1180px; margin: 0 auto; padding: 1.8rem 1.5rem;
+    display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 1.4rem 2rem;
+  }
+  .heritage__cell { display: flex; flex-direction: column; gap: .3rem; }
+  .heritage__label { font-size: .68rem; letter-spacing: .3em; color: var(--ink-faint); }
+  .heritage__value { font-size: .95rem; letter-spacing: .1em; color: var(--ink); font-weight: 600; }
+  .heritage__value em { font-style: normal; color: var(--gold); }
+
+  /* ==================== 手上功夫（工序步进器） ==================== */
+  .craft { padding: 5rem 0; border-top: 1px solid var(--line); }
+  .craft .sec-head { margin-bottom: 2.8rem; }
+  .craft__wrap { max-width: 1180px; margin: 0 auto; padding: 0 1.5rem; }
+  .craft__steps { display: flex; flex-wrap: wrap; gap: .6rem; margin-bottom: 2rem; }
+  .craft__step {
+    background: none; border: 1px solid var(--line); color: var(--ink-dim);
+    padding: .65rem 1.1rem; cursor: pointer; font-size: .85rem; letter-spacing: .15em;
+    display: inline-flex; align-items: center; gap: .6rem;
+    transition: border-color .3s, color .3s, background .3s;
+  }
+  .craft__step i { font-style: normal; font-family: var(--latin); font-size: .68rem; color: var(--ink-faint); transition: color .3s; }
+  .craft__step:hover { border-color: rgba(201,169,110,.5); color: var(--ink); }
+  .craft__step.is-active { border-color: var(--gold); color: var(--gold); background: rgba(201,169,110,.08); }
+  .craft__step.is-active i { color: var(--gold); }
+  .craft__bar { height: 1px; background: var(--line); position: relative; margin-bottom: 2.2rem; }
+  .craft__bar-fill { position: absolute; inset: 0; background: var(--gold); transform: scaleX(0); transform-origin: left; transition: transform .6s var(--ease); }
+  .craft__detail { display: grid; grid-template-rows: 1fr; }
+  .craft__detail-inner { overflow: hidden; min-height: 3.4rem; }
+  .craft__body { display: flex; flex-direction: column; gap: 1.4rem; }
+  .craft__figure {
+    position: relative; width: 100%; height: 190px;
+    border: 1px solid var(--line); overflow: hidden;
+  }
+  .craft__figure img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+    animation: kenburns 14s ease-in-out infinite alternate;
+  }
+  .craft__figure::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(11,11,13,0) 55%, rgba(11,11,13,.55));
+    pointer-events: none;
+  }
+  .craft__text h3 { color: var(--ink); font-size: 1.15rem; letter-spacing: .15em; margin-bottom: .7rem; }
+  .craft__text h3 i { font-style: normal; color: var(--gold); font-family: var(--serif); margin-right: .4rem; }
+  .craft__text p { color: var(--ink-dim); font-size: .95rem; border-left: 2px solid var(--gold); padding-left: 1.1rem; }
+  @media (min-width: 768px) {
+    .craft__body { flex-direction: row; align-items: stretch; }
+    .craft__figure { width: 380px; height: auto; min-height: 240px; order: 2; }
+    .craft__text { flex: 1; align-self: center; }
+  }
+
+  /* 戏单展开配图（Ken Burns 缓动） */
+  .play-row__thumbwrap {
+    width: 200px; height: 132px; flex-shrink: 0;
+    border: 1px solid var(--line); overflow: hidden; display: block;
+  }
+  .play-row__thumb {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+    animation: kenburns 14s ease-in-out infinite alternate;
+  }
+  @keyframes kenburns {
+    from { transform: scale(1) translate(0, 0); }
+    to { transform: scale(1.12) translate(2%, -2%); }
+  }
+  .play-row__detail-body { display: flex; gap: 1.4rem; align-items: flex-start; padding: .9rem 0 .4rem 3.4rem; }
+  .play-row__detail p { padding: 0; color: var(--ink-dim); font-size: .9rem; }
+  @media (max-width: 767px) {
+    .play-row__detail-body { flex-direction: column; gap: .9rem; padding-left: 3.4rem; }
+    .play-row__thumbwrap { width: 100%; height: 150px; }
+  }
+
+  /* ==================== 生平年表（可拖拽长卷） ==================== */
+  .timeline { padding: 5rem 0; border-top: 1px solid var(--line); }
+  .timeline .sec-head { margin-bottom: 3rem; }
+  .tl-rail { max-width: 1180px; margin: 0 auto; padding: 0 1.5rem; }
+  .tl-viewport {
+    overflow: hidden; cursor: grab; padding-top: 2rem; touch-action: pan-y;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
+  }
+  .tl-viewport.is-drag { cursor: grabbing; }
+  .tl-viewport--native { overflow-x: auto; scroll-snap-type: x mandatory; cursor: auto; scrollbar-width: none; }
+  .tl-viewport--native::-webkit-scrollbar { display: none; }
+  .tl-viewport--native .tl-item { scroll-snap-align: start; }
+  .tl-track {
+    display: flex; gap: 1.4rem; width: max-content; position: relative;
+    padding-top: 1.2rem; will-change: transform;
+  }
+  .tl-track::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: var(--line);
+  }
+  .tl-item {
+    position: relative; width: 272px; flex-shrink: 0;
+    padding: 1.3rem 1.15rem 1.5rem; border: 1px solid var(--line);
+    background: rgba(18,18,21,.55); backdrop-filter: blur(3px);
+    text-align: left; color: inherit; font: inherit; cursor: pointer;
+    transition: border-color .35s, opacity .4s, transform .35s var(--ease);
+    opacity: .45;
+  }
+  .tl-item:hover { border-color: rgba(201,169,110,.45); }
+  .tl-item.is-lit { opacity: 1; border-color: rgba(201,169,110,.4); transform: translateY(-4px); }
+  .tl-item::before {
+    content: ''; position: absolute; left: 1.15rem; top: calc(-1.2rem - 5px);
+    width: 10px; height: 10px; border-radius: 50%; background: var(--gold);
+    transition: box-shadow .4s;
+  }
+  .tl-item.is-lit::before { box-shadow: 0 0 0 5px rgba(201, 169, 110, .18); }
+  .tl-item__year { font-family: var(--latin); font-size: 1.9rem; font-weight: 600; color: var(--gold); letter-spacing: .04em; line-height: 1.1; }
+  .tl-item__title {
+    font-size: 1.05rem; font-weight: 600; margin: .55rem 0 .45rem; letter-spacing: .08em;
+    display: flex; align-items: center; gap: .6rem;
+  }
+  .tl-item__plus {
+    width: 14px; height: 14px; flex-shrink: 0; opacity: .5;
+    transition: transform .4s var(--ease);
+  }
+  .tl-item[aria-expanded="true"] .tl-item__plus { transform: rotate(45deg); opacity: 1; }
+  .tl-item__desc { font-size: .87rem; color: var(--ink-dim); }
+  .tl-item__detail { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .5s var(--ease); }
+  .tl-item[aria-expanded="true"] .tl-item__detail { grid-template-rows: 1fr; }
+  .tl-item__detail-inner { overflow: hidden; min-height: 0; }
+  .tl-item__detail p {
+    padding-top: .7rem; font-size: .84rem; color: var(--ink-dim);
+    border-left: 2px solid rgba(201,169,110,.4); padding-left: .9rem; margin-top: .7rem;
+  }
+  /* 控制条：翻页 + 进度 */
+  .tl-ctrl { display: flex; align-items: center; gap: 1.2rem; margin-top: 2.2rem; }
+  .tl-ctrl button {
+    width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--line);
+    background: none; color: var(--ink-dim); cursor: pointer; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: border-color .3s, color .3s, background .3s;
+  }
+  .tl-ctrl button:hover:not(:disabled) { border-color: var(--gold); color: var(--gold); background: rgba(201,169,110,.07); }
+  .tl-ctrl button:disabled { opacity: .3; cursor: default; }
+  .tl-ctrl button svg { width: 16px; height: 16px; }
+  .tl-bar { flex: 1; height: 1px; background: var(--line); position: relative; }
+  .tl-bar-fill { position: absolute; inset: 0; background: var(--gold); transform: scaleX(0); transform-origin: left; transition: transform .25s ease-out; }
+  .tl-hint { margin-top: 1rem; font-size: .7rem; letter-spacing: .3em; color: var(--ink-faint); text-align: center; }
+
+  /* ==================== 渡海航线 ==================== */
+  .route { padding: 5rem 0; border-top: 1px solid var(--line); }
+  .route .sec-head { margin-bottom: 2.5rem; }
+  .route__map { max-width: 1180px; margin: 0 auto; padding: 0 1.5rem; }
+  .route__map svg { width: 100%; height: auto; display: block; border: 1px solid var(--line); background: radial-gradient(90% 120% at 50% 0%, rgba(201,169,110,.05) 0%, rgba(11,11,13,0) 55%); }
+  .route__legend {
+    max-width: 1180px; margin: 2.2rem auto 0; padding: 0 1.5rem;
+    display: flex; flex-wrap: wrap; gap: 1rem 2.6rem;
+    color: var(--ink-dim); font-size: .85rem; letter-spacing: .15em;
+  }
+  .route__legend b { color: var(--gold); font-family: var(--latin); font-weight: 600; margin-right: .55em; }
+  .route__cap { max-width: 1180px; margin: 1.2rem auto 0; padding: 0 1.5rem; color: var(--ink-faint); font-size: .72rem; letter-spacing: .2em; }
+
+  /* ==================== 代表作品（戏单） ==================== */
+  .plays { padding: 5rem 0; border-top: 1px solid var(--line); }
+  .plays .sec-head { margin-bottom: 2.5rem; }
+  .plays__list { max-width: 1180px; margin: 0 auto; padding: 0 1.5rem; }
+  .play-row {
+    width: 100%; background: none; border: none; border-top: 1px solid var(--line);
+    color: var(--ink); text-align: left; cursor: pointer; padding: 1.4rem .8rem;
+    margin: 0 -.8rem; width: calc(100% + 1.6rem);
+    transition: background .4s var(--ease);
+  }
+  .play-row:hover { background: linear-gradient(90deg, rgba(201,169,110,.07), rgba(201,169,110,0) 70%); }
+  .plays__list .play-row:last-child { border-bottom: 1px solid var(--line); }
+  .play-row__main { display: grid; grid-template-columns: 2.6rem minmax(0,1fr) auto; gap: .8rem; align-items: center; }
+  .play-row__num { font-family: var(--latin); font-size: .85rem; color: var(--gold); }
+  .play-row__name {
+    font-size: clamp(1.35rem, 4.5vw, 2rem); font-weight: 600; letter-spacing: .1em;
+    transition: color .3s, transform .3s var(--ease);
+  }
+  .play-row:hover .play-row__name { color: var(--gold); transform: translateX(6px); }
+  .play-row__meta { display: flex; align-items: center; gap: .8rem; color: var(--ink-faint); font-size: .78rem; letter-spacing: .15em; }
+  .play-row__tag {
+    border: 1px solid rgba(201,169,110,.4); color: var(--gold);
+    padding: .1rem .55rem; font-size: .66rem; letter-spacing: .2em; white-space: nowrap;
+  }
+  .play-row__arrow { width: 16px; height: 16px; transition: transform .4s var(--ease); }
+  .play-row[aria-expanded="true"] .play-row__arrow { transform: rotate(45deg); }
+  .play-row__detail { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .5s var(--ease); }
+  .play-row[aria-expanded="true"] .play-row__detail { grid-template-rows: 1fr; }
+  .play-row__detail-inner { overflow: hidden; min-height: 0; }
+  .play-hover { display: none; }
+
+  /* ==================== 艺术数据 ==================== */
+  .stats { background: var(--bg-soft); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .stats__grid {
+    max-width: 1180px; margin: 0 auto; padding: 4rem 1.5rem;
+    display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 2.8rem 1.5rem;
+  }
+  .stat { border-top: 1px solid var(--line); padding-top: 1.4rem; transition: transform .35s var(--ease), border-color .35s; }
+  .stat:hover { transform: translateY(-4px); border-top-color: var(--gold); }
+  .stat__num {
+    font-family: var(--latin); font-size: clamp(2.3rem, 9vw, 3.4rem); font-weight: 600;
+    color: var(--gold); line-height: 1; font-feature-settings: 'tnum';
+  }
+  .stat__label { margin-top: .8rem; color: var(--ink-dim); font-size: .85rem; letter-spacing: .15em; }
+
+  /* ==================== 风骨高光 ==================== */
+  .vow {
+    min-height: 100vh; display: flex; flex-direction: column; justify-content: center;
+    padding: 7rem 1.5rem; overflow: hidden;
+  }
+  .vow__inner { max-width: 1000px; margin: 0 auto; width: 100%; }
+  .vow__index { font-family: var(--latin); font-size: .72rem; letter-spacing: .35em; color: var(--red); margin-bottom: 2rem; }
+  .vow h2 { font-size: clamp(2.2rem, 9vw, 4.2rem); font-weight: 900; letter-spacing: .1em; line-height: 1.3; }
+  .vow h2 em { font-style: normal; color: var(--red); }
+  .vow p { margin-top: 2rem; max-width: 680px; color: var(--ink-dim); font-size: clamp(1rem, 2.6vw, 1.25rem); }
+  .vow__seal {
+    position: absolute; right: 6%; top: 50%; transform: translateY(-50%) rotate(-8deg);
+    width: 96px; height: 96px; border: 3px solid var(--red); border-radius: 6px;
+    color: var(--red); display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 1.7rem; letter-spacing: .1em; opacity: .55;
+  }
+  .vow__seal::after {
+    content: ''; position: absolute; inset: 6px; border: 1.5px solid var(--red); border-radius: 3px;
+  }
+
+  /* ==================== 结尾致敬 ==================== */
+  .tribute { padding: 7rem 1.5rem; text-align: center; border-top: 1px solid var(--line); }
+  .tribute h2 { font-size: clamp(1.9rem, 6.5vw, 3.2rem); font-weight: 900; letter-spacing: .12em; }
+  .tribute p { margin-top: 1.2rem; color: var(--ink-faint); font-size: .88rem; letter-spacing: .2em; }
+  .tribute__name { color: var(--gold); }
+  .seal-wrap { height: 110px; display: flex; align-items: center; justify-content: center; margin-top: 2.5rem; }
+  .seal {
+    position: relative; width: 92px; height: 92px; border: 3px solid var(--red); border-radius: 6px;
+    color: var(--red); display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 1.75rem; letter-spacing: .08em;
+    background: rgba(166,58,44,.07);
+    box-shadow: inset 0 0 14px rgba(166,58,44,.4);
+    opacity: 0; transform: scale(2.4) rotate(-14deg);
+  }
+  .seal::after { content: ''; position: absolute; inset: 6px; border: 1.5px solid var(--red); border-radius: 3px; }
+  .tribute__btn {
+    margin-top: 2.5rem; background: none; border: 1px solid var(--gold); color: var(--gold);
+    padding: 1.05rem 2.8rem; letter-spacing: .35em; cursor: pointer;
+    transition: background .3s, color .3s; font-size: .9rem;
+  }
+  .tribute__btn:hover:not(:disabled) { background: var(--gold); color: var(--bg); }
+  .tribute__btn:disabled { border-color: var(--ink-faint); color: var(--ink-faint); cursor: default; }
+
+  .site-footer {
+    padding: 3rem 1.5rem; display: flex; flex-direction: column; gap: 1.2rem;
+    align-items: center; color: var(--ink-faint); font-size: .78rem; letter-spacing: .15em;
+    border-top: 1px solid var(--line);
+  }
+  .site-footer nav { display: flex; gap: 1.8rem; flex-wrap: wrap; justify-content: center; }
+  .site-footer a { color: var(--ink-dim); text-decoration: none; }
+  .site-footer a:hover { color: var(--gold); }
+
+  /* ==================== 动画初始态（仅 has-anim） ==================== */
+  .has-anim .reveal { opacity: 0; transform: translateY(30px); }
+  .has-anim .reveal-line .ch { transform: translateY(110%); }
+  .has-anim .stat { opacity: 0; transform: translateY(24px); }
+
+  /* ==================== 丝竹环境音按钮 ==================== */
+  .snd-group { position: fixed; left: 1.6rem; bottom: 1.6rem; z-index: 100; display: flex; flex-direction: column; gap: .6rem; }
+  .snd-btn {
+    width: 54px; height: 54px; border-radius: 50%;
+    border: 1px solid rgba(201,169,110,.55); background: rgba(11,11,13,.82);
+    color: var(--gold); cursor: pointer; backdrop-filter: blur(6px);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+    font-size: .68rem; letter-spacing: .12em; font-family: inherit;
+    transition: background .3s, color .3s, border-color .3s;
+  }
+  .snd-btn:hover { border-color: var(--gold); }
+  .snd-btn[aria-pressed="true"] { background: var(--gold); color: var(--bg); }
+  .snd-btn__bars { display: flex; align-items: flex-end; gap: 2px; height: 10px; }
+  .snd-btn__bars i { width: 2px; height: 3px; background: currentColor; transition: height .3s; }
+  .snd-btn[aria-pressed="true"] .snd-btn__bars i { animation: snd-eq .9s ease-in-out infinite alternate; }
+  .snd-btn[aria-pressed="true"] .snd-btn__bars i:nth-child(2) { animation-delay: .2s; }
+  .snd-btn[aria-pressed="true"] .snd-btn__bars i:nth-child(3) { animation-delay: .45s; }
+  @keyframes snd-eq { from { height: 3px; } to { height: 10px; } }
+
+  /* ==================== 致敬墙弹幕 ==================== */
+  .wall { max-width: 1180px; margin: 2.6rem auto 0; padding: 0 1.5rem; }
+  .wall__title { text-align: center; font-size: .72rem; letter-spacing: .35em; color: var(--ink-faint); margin-bottom: 1.2rem; }
+  .wall__lanes {
+    position: relative; height: 118px; overflow: hidden;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+  }
+  .wall__chip {
+    position: absolute; left: 0; display: inline-flex; align-items: center; gap: .6rem;
+    white-space: nowrap; font-size: .76rem; letter-spacing: .12em; color: var(--ink-dim);
+    animation: wall-drift linear infinite;
+  }
+  .wall__chip .mini-seal {
+    width: 26px; height: 26px; flex-shrink: 0; border: 1.5px solid var(--red); border-radius: 4px;
+    color: var(--red); font-size: .62rem; font-weight: 900;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(166,58,44,.08); transform: rotate(-6deg);
+  }
+  @keyframes wall-drift { from { transform: translateX(105vw); } to { transform: translateX(-110%); } }
+
+  /* ==================== 纪念海报 ==================== */
+  .tribute__poster {
+    margin-top: 1.4rem; background: none; border: none; cursor: pointer;
+    color: var(--ink-faint); font-size: .8rem; letter-spacing: .3em;
+    border-bottom: 1px solid rgba(201,169,110,.4); padding-bottom: .25rem;
+    transition: color .3s, border-color .3s;
+  }
+  .tribute__poster:hover { color: var(--gold); border-color: var(--gold); }
+  .poster-modal {
+    position: fixed; inset: 0; z-index: 120; background: rgba(5,5,7,.9);
+    display: flex; align-items: center; justify-content: center; padding: 1.5rem;
+    opacity: 0; visibility: hidden; transition: opacity .35s var(--ease), visibility .35s;
+    backdrop-filter: blur(8px);
+  }
+  .poster-modal.is-open { opacity: 1; visibility: visible; }
+  .poster-modal__box { max-width: min(420px, 92vw); text-align: center; }
+  .poster-modal__box img {
+    width: 100%; border: 1px solid var(--line);
+    transform: translateY(14px); transition: transform .45s var(--ease);
+  }
+  .poster-modal.is-open .poster-modal__box img { transform: translateY(0); }
+  .poster-modal__actions { margin-top: 1.4rem; display: flex; gap: 1.2rem; justify-content: center; }
+  .poster-modal__dl {
+    background: var(--gold); color: var(--bg); text-decoration: none;
+    padding: .8rem 2rem; letter-spacing: .25em; font-size: .85rem;
+  }
+  .poster-modal__close {
+    background: none; border: 1px solid var(--line); color: var(--ink-dim);
+    padding: .8rem 2rem; letter-spacing: .25em; font-size: .85rem; cursor: pointer;
+    transition: color .3s, border-color .3s;
+  }
+  .poster-modal__close:hover { color: var(--ink); border-color: var(--gold); }
+
+  /* ==================== 自动巡览（影院模式） ==================== */
+  .tour-btn {
+    position: fixed; right: 1.6rem; bottom: 1.6rem; z-index: 100;
+    background: rgba(11,11,13,.82); border: 1px solid rgba(201,169,110,.55);
+    color: var(--gold); cursor: pointer; backdrop-filter: blur(6px);
+    padding: .85rem 1.7rem; font-size: .78rem; letter-spacing: .3em; font-family: inherit;
+    transition: background .3s, color .3s, border-color .3s;
+  }
+  .tour-btn::before {
+    content: ''; position: absolute; inset: -4px; border: 1px solid rgba(201,169,110,.35);
+    border-radius: 2px; animation: tour-pulse 2.6s var(--ease) infinite;
+  }
+  @keyframes tour-pulse { 0% { opacity: 1; transform: scale(1); } 70% { opacity: 0; transform: scale(1.12); } 100% { opacity: 0; } }
+  .tour-btn:hover { border-color: var(--gold); background: rgba(201,169,110,.1); }
+  body.touring .tour-btn { background: var(--gold); color: var(--bg); }
+  body.touring .tour-btn::before { animation: none; opacity: 0; }
+  .cine {
+    position: fixed; left: 0; right: 0; height: 0; background: #000; z-index: 108;
+    transition: height .7s var(--ease);
+  }
+  .cine--top { top: 0; } .cine--bottom { bottom: 0; }
+  body.touring .cine { height: 6vh; }
+  .tour-cap {
+    position: fixed; left: 3rem; bottom: 8.5vh; z-index: 109;
+    opacity: 0; transform: translateY(12px); transition: opacity .5s, transform .5s var(--ease);
+    pointer-events: none; max-width: 70vw;
+  }
+  .tour-cap.is-show { opacity: 1; transform: translateY(0); }
+  .tour-cap__index { display: block; font-family: var(--latin); font-size: .7rem; letter-spacing: .4em; color: var(--gold); margin-bottom: .5rem; }
+  .tour-cap__text { font-size: clamp(1.2rem, 3vw, 1.8rem); font-weight: 600; letter-spacing: .12em; text-shadow: 0 2px 18px rgba(0,0,0,.8); }
+  body.touring .topnav, body.touring .chapter-nav, body.touring .snd-group { opacity: 0; pointer-events: none; transition: opacity .4s; }
+  .topnav, .chapter-nav, .snd-group { transition: opacity .4s; }
+
+  /* 明志印章悬浮微动 */
+  .vow__seal { animation: seal-float 7s ease-in-out infinite alternate; }
+  @keyframes seal-float {
+    from { transform: translateY(-50%) rotate(-8deg) translateY(-7px); }
+    to { transform: translateY(-50%) rotate(-8deg) translateY(7px); }
+  }
+
+  /* ==================== 平板断点 ==================== */
+  @media (min-width: 768px) {
+    .topnav { padding: 1.3rem 3rem; }
+    .topnav__links { display: flex; }
+    .topnav__toggle { display: none; }
+    .hero__text, .intro, .story .sec-head, .plays__list, .sec-head,
+    .stats__grid, .vow__inner { padding-left: 3rem; padding-right: 3rem; }
+    .sec-head { padding-left: 3rem; padding-right: 3rem; }
+
+    /* 匠人名录桌面三列 */
+    .artisans__list { grid-template-columns: repeat(3, minmax(0,1fr)); gap: 2.4rem; }
+    .artisan-card { display: flex; flex-direction: column; align-items: flex-start; gap: .45rem; padding: 1.6rem 0 0; }
+    .artisan-card:last-child { border-bottom: none; }
+    .artisan-card__meta { flex-wrap: wrap; gap: .5rem .9rem; }
+
+    /* 年表为全端拖拽长卷，桌面仅加宽卡片 */
+    .timeline { padding: 6rem 0; }
+    .tl-rail { padding: 0 3rem; }
+    .tl-item { width: 310px; }
+    .play-row__detail p { padding-left: 0; }
+    .heritage__grid { grid-template-columns: repeat(4, minmax(0,1fr)); }
+    .trivia__grid { grid-template-columns: repeat(3, minmax(0,1fr)); gap: 2.6rem; }
+  }
+
+  /* ==================== 桌面断点 ==================== */
+  @media (min-width: 1024px) {
+    .chapter-nav { display: flex; }
+    .hero { flex-direction: row; }
+    .hero__img { height: 100vh; width: 46%; order: 2; flex-shrink: 0; }
+    .hero__img img { object-position: 18% top; }
+    .hero__text { order: 1; padding: 0 5vw 0 7vw; width: 54%; }
+    .type-panel__char { font-size: 56vh; }
+    .story__grid { max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: .82fr 1.18fr; gap: 5rem; }
+    .story__media { position: sticky; top: 13vh; align-self: start; margin-bottom: 0; }
+    .vow__seal { width: 120px; height: 120px; font-size: 2rem; }
+  }
+
+  /* ==================== 降低动效 ==================== */
+  @media (prefers-reduced-motion: reduce) {
+    .grain { animation: none; }
+    .has-anim .reveal, .has-anim .stat { opacity: 1; transform: none; }
+    .has-anim .reveal-line .ch { transform: none; }
+    .hero__scroll svg, .hotspot__ring, .type-panel__char, .play-row__thumb, .snd-btn__bars i { animation: none; }
+    .marquee__track { animation: none; flex-wrap: wrap; white-space: normal; width: auto; }
+    .sec-head h2::after { transform: scaleX(1); transition: none; }
+    .trivia__detail { grid-template-rows: 1fr; }
+    .wall__chip { animation: none !important; position: static; display: inline-flex; margin: 0 1rem .6rem 0; }
+    .vow__seal { animation: none; }
+    .tour-btn::before { animation: none; }
+    .wall__lanes { height: auto; overflow: visible; -webkit-mask-image: none; mask-image: none; }
+    .seal { opacity: 1; transform: rotate(-8deg); }
+    .tl-item { opacity: 1; }
+    /* 年表退回原生滚动，保证内容完整可读 */
+    .tl-viewport { overflow-x: auto; cursor: auto; scrollbar-width: none; -webkit-mask-image: none; mask-image: none; }
+    .tl-viewport::-webkit-scrollbar { display: none; }
+    .tl-track { transform: none !important; }
+    .tl-item.is-lit { transform: none; }
   }
 </style>
 </head>
 <body>
-  <canvas id="letters-canvas"></canvas>
 
-  <!-- 顶部导航 -->
-  <nav class="top-nav">
-    <div class="top-nav__logo">薪火 · 非遗数字展馆</div>
-    <div class="top-nav__links">
-      <a href="index.html">首页</a>
-      <a href="hall.html">数字展馆</a>
-      <a href="craftsman.html">匠人故事</a>
-      <a href="easter-egg.html">技艺互动</a>
+<!-- 固定层 -->
+<div class="grain" aria-hidden="true"></div>
+<div class="progress" aria-hidden="true"><div class="progress__bar"></div></div>
+
+<!-- 丝竹环境音：合成丝竹 / 流水实录 双模式 -->
+<div class="snd-group">
+  <button class="snd-btn" id="sndLiushui" aria-pressed="false" aria-label="播放古琴曲流水">
+    <span class="snd-btn__bars" aria-hidden="true"><i></i><i></i><i></i></span>
+    流水
+  </button>
+  <button class="snd-btn" id="sndSynth" aria-pressed="false" aria-label="播放合成丝竹音">
+    <span class="snd-btn__bars" aria-hidden="true"><i></i><i></i><i></i></span>
+    丝竹
+  </button>
+</div>
+
+<!-- 移动端菜单 -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="index.html">首页</a>
+  <a href="hall.html">数字展馆</a>
+  <a href="craftsman.html" aria-current="page">匠人故事</a>
+  <a href="easter-egg.html">技艺互动</a>
+</div>
+
+<!-- 顶部导航 -->
+<nav class="topnav">
+  <a class="topnav__logo" href="index.html">薪火</a>
+  <div class="topnav__links">
+    <a href="index.html">首页</a>
+    <a href="hall.html">数字展馆</a>
+    <a href="craftsman.html" aria-current="page">匠人故事</a>
+    <a href="easter-egg.html">技艺互动</a>
+  </div>
+  <button class="topnav__toggle" id="menuToggle" aria-label="打开菜单" aria-expanded="false">
+    <svg class="topnav__open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 7h18M3 12h18M3 17h18"/></svg>
+    <svg class="topnav__close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 5l14 14M19 5L5 19"/></svg>
+  </button>
+</nav>
+
+<!-- 章节指示器 -->
+<div class="chapter-nav" aria-label="章节导航">
+  <button data-target="#artisans"><span class="dot"></span>名录</button>
+  <button data-target="#story"><span class="dot"></span>故事</button>
+  <button data-target="#timeline"><span class="dot"></span>年表</button>
+  <button data-target="#craft"><span class="dot"></span>功夫</button>
+  <button data-target="#plays"><span class="dot"></span>作品</button>
+  <button data-target="#stats"><span class="dot"></span>数据</button>
+  <button data-target="#vow"><span class="dot"></span>风骨</button>
+  <button data-target="#tribute"><span class="dot"></span>致敬</button>
+</div>
+
+<main id="main">
+
+<!-- ==================== Hero ==================== -->
+<header class="hero" id="hero">
+  <div class="hero__img" id="heroMedia"></div>
+  <div class="hero__text">
+    <p class="hero__kicker" id="heroKicker">ARTISAN · CHAPTER ONE</p>
+    <h1 class="hero__title" id="heroTitle"></h1>
+    <p class="hero__role" id="heroRole"></p>
+    <p class="hero__en" id="heroEn"></p>
+    <div class="hero__line" aria-hidden="true"></div>
+    <button class="hero__scroll" id="heroScroll" aria-label="滚动至正文">
+      向下阅读
+      <svg viewBox="0 0 14 22" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="1" y="1" width="12" height="20" rx="6"/><line x1="7" y1="5" x2="7" y2="9"/></svg>
+    </button>
+  </div>
+</header>
+
+<!-- ==================== 匠人名录 ==================== -->
+<section class="artisans" id="artisans">
+  <div class="sec-head reveal">
+    <span class="sec-head__index">ARTISANS</span>
+    <h2>匠人名录</h2>
+    <p class="sec-head__sub">一门技艺，一生相守。点选一位匠人，展读他 / 她的故事。</p>
+  </div>
+  <div class="artisans__list" id="artisanList"></div>
+</section>
+
+<!-- ==================== 定场引言 ==================== -->
+<section class="intro" id="intro">
+  <div class="intro__quote" id="introQuote"></div>
+</section>
+
+<!-- ==================== 非遗档案 ==================== -->
+<aside class="heritage reveal" id="heritage" aria-label="非遗档案">
+  <div class="heritage__grid" id="heritageGrid"></div>
+</aside>
+
+<!-- ==================== 人物故事 ==================== -->
+<section class="story" id="story">
+  <div class="sec-head reveal">
+    <span class="sec-head__index" id="storyIndex">CHAPTER 01</span>
+    <h2 id="storyTitle"></h2>
+  </div>
+  <div class="story__grid">
+    <figure class="story__media reveal" id="storyMedia"></figure>
+    <div class="story__blocks" id="storyBlocks"></div>
+  </div>
+</section>
+
+<!-- ==================== 生平年表 ==================== -->
+<section class="timeline" id="timeline">
+  <div class="sec-head reveal">
+    <span class="sec-head__index" id="timelineIndex">CHAPTER 02</span>
+    <h2 id="timelineTitle">生平年表</h2>
+  </div>
+  <div class="tl-rail">
+    <div class="tl-viewport" id="tlViewport">
+      <div class="tl-track" id="tlTrack"></div>
     </div>
+    <div class="tl-ctrl">
+      <button id="tlPrev" aria-label="上一个年份"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 2L4 8l6 6"/></svg></button>
+      <div class="tl-bar" aria-hidden="true"><div class="tl-bar-fill" id="tlBarFill"></div></div>
+      <button id="tlNext" aria-label="下一个年份"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2l6 6-6 6"/></svg></button>
+    </div>
+    <p class="tl-hint">拖动 或 点按年份卡 · 展开当年往事</p>
+  </div>
+</section>
+
+<!-- ==================== 渡海航线（仅部分匠人） ==================== -->
+<section class="route" id="route" style="display:none">
+  <div class="sec-head reveal">
+    <span class="sec-head__index" id="routeIndex">CHAPTER 03 · 1930</span>
+    <h2>渡海赴美</h2>
+    <p class="sec-head__sub">1930 年，梅兰芳率团横跨太平洋，把京剧带进纽约与旧金山的剧场。滚动页面，重走这条航线。</p>
+  </div>
+  <div class="route__map" id="routeMap"></div>
+  <div class="route__legend">
+    <span><b>1930.1 — 8</b>历时半年余</span>
+    <span><b>2</b>次横跨太平洋</span>
+    <span><b>72</b>场正式演出</span>
+  </div>
+  <p class="route__cap">航线为示意绘制，城市位置按经纬度近似投影。</p>
+</section>
+
+<!-- ==================== 手上功夫（工序步进器） ==================== -->
+<section class="craft" id="craft">
+  <div class="sec-head reveal">
+    <span class="sec-head__index" id="craftIndex">CHAPTER 03</span>
+    <h2 id="craftTitle">手上功夫</h2>
+    <p class="sec-head__sub" id="craftSub"></p>
+  </div>
+  <div class="craft__wrap">
+    <div class="craft__steps" id="craftSteps" role="tablist"></div>
+    <div class="craft__bar" aria-hidden="true"><div class="craft__bar-fill" id="craftBarFill"></div></div>
+    <div class="craft__detail" id="craftDetail" aria-live="polite"></div>
+  </div>
+</section>
+
+<!-- ==================== 代表作品 ==================== -->
+<section class="plays" id="plays">
+  <div class="sec-head reveal">
+    <span class="sec-head__index" id="playsIndex">CHAPTER 03</span>
+    <h2 id="playsTitle">代表剧目</h2>
+  </div>
+  <div class="plays__list" id="playsList"></div>
+</section>
+
+<!-- ==================== 金句 ==================== -->
+<section class="quote" id="quote">
+  <blockquote class="quote__inner">
+    <span class="quote__mark" aria-hidden="true">「</span>
+    <div class="quote__text" id="quoteText"></div>
+    <cite class="quote__cite reveal" id="quoteCite"></cite>
+  </blockquote>
+</section>
+
+<!-- ==================== 唱词跑马灯 ==================== -->
+<div class="marquee" aria-hidden="true">
+  <div class="marquee__track" id="marqueeTrack"></div>
+</div>
+
+<!-- ==================== 艺术数据 ==================== -->
+<section class="stats" id="stats">
+  <div class="stats__grid" id="statsGrid"></div>
+</section>
+
+<!-- ==================== 匠作细节 ==================== -->
+<section class="trivia" id="trivia">
+  <div class="sec-head reveal">
+    <span class="sec-head__index">DETAILS</span>
+    <h2>匠作细节</h2>
+  </div>
+  <div class="trivia__grid" id="triviaGrid"></div>
+</section>
+
+<!-- ==================== 风骨高光 ==================== -->
+<section class="vow" id="vow">
+  <div class="vow__seal" id="vowSeal" aria-hidden="true">明志</div>
+  <div class="vow__inner">
+    <p class="vow__index reveal" id="vowIndex"></p>
+    <div id="vowLines"></div>
+    <p class="reveal" id="vowText"></p>
+  </div>
+</section>
+
+<!-- ==================== 结尾致敬 ==================== -->
+<section class="tribute" id="tribute">
+  <h2 class="reveal">薪火相传，匠心不熄</h2>
+  <p class="reveal">向 <span class="tribute__name" id="tributeName"></span> 与每一位守艺一生的匠人致敬</p>
+  <div class="wall" aria-label="致敬墙">
+    <p class="wall__title">— 致敬墙 · 同路人 —</p>
+    <div class="wall__lanes" id="wallLanes"></div>
+  </div>
+  <div class="seal-wrap">
+    <div class="seal" id="tributeSeal" aria-hidden="true">致敬</div>
+  </div>
+  <button class="tribute__btn" id="tributeBtn"><span>向匠人致敬</span></button>
+  <div>
+    <button class="tribute__poster" id="posterBtn">生成纪念海报</button>
+  </div>
+</section>
+
+</main>
+
+<!-- 海报弹窗 -->
+<div class="poster-modal" id="posterModal" role="dialog" aria-modal="true" aria-label="纪念海报预览">
+  <div class="poster-modal__box">
+    <img id="posterImg" alt="匠人纪念海报">
+    <div class="poster-modal__actions">
+      <a class="poster-modal__dl" id="posterDl" href="#" download>下载海报</a>
+      <button class="poster-modal__close" id="posterClose">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- 自动巡览 -->
+<button class="tour-btn" id="tourBtn">巡览</button>
+<div class="cine cine--top" aria-hidden="true"></div>
+<div class="cine cine--bottom" aria-hidden="true"></div>
+<div class="tour-cap" id="tourCap" aria-hidden="true">
+  <span class="tour-cap__index" id="tourCapIndex"></span>
+  <span class="tour-cap__text" id="tourCapText"></span>
+</div>
+
+<footer class="site-footer">
+  <nav>
+    <a href="index.html">首页</a>
+    <a href="hall.html">数字展馆</a>
+    <a href="craftsman.html">匠人故事</a>
+    <a href="easter-egg.html">技艺互动</a>
   </nav>
+  <div>薪火 · 非遗数字展馆 | 匠心传承，非遗焕新</div>
+  <div style="font-size:.68rem;opacity:.6">环境音《流水》· 管平湖演奏 · Wikimedia Commons · CC BY 2.5</div>
+</footer>
 
-  <!-- 面包屑 -->
-  <div class="breadcrumb">
-    <a href="index.html">首页</a> &gt; <a href="craftsman.html">匠人故事</a> &gt; 梅兰芳
-  </div>
-
-  <!-- 主体 -->
-  <div class="container">
-    <!-- 左侧主内容 -->
-    <div class="main-content">
-      <h1 class="main-title">梅兰芳</h1>
-      <p class="main-subtitle">京剧表演艺术大师 · 梅派艺术创始人</p>
-
-      <!-- 人物大图 -->
-      <div class="portrait-wrap">
-        <img src="images/meilanfang.png" alt="梅兰芳《贵妃醉酒》剧照">
-        <div class="portrait-caption">
-          梅兰芳在《贵妃醉酒》中饰演杨玉环
-        </div>
-      </div>
-
-      <!-- 简介 -->
-      <h2 class="section-title">人物简介</h2>
-      <p class="bio-text">
-        梅兰芳（1894—1961），名澜，字畹华，祖籍江苏泰州，出生于北京京剧世家。
-        中国京剧表演艺术大师，"梅派"艺术创始人。他以男旦之身，将京剧推向世界舞台，
-        被列为"世界三大表演体系"之一。一生演过百余出戏，塑造了无数经典女性形象，
-        代表作有《贵妃醉酒》《霸王别姬》《牡丹亭》等。
-      </p>
-
-      <!-- 生平年表 -->
-      <h2 class="section-title">生平年表</h2>
-      <div class="timeline">
-        <div class="timeline__item">
-          <div class="timeline__year">1894年</div>
-          <div class="timeline__desc">出生于北京京剧世家，8岁学戏，10岁登台</div>
-        </div>
-        <div class="timeline__item">
-          <div class="timeline__year">1913年</div>
-          <div class="timeline__desc">首次赴上海演出，轰动上海滩，艺术风格渐趋成熟</div>
-        </div>
-        <div class="timeline__item">
-          <div class="timeline__year">1930年</div>
-          <div class="timeline__desc">赴美演出，将京剧艺术介绍给世界，获美国波莫纳学院荣誉博士</div>
-        </div>
-        <div class="timeline__item">
-          <div class="timeline__year">1950年</div>
-          <div class="timeline__desc">任中国京剧院院长，致力于京剧传承与发展</div>
-        </div>
-        <div class="timeline__item">
-          <div class="timeline__year">1961年</div>
-          <div class="timeline__desc">在北京逝世，享年67岁</div>
-        </div>
-      </div>
-
-      <!-- 艺术成就 -->
-      <h2 class="section-title">艺术成就</h2>
-      <p class="bio-text">
-        梅兰芳创立了"梅派"艺术，其唱腔雍容华贵、圆润流畅，表演端庄典雅、美不胜收。
-        他突破了传统京剧的局限，在唱腔、表演、服装、化妆等方面都进行了大胆创新。
-        抗日战争时期，他蓄须明志，拒绝为日伪演出，表现了崇高的民族气节。
-      </p>
-    </div>
-
-    <!-- 右侧边栏 -->
-    <div class="sidebar">
-      <!-- 代表作品 -->
-      <div class="sidebar-card">
-        <h3 class="sidebar-card__title">代表作品</h3>
-        <ul class="sidebar-list">
-          <li><span>京剧</span>贵妃醉酒</li>
-          <li><span>京剧</span>霸王别姬</li>
-          <li><span>昆曲</span>牡丹亭</li>
-          <li><span>京剧</span>宇宙锋</li>
-          <li><span>京剧</span>生死恨</li>
-          <li><span>昆曲</span>断桥</li>
-        </ul>
-      </div>
-
-      <!-- 艺术数据 -->
-      <div class="sidebar-card">
-        <h3 class="sidebar-card__title">艺术数据</h3>
-        <div class="stat-grid">
-          <div class="stat-item">
-            <div class="stat-num">100+</div>
-            <div class="stat-label">代表剧目</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-num">50+</div>
-            <div class="stat-label">艺术传人</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-num">9</div>
-            <div class="stat-label">访演出国家</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-num">67</div>
-            <div class="stat-label">从艺年限</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 所属分类 -->
-      <div class="sidebar-card">
-        <h3 class="sidebar-card__title">所属分类</h3>
-        <ul class="sidebar-list">
-          <li><span>门类</span>传统戏剧</li>
-          <li><span>剧种</span>京剧</li>
-          <li><span>行当</span>旦角（男旦）</li>
-          <li><span>流派</span>梅派</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <!-- 底部 -->
-  <div class="footer">
-    薪火 · 非遗数字展馆 | 匠心传承，非遗焕新
-  </div>
-
+<script src="js/gsap.min.js"></script>
+<script src="js/ScrollTrigger.min.js"></script>
+<script src="js/lenis.min.js"></script>
 <script>
-// ==================== 漂浮汉字背景 ====================
-const canvas = document.getElementById('letters-canvas');
-const ctx = canvas.getContext('2d');
-let W, H;
-function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
-resize();
-window.addEventListener('resize', resize);
+/* ============================================================
+   匠人数据：整页数据驱动，切换匠人即重建内容
+   ============================================================ */
+const ARTISANS = [
+  {
+    id: 'mei',
+    num: '01',
+    cnNum: '其一',
+    kickerEn: 'ARTISAN · CHAPTER ONE',
+    name: '梅兰芳',
+    craft: '京剧',
+    craftEn: 'PEKING OPERA',
+    role: '京剧表演艺术大师 · 梅派艺术创始人',
+    years: '1894—1961',
+    heroImg: 'images/meilanfang.png',
+    heroAlt: '梅兰芳京剧扮相剧照',
+    storyTitle: '一生戏梦',
+    storyImg: 'images/meilanfang.jpg',
+    storyImgAlt: '梅兰芳在《贵妃醉酒》中饰演杨玉环',
+    storyCaption: '《贵妃醉酒》中饰演杨玉环 · 点击金色圆点，细看行头讲究',
+    quote: ['他以男旦之身，', '将京剧推向世界舞台；', '一生塑造百余出戏里的东方女性，', '也让世界看见中国表演艺术的尊严。'],
+    story: [
+      { scene: '北京前门外，四合院里，胡琴声一响就是一整天。', h: '梨园世家', p: '梅兰芳，名澜，字畹华，祖籍江苏泰州，1894 年出生于北京京剧世家。他 8 岁学戏，10 岁登台，自幼在梨园的锣鼓声中长大，练就了唱念做打的扎实根基。' },
+      { scene: '台上三分钟。每一句腔、每一个眼神，他都磨了千百遍。', h: '梅派开山', p: '他创立的“梅派”艺术，唱腔雍容华贵、圆润流畅，表演端庄典雅、美不胜收。在唱腔、表演、服装、化妆各方面大胆创新，一生演出百余出戏，塑造了无数经典女性形象。' },
+      { scene: '纽约的海报栏上，第一次出现了中国戏的名字。', h: '走向世界', p: '1930 年，梅兰芳率团赴美演出，将京剧艺术介绍给世界，其表演体系被列为“世界三大表演体系”之一。东方戏台之上的水袖与唱腔，从此进入了世界艺术的视野。' }
+    ],
+    hotspots: [
+      { x: 50, y: 14, t: '珠花头面', d: '旦角头面以点翠、水钻、珠花分层配搭。梅兰芳改革传统扮相，让头面随角色身份增删，华贵而不堆砌。' },
+      { x: 79, y: 19, t: '泥金折扇', d: '《贵妃醉酒》的扇子功：开、合、翻、抖皆是戏。一把折扇，演尽杨玉环的娇憨与幽怨。' },
+      { x: 21, y: 41, t: '兰花指', d: '梅派指法相传有五十三式，世称“兰花指”。翻腕、并指、微颤，指尖上皆有神情。' },
+      { x: 16, y: 63, t: '水袖', d: '一丈二尺白绸水袖，抖、抛、拂、卷，袖如流水。水袖功是旦角身段的基本功，也是情绪的延长线。' },
+      { x: 48, y: 82, t: '宫装蟒袍', d: '黄缎宫装绣团凤牡丹，配玉带、云肩。戏服不计轻重，只求登台一刻的流光溢彩。' }
+    ],
+    timeline: [
+      { year: '1894', title: '梨园降生', desc: '出生于北京京剧世家，祖父梅巧玲位列“同光十三绝”', detail: '他四岁丧父，由伯父梅雨田抚养。梅雨田是谭鑫培的琴师，家中弦歌终日不绝——梅兰芳的童年，是在胡琴声里泡大的。' },
+      { year: '1904', title: '十岁登台', desc: '首次登台《长生殿·鹊桥密誓》，饰演织女', detail: '那日一句唱腔赢得满堂彩，戏班长辈断言：这孩子，是吃这碗饭的。' },
+      { year: '1913', title: '名动上海', desc: '首次赴沪演出，轰动上海滩，艺术风格渐趋成熟', detail: '丹桂第一台连演数十日，《穆柯寨》《宇宙锋》场场爆满。从此“梅兰芳”三个字，叫响大江南北。' },
+      { year: '1915', title: '古装新戏', desc: '创排《嫦娥奔月》，开古装新戏与舞台革新之先', detail: '他第一次把古装头面、歌舞身段搬上京剧舞台——齐如山执笔，梅兰芳主演，旧戏台上从此有了新模样。' },
+      { year: '1930', title: '渡海赴美', desc: '赴美演出，将京剧介绍给世界，获波莫纳学院荣誉博士', detail: '历时半年，演出 72 场，票价炒至数倍仍一票难求。美国两所学院授予他荣誉文学博士学位。' },
+      { year: '1935', title: '访苏交流', desc: '赴苏联演出，与斯坦尼斯拉夫斯基等戏剧家切磋', detail: '斯坦尼斯拉夫斯基、布莱希特皆到场观摩。布莱希特观后写下名文，中国戏曲的“间离”之美由此写入世界戏剧理论。' },
+      { year: '1937', title: '蓄须明志', desc: '抗战爆发，留须辍演，拒为日伪登台', detail: '他闭门谢客，留起胡须。日伪屡次邀演，他称病推托，甚至打针伤身也绝不应场。' },
+      { year: '1959', title: '挂帅献礼', desc: '排演《穆桂英挂帅》，为国庆十周年献礼', detail: '65 岁再披靠旗，一句“猛听得金鼓响画角声震”轰动京城，成为他艺术生涯的最后一座高峰。' },
+      { year: '1961', title: '大师落幕', desc: '在北京逝世，享年 67 岁', detail: '8 月 8 日病逝。送别之日万人空巷，戏迷们说：梅先生把戏带走了。' }
+    ],
+    route: {
+      cities: [
+        { name: '北京', en: 'BEIJING', x: 823, y: 174, anchor: 'end' },
+        { name: '上海', en: 'SHANGHAI', x: 837, y: 250, anchor: 'end' },
+        { name: '西雅图', en: 'SEATTLE', x: 160, y: 107, anchor: 'start' },
+        { name: '纽约', en: 'NEW YORK', x: 294, y: 167, anchor: 'start' },
+        { name: '旧金山', en: 'SAN FRANCISCO', x: 160, y: 192, anchor: 'end' },
+        { name: '檀香山', en: 'HONOLULU', x: 62, y: 335, anchor: 'start' }
+      ],
+      d: 'M823,174 Q830,215 837,250 Q500,30 160,107 Q230,60 294,167 Q257,150 160,192 Q110,260 62,335'
+    },
+    playsTitle: '代表剧目',
+    plays: [
+      { type: '京剧', tag: '梅派经典', img: 'images/play-guifei.jpg', name: '贵妃醉酒', desc: '杨玉环花亭独酌，一腔幽怨，化作满台醉舞。全剧歌舞并重，“卧鱼”“衔杯”等身段，至今是旦角行的必修课。' },
+      { type: '京剧', tag: '悲壮绝唱', img: 'images/play-bawang.jpg', name: '霸王别姬', desc: '垓下重围，虞姬舞剑自刎，与项羽诀别。舞剑一段剑穗翻飞不见手，是梅派武舞的巅峰。' },
+      { type: '昆曲', tag: '至情之作', img: 'images/play-mudan.jpg', name: '牡丹亭', desc: '杜丽娘游园惊梦，因情而死，又为情复生。梅兰芳晚年拍成电影，把“惊梦”留在了胶片上。' },
+      { type: '京剧', tag: '青衣重头', img: 'images/play-yuzhou.jpg', name: '宇宙锋', desc: '赵女装疯抗旨，金殿之上痛斥权臣。装疯一场真假难辨，最考验演员的火候。' },
+      { type: '京剧', tag: '借古讽今', img: 'images/play-shengsi.jpg', name: '生死恨', desc: '韩玉娘乱世流离，生死相隔，空余遗恨。九一八之后排演此剧，一腔悲愤尽在其中。' },
+      { type: '昆曲', tag: '人蛇情缘', img: 'images/play-duanqiao.jpg', name: '断桥', desc: '白素贞断桥重逢许仙，爱恨交织，再续前缘。一折小戏，唱尽了“情”字的千回百转。' }
+    ],
+    stats: [
+      { n: 100, suffix: '+', label: '代表剧目' },
+      { n: 50, suffix: '+', label: '艺术传人' },
+      { n: 9, suffix: '', label: '访演国家' },
+      { n: 67, suffix: '', label: '从艺年限' }
+    ],
+    motto: {
+      lines: ['我是个笨拙的学艺者，', '没有充分的天才，', '全凭苦学。'],
+      cite: '—— 梅兰芳《舞台生活四十年》'
+    },
+    trivia: [
+      { num: '壹', t: '五十三式指法', p: '梅派手势相传五十三式，指上亦有戏。', d: '梅兰芳与齐如山遍参古画仕女、佛像手印，把旦角手势归纳成谱：兰花指取清雅，云手取流动，翻腕取灵动。一抬手一翻腕，角度、高低、疾徐皆有定式——戏在身上，先在指上。' },
+      { num: '贰', t: '一张著名合影', p: '1930 年洛杉矶，卓别林专程来相会。', d: '当时卓别林正在拍《城市之光》，听闻梅兰芳到访便赶来相会。一位无声电影大师，一位男旦艺术大师，语言不通，就以手势比划身段相谈。那张合影，成了东西方表演艺术相遇的象征。' },
+      { num: '叁', t: '行头即学问', p: '凤冠、宫装、折扇皆有定制。', d: '一件点翠头面需匠人数月方成；宫装绣团凤牡丹，绣样数易其稿。梅兰芳立过规矩：宁穿破，不穿错——行头是角色的身份，错一件，就是错一出戏。' }
+    ],
+    marquee: ['海岛冰轮初转腾', '见玉兔又早东升', '猛听得金鼓响画角声震', '唤起我破天门壮志凌云', '人生在世如春梦', '且自开怀饮几盅'],
+    wm: { story: '戏', plays: '谱', vow: '骨' },
+    heritage: {
+      project: '京剧', level: '人类非物质文化遗产代表作名录',
+      year: '2010 年列入', origin: '北京 · 流派纷呈，梅派为正宗旦行之首'
+    },
+    process: {
+      title: '手上功夫',
+      sub: '从净面到登场，一出戏开场前，角儿要在后台做足这些功夫。点选工序，细看讲究。',
+      steps: [
+        { n: '壹', img: 'images/craft-mei-1.jpg', t: '净面', d: '登台前先净面静心。后台不讲闲话，艺人对着一面小镜，把心沉进角色里。' },
+        { n: '贰', img: 'images/craft-mei-2.jpg', t: '贴片', d: '以真发制的片子贴出鬓角与刘海，调整脸型。旦角的脸，是贴片贴出来的端庄。' },
+        { n: '叁', img: 'images/craft-mei-3.jpg', t: '上妆', d: '拍红、扫粉、描眉、点唇。梅派妆容讲究“淡而韵”，浓一分则俗，淡一分则寡。' },
+        { n: '肆', img: 'images/craft-mei-4.jpg', t: '勒头', d: '网巾勒紧眉眼，让眼神提起。勒得松了没神，紧了生疼——角儿一勒就是几个时辰。' },
+        { n: '伍', img: 'images/craft-mei-5.jpg', t: '插戴', d: '点翠头面、珠花、凤冠依角色身份层层插戴，华贵而不堆砌，是梅兰芳改过的规矩。' },
+        { n: '陆', img: 'images/craft-mei-6.jpg', t: '穿行头', d: '宫装、玉带、云肩上身，箱倌在旁伺候。戏服不洗，讲究的是“宁穿破，不穿错”。' },
+        { n: '柒', img: 'images/craft-mei-7.jpg', t: '登场', d: '检场人一声“伺候了——”，帘子一挑，锣鼓点一起，角儿登场，满台生辉。' }
+      ]
+    },
+    vow: {
+      tag: '1937—1945',
+      lines: ['八年<em>蓄须</em>，', '八年<em>缄默</em>。'],
+      text: '抗日战争时期，他留起胡须，封箱辍演。面对日伪的威逼利诱，始终不为所动，以一身傲骨，守住了艺术家的民族气节。',
+      seal: '明志'
+    }
+  },
+  {
+    id: 'wang',
+    num: '02',
+    cnNum: '其二',
+    kickerEn: 'ARTISAN · CHAPTER TWO',
+    name: '汪天稳',
+    craft: '皮影',
+    craftEn: 'SHADOW PUPPETRY',
+    role: '皮影雕刻大师 · 国家级非遗代表性传承人',
+    years: '1950—',
+    heroImg: null,
+    panelChar: '影',
+    storyTitle: '刀上光影',
+    storyImg: 'images/wangtianwen.jpg',
+    storyImgAlt: '皮影匠人在灯下执刀雕刻牛皮影人',
+    storyCaption: '灯下执刀 · 点击金色圆点，细看皮影行头',
+    quote: ['他以一把平刀，', '在一寸牛皮上，', '刻下整个乡土中国的光影。'],
+    story: [
+      { scene: '华县的夜，白布幕一亮，锣鼓一响，全村人都来了。', h: '皮影之乡', p: '1950 年生于陕西华县。华县皮影千年不衰，田间地头，人人会唱两句灯影腔。他自幼看戏箱、摸牛皮，十二岁拜师皮影雕刻艺人李占文，从此执刀不辍。' },
+      { scene: '刀尖抵住牛皮，左手旋转，一朵梅花在刀刃下开了。', h: '推皮走刀', p: '汪派雕镂讲究“推皮走刀”——刀锋不动，牛皮自走，万字、雪花、鱼鳞、梅花纹样一气呵成。一张牛皮，要经刮磨、过稿、雕镂、敷彩等八道工序，方能登台映影。' },
+      { scene: '传习所的灯，常常亮到后半夜。', h: '光影传薪', p: '他创办皮影工作室，带徒授艺，女儿汪海燕承其衣钵。皮影从华县的土戏台走进美术馆、走进课堂——灯亮幕启，影人依旧翻打腾挪。' }
+    ],
+    hotspots: [
+      { x: 33, y: 16, t: '靠旗纹样', d: '武将影人背后的靠旗，镂空雕出万字、鱼鳞纹，透光处如花窗。纹样越细，映在幕上越亮。' },
+      { x: 22, y: 38, t: '五分脸影人', d: '皮影人物多为侧面“五分脸”——一顶冠、半张脸，忠奸善恶一眼分明。这尊影人，盔头靠甲俱全。' },
+      { x: 72, y: 62, t: '平刀', d: '汪派雕镂用平口刀。刻时刀锋不动，左手推皮旋转走刀，人称“推皮走刀”，纹样连绵不断。' },
+      { x: 55, y: 85, t: '秦川牛皮', d: '选三年以上的秦川黄牛皮，刮磨至薄厚均匀、透光如镜。皮性不对，刀下去就废了。' }
+    ],
+    timeline: [
+      { year: '1950', title: '皮影之乡', desc: '生于陕西华县，自幼浸润灯影戏文', detail: '华县自古有“皮影之乡”之称。农闲时节，村村搭台唱灯影，白布幕后的锣鼓，是他最早的启蒙课。' },
+      { year: '1962', title: '执刀学艺', desc: '拜师皮影雕刻艺人李占文，习得“推皮走刀”', detail: '学徒三年，头一年只磨刀子、认皮性。师傅说：刀不听你的，是你没听懂牛皮。' },
+      { year: '1980s', title: '刀法大成', desc: '雕镂技艺日臻化境，作品远销海内外', detail: '“推皮走刀”练到化境——刻刀不动，全凭左手推皮旋转走刀，纹样连绵不断，一气呵成。' },
+      { year: '2008', title: '国家认定', desc: '获评国家级非物质文化遗产代表性传承人', detail: '华县皮影列入国家级非遗名录，他成为代表性传承人。称号落定那天，他仍坐在灯下动刀。' },
+      { year: '2016', title: '创办传习所', desc: '成立皮影传习所，带徒授艺，皮影走进校园', detail: '传习所里最小的学徒只有九岁。他说：娃们肯学，这手艺就断不了。' },
+      { year: '至今', title: '刀锋未钝', desc: '年逾七旬，仍每日执刀，影卷常新', detail: '每天清晨，他仍要在灯下刻上两三个时辰。刀锋未钝，光影常新。' }
+    ],
+    route: null,
+    playsTitle: '代表作品',
+    plays: [
+      { type: '皮影', tag: '长卷巨制', img: 'images/work-qmsh.jpg', name: '清明上河图', desc: '数米皮影长卷，汴梁百态跃然灯影之间。舟船、酒旗、贩夫走卒，皆由一刀一刀推出。' },
+      { type: '皮影', tag: '刀下功夫', img: 'images/work-sanguo.jpg', name: '三国人物谱', desc: '关张赵马黄，靠旗铠甲，一刀一将。翎子、盔头、靠旗的纹样，各有各的谱。' },
+      { type: '皮影', tag: '才子佳人', img: 'images/work-xixiang.jpg', name: '西厢记', desc: '才子佳人，雕镂之间尽是缠绵。裙摆上的缠枝莲，细处不过发丝。' },
+      { type: '皮影', tag: '民俗意趣', img: 'images/work-shengxiao.jpg', name: '十二生肖', desc: '民俗意趣，稚拙可爱，最惹孩子喜欢。一张牛皮，十二种性情。' }
+    ],
+    stats: [
+      { n: 60, suffix: '+', label: '执刀岁月（年）' },
+      { n: 1000, suffix: '+', label: '雕镂作品（件）' },
+      { n: 8, suffix: '', label: '传统工序（道）' },
+      { n: 100, suffix: '+', label: '授徒传艺（人）' }
+    ],
+    motto: {
+      lines: ['刀在皮上走，', '心在刀尖上。'],
+      cite: '—— 华县老艺人口口相传的行话'
+    },
+    trivia: [
+      { num: '壹', t: '选皮如镜', p: '只用三年以上的秦川黄牛皮。', d: '好皮要薄、透、匀：对着灯看，无疤无筋，光可照人。选皮之后还要泡、刮、磨数月，直到皮张平展如镜——皮性定了，影人才挺得起来。' },
+      { num: '贰', t: '五分脸', p: '一顶冠、半张脸，忠奸善恶一眼分明。', d: '皮影人物取侧面，称“五分脸”。旦角柳叶眉、樱桃口，武将立眉豹眼，净角满脸纹络——眉眼稍错半分，灯下就不是那个人了。' },
+      { num: '叁', t: '八道工序', p: '刮磨、过稿、雕镂、敷彩，一道省不得。', d: '最难是雕镂：刀不动、皮走，万字纹要一气呵成；最险是发汗：热砖熨皮固色，火候过了整张卷边。老艺人说：八道工序，七道是耐性，一道是胆气。' }
+    ],
+    marquee: ['一口叙说千古事', '双手对舞百万兵', '灯前是影', '幕后是戏', '牛皮上刻乾坤', '锣鼓里听春秋'],
+    wm: { story: '影', plays: '谱', vow: '刀' },
+    heritage: {
+      project: '中国皮影戏', level: '人类非物质文化遗产代表作名录',
+      year: '2011 年列入', origin: '陕西华县 · 灯影戏文，千年不衰'
+    },
+    process: {
+      title: '八道工序',
+      sub: '一张牛皮到一尊影人，要过八道关。点选工序，看一张皮如何变成一个人。',
+      steps: [
+        { n: '壹', img: 'images/craft-wang-1.jpg', t: '选皮', d: '只取三年以上的秦川黄牛皮，薄厚均匀、透光如镜。皮若不对，后面全是白费。' },
+        { n: '贰', img: 'images/craft-wang-2.jpg', t: '刮磨', d: '反复刮磨去脂去毛，直到皮张薄透光亮。这一步最枯燥，也最见耐性。' },
+        { n: '叁', img: 'images/craft-wang-3.jpg', t: '过稿', d: '将世代相传的谱样过到皮上。翎子几根、靠旗几面，老谱子里都有定数。' },
+        { n: '肆', img: 'images/craft-wang-4.jpg', t: '雕镂', d: '推皮走刀，万字、雪花、鱼鳞、梅花一气呵成。刀刀不回头，是皮影的手上绝活儿。' },
+        { n: '伍', img: 'images/craft-wang-5.jpg', t: '敷彩', d: '以红、绿、黄、黑矿物色点染，正反面都敷彩，映在灯影里才鲜亮不透浊。' },
+        { n: '陆', img: 'images/craft-wang-6.jpg', t: '发汗熨平', d: '敷彩后“发汗”固色，再以热砖熨平。火候差一分，皮张就卷了边。' },
+        { n: '柒', img: 'images/craft-wang-7.jpg', t: '缀结', d: '影人分头、身、臂、腿十余片，以线缀结，关节灵活，方能翻打腾挪。' },
+        { n: '捌', img: 'images/craft-wang-8.jpg', t: '装签', d: '装上竹签操纵杆，主签管身，侧签管手。三根签子，演尽人间百态。' }
+      ]
+    },
+    vow: {
+      tag: '1962 — 执刀至今',
+      lines: ['一刀<em>一世界</em>，', '一皮<em>一乾坤</em>。'],
+      text: '六十余年，他手中的刻刀没有放下过。从华县的土窑洞到世界美术馆，一张牛皮、一把平刀，刻的是纹样，守的是乡土中国的光影记忆。',
+      seal: '执刀'
+    }
+  },
+  {
+    id: 'yao',
+    num: '03',
+    cnNum: '其三',
+    kickerEn: 'ARTISAN · CHAPTER THREE',
+    name: '姚建萍',
+    craft: '苏绣',
+    craftEn: 'SU EMBROIDERY',
+    role: '苏绣国家级非遗代表性传承人 · 中国工艺美术大师',
+    years: '1967—',
+    heroImg: null,
+    panelChar: '绣',
+    storyTitle: '针上江南',
+    storyImg: 'images/yaojianping.jpg',
+    storyImgAlt: '绣娘在绣绷上执针刺绣牡丹',
+    storyCaption: '绷上芳华 · 点击金色圆点，细看绣面讲究',
+    quote: ['她把一根蚕丝，', '劈作三十六分之一的细，', '绣出整个江南的温润。'],
+    story: [
+      { scene: '太湖边的清晨，绣绷支在门口，丝线比朝霞还亮。', h: '镇湖绣女', p: '1967 年生于苏州镇湖——太湖之畔的刺绣之乡，家家绣绷、户户飞针。她八岁随母执针，绣绷前的光阴，一坐就是半个世纪。' },
+      { scene: '别人画画用笔，她用一根针、三百种丝线。', h: '以针代笔', p: '她融绘画与摄影于绣面，以针代笔、以线为墨。人物肖像绣尤为精绝：肤光、眼神、发丝，皆由千万针脚层层堆叠而成。' },
+      { scene: '国礼装箱那天，她又在灯下把针脚检查了一遍。', h: '国礼之绣', p: '《木槿花开》《岁月如歌》等作品多次作为国礼赠予外国元首。一根丝线，成了中国递向世界的一张名片。' }
+    ],
+    hotspots: [
+      { x: 38, y: 32, img: 'images/craft-yao-5.jpg', t: '运针', d: '苏绣讲究“平、齐、细、密、匀、顺、和、光”。一针出入，长短参差皆有法度，光影全靠针脚走向。' },
+      { x: 17, y: 72, t: '劈丝配色', d: '一束丝线要先劈再染。一根蚕丝可劈作三十六份，一幅肖像绣要用数百种色线层层叠色。' },
+      { x: 63, y: 58, t: '绣面', d: '缎面为纸，丝线为墨。花瓣的明暗由色线渐变堆出，近看是千万针点，远看是一幅画。' },
+      { x: 76, y: 84, t: '绣绷', d: '绣面必须绷得平如镜面。绷松一线，针脚就泄了气——上绷本身就是一门手艺。' }
+    ],
+    timeline: [
+      { year: '1967', title: '生于镇湖', desc: '太湖之畔刺绣之乡，家家绣绷、户户飞针', detail: '镇湖八千绣娘，户户有绷。她还在蹒跚学步时，就认得满篮丝线的颜色了。' },
+      { year: '1975', title: '八岁执针', desc: '随母亲习绣，从一朵小花绣起', detail: '第一幅习作是一朵歪歪扭扭的小花。母亲却说：这针脚里，有灵气。' },
+      { year: '1998', title: '创立工作室', desc: '创办个人刺绣艺术工作室，探索融画入绣', detail: '别人绣花鸟，她偏要绣人物、绣油画、绣光影。绣界议论纷纷，她一意孤行。' },
+      { year: '2014', title: '国礼绽放', desc: '苏绣《木槿花开》作为国礼赠予韩国总统', detail: '木槿是韩国的国花。一针一线绣出的木槿花开，随国宾车队远赴首尔。' },
+      { year: '2015', title: '再赠英伦', desc: '《岁月如歌》作为国礼赠予英国女王', detail: '作品以女王夫妇的合影为蓝本，数十种色线层层铺陈，整整绣了一年。' },
+      { year: '2018', title: '大师加冕', desc: '获评中国工艺美术大师', detail: '从镇湖绣女到中国工艺美术大师，她用了四十年——针还是那根针。' }
+    ],
+    route: null,
+    playsTitle: '代表作品',
+    plays: [
+      { type: '国礼', tag: '2014 赠韩', img: 'images/work-mujin.jpg', name: '木槿花开', desc: '丝线层叠，花意正浓。以韩国国花为题，一针一线皆是东道心意。' },
+      { type: '国礼', tag: '2015 赠英', img: 'images/work-suiyue.jpg', name: '岁月如歌', desc: '岁月缱绻，针脚温柔。以影像入绣，把一对伉俪的流年绣进了丝缎。' },
+      { type: '苏绣', tag: '丝路长卷', img: 'images/work-silu.jpg', name: '丝绸之路', desc: '驼铃远去，丝路繁华尽收一方绣面。大漠的金、驼队的褐，皆由丝线调出。' },
+      { type: '苏绣', tag: '东西对话', img: 'images/work-monalisa.jpg', name: '蒙娜丽莎', desc: '以东方丝线重绎西方经典。数百种色线交叠，微笑依旧神秘。' }
+    ],
+    stats: [
+      { n: 40, suffix: '+', label: '从艺岁月（年）' },
+      { n: 36, suffix: '', label: '一根蚕丝可劈份数' },
+      { n: 40, suffix: '+', label: '传统针法（种）' },
+      { n: 4, suffix: '', label: '“山花奖”摘冠次数' }
+    ],
+    motto: {
+      lines: ['一根丝线三十六劈，', '劈的是手，修的是心。'],
+      cite: '—— 镇湖绣娘的老话'
+    },
+    trivia: [
+      { num: '壹', t: '劈丝', p: '一根蚕丝，可劈作三十六份。', d: '劈丝不用剪、不用刀，全凭拇指食指一捻一分。劈出的丝越细，绣面明暗过渡越润——人物脸颊上那一抹红晕，非三十六分之一丝不能成。' },
+      { num: '贰', t: '双面绣', p: '同一绷面，两面成画。', d: '双面绣要求正反针脚皆净：藏头、隐尾、埋线，一根线头都不能露。更有双面异色异样者——一面是猫，一面是虎，绷架一转，满堂皆惊。' },
+      { num: '叁', t: '以线调色', p: '数百种色线，远看是画，近看是针点。', d: '苏绣没有调色盘，颜色全靠丝线交叠。一片花瓣明暗五六层，每层换一根线。绣娘的功夫，是把光的走向，绣进针脚里。' }
+    ],
+    marquee: ['平齐细密', '匀顺和光', '一根丝劈三十六', '千万针脚绣江南', '以针代笔', '以线为墨'],
+    wm: { story: '绣', plays: '珍', vow: '针' },
+    heritage: {
+      project: '苏绣', level: '第一批国家级非物质文化遗产',
+      year: '2006 年列入', origin: '江苏苏州 · 镇湖八千绣娘，户户飞针'
+    },
+    process: {
+      title: '一线之功',
+      sub: '从一根蚕丝到一幅绣品，步步都是手上功夫。点选工序，看一根丝如何开出花。',
+      steps: [
+        { n: '壹', img: 'images/craft-yao-1.jpg', t: '劈丝', d: '一根蚕丝用手指劈作数份乃至三十六份，最细处肉眼难辨。劈得匀，绣面才润。' },
+        { n: '贰', img: 'images/craft-yao-2.jpg', t: '上绷', d: '缎面上绷，绷得平如镜面、紧如鼓面。绷松一线，满幅针脚都泄气。' },
+        { n: '叁', img: 'images/craft-yao-3.jpg', t: '画稿', d: '以淡墨或喷绘上稿。绣人物时，眉眼神情的位置，差一针就不是那个人了。' },
+        { n: '肆', img: 'images/craft-yao-4.jpg', t: '配色', d: '数百种色线依光选配。苏绣配色讲究“雅”，多一分则艳，少一分则灰。' },
+        { n: '伍', img: 'images/craft-yao-5.jpg', t: '运针', d: '平针、乱针、打籽、盘金各得其用。针脚的走向就是光线的走向。' },
+        { n: '陆', img: 'images/craft-yao-6.jpg', t: '收针', d: '藏尽针脚，正反皆净。双面绣更要求两面无痕，线头藏在丝线之下。' },
+        { n: '柒', img: 'images/craft-yao-7.jpg', t: '装裱', d: '下绷、整平、装框。一幅绣品至此方成，缎面上的江南，可传百年。' }
+      ]
+    },
+    vow: {
+      tag: '1975 — 执针至今',
+      lines: ['以<em>针</em>代笔，', '以<em>线</em>为墨。'],
+      text: '半个世纪，她坐在绣绷前，把光阴一针一线绣进丝缎。千万次起落之间，江南的温润与体面，被永远留住了。',
+      seal: '针心'
+    }
+  }
+];
 
-const chars = '生旦净末丑唱念做打西皮二黄锣鼓胡琴脸谱髯口翎子祥云如意京剧梅兰芳贵妃醉酒霸王别姬牡丹亭水袖凤冠';
-const charCount = 150;
-const particles = [];
+let currentId = 'mei';
+const pad2 = n => String(n).padStart(2, '0');
+const getArtisan = () => ARTISANS.find(a => a.id === currentId);
 
-for (let i = 0; i < charCount; i++) {
-  particles.push({
-    x: Math.random() * W,
-    y: Math.random() * H,
-    size: 14 + Math.random() * 28,
-    speedX: (Math.random() - 0.5) * 0.3,
-    speedY: (Math.random() - 0.5) * 0.2,
-    color: '#8b5a2b',
-    char: chars[Math.floor(Math.random() * chars.length)]
+/* ==================== 基础环境 ==================== */
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const isDesktop = () => window.matchMedia('(min-width: 768px)').matches;
+let lenis = null;
+const dynST = []; // 随内容重建的 ScrollTrigger
+
+/* 动效库加载失败时，保证内容全部可见 */
+window.addEventListener('load', () => {
+  if (!window.gsap) document.documentElement.classList.remove('has-anim');
+  if (window.ScrollTrigger) ScrollTrigger.refresh();
+});
+
+/* ==================== 渲染 ==================== */
+function typePanelHTML(a, extra) {
+  return '<div class="type-panel ' + (extra || '') + '">' +
+    '<span class="type-panel__char" aria-hidden="true">' + a.panelChar + '</span>' +
+    '<span class="type-panel__name">' + a.name + '</span>' +
+    '<span class="type-panel__seal" aria-hidden="true">' + a.craft.slice(0, 1) + '</span>' +
+    '<span class="type-panel__craft">' + a.craft + ' · ' + a.craftEn + '</span>' +
+  '</div>';
+}
+
+function renderHero(a) {
+  document.getElementById('heroKicker').textContent = a.kickerEn;
+  document.getElementById('heroTitle').textContent = a.name;
+  document.getElementById('heroRole').textContent = a.role;
+  document.getElementById('heroEn').textContent = a.name === '梅兰芳'
+    ? 'MEI LANFANG · ' + a.years
+    : a.craftEn + ' · ' + a.years;
+  const media = document.getElementById('heroMedia');
+  media.innerHTML = a.heroImg
+    ? '<img src="' + a.heroImg + '" alt="' + a.heroAlt + '" fetchpriority="high">'
+    : typePanelHTML(a);
+}
+
+function renderArtisanList() {
+  const list = document.getElementById('artisanList');
+  list.innerHTML = '';
+  ARTISANS.forEach(a => {
+    const btn = document.createElement('button');
+    btn.className = 'artisan-card' + (a.id === currentId ? ' is-active' : '');
+    btn.setAttribute('aria-pressed', String(a.id === currentId));
+    btn.innerHTML =
+      '<span class="artisan-card__num">' + a.num + '</span>' +
+      '<span><span class="artisan-card__name">' + a.name + '</span>' +
+      '<span class="artisan-card__craft-en">' + a.craftEn + '</span></span>' +
+      '<span class="artisan-card__meta">' + a.craft + ' · ' + a.years +
+        '<span class="artisan-card__tag">展读中</span></span>';
+    btn.addEventListener('click', () => switchArtisan(a.id));
+    list.appendChild(btn);
   });
 }
 
-function animate() {
-  ctx.clearRect(0, 0, W, H);
-  particles.forEach(p => {
-    p.x += p.speedX;
-    p.y += p.speedY;
-    if (p.x < -50) p.x = W + 50;
-    if (p.x > W + 50) p.x = -50;
-    if (p.y < -50) p.y = H + 50;
-    if (p.y > H + 50) p.y = -50;
-    ctx.font = p.size + 'px "Noto Serif SC", serif';
-    ctx.fillStyle = p.color;
-    ctx.globalAlpha = 0.8;
-    ctx.fillText(p.char, p.x, p.y);
-  });
-  requestAnimationFrame(animate);
+/* 把含标签的 HTML 逐字拆分（保留 <em> 等标签），供逐字浮现动画 */
+function splitChars(html) {
+  const tmp = document.createElement('div');
+  tmp.innerHTML = html;
+  const walk = node => {
+    Array.from(node.childNodes).forEach(child => {
+      if (child.nodeType === 3) {
+        const frag = document.createDocumentFragment();
+        Array.from(child.textContent).forEach(ch => {
+          if (ch.trim() === '') { frag.appendChild(document.createTextNode(ch)); return; }
+          const s = document.createElement('span');
+          s.className = 'ch';
+          s.textContent = ch;
+          frag.appendChild(s);
+        });
+        node.replaceChild(frag, child);
+      } else if (child.nodeType === 1) {
+        walk(child);
+      }
+    });
+  };
+  walk(tmp);
+  return tmp.innerHTML;
 }
-animate();
+
+function renderIntro(a) {
+  const q = document.getElementById('introQuote');
+  q.innerHTML = a.quote.map(line =>
+    '<p class="reveal-line"><span>' + splitChars(line) + '</span></p>'
+  ).join('') +
+  '<p class="intro__note reveal">—— 匠人故事 · ' + a.cnNum + '</p>';
+}
+
+function renderQuote(a) {
+  document.getElementById('quoteText').innerHTML = a.motto.lines.map(line =>
+    '<p class="reveal-line"><span>' + splitChars(line) + '</span></p>'
+  ).join('');
+  document.getElementById('quoteCite').textContent = a.motto.cite;
+}
+
+function renderHeritage(a) {
+  const h = a.heritage;
+  document.getElementById('heritageGrid').innerHTML =
+    '<div class="heritage__cell"><span class="heritage__label">遗产项目</span><span class="heritage__value">' + h.project + '</span></div>' +
+    '<div class="heritage__cell"><span class="heritage__label">名录级别</span><span class="heritage__value"><em>' + h.level + '</em></span></div>' +
+    '<div class="heritage__cell"><span class="heritage__label">列入年份</span><span class="heritage__value">' + h.year + '</span></div>' +
+    '<div class="heritage__cell"><span class="heritage__label">源流地脉</span><span class="heritage__value">' + h.origin + '</span></div>';
+}
+
+function renderCraft(a) {
+  document.getElementById('craftTitle').textContent = a.process.title;
+  document.getElementById('craftSub').textContent = a.process.sub;
+  const stepsEl = document.getElementById('craftSteps');
+  const detailEl = document.getElementById('craftDetail');
+  const barFill = document.getElementById('craftBarFill');
+  stepsEl.innerHTML = '';
+  a.process.steps.forEach((s, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'craft__step' + (i === 0 ? ' is-active' : '');
+    btn.setAttribute('role', 'tab');
+    btn.setAttribute('aria-selected', String(i === 0));
+    btn.innerHTML = '<i>' + s.n + '</i>' + s.t;
+    btn.addEventListener('click', () => {
+      stepsEl.querySelectorAll('.craft__step').forEach((el, j) => {
+        el.classList.toggle('is-active', i === j);
+        el.setAttribute('aria-selected', String(i === j));
+      });
+      barFill.style.transform = 'scaleX(' + ((i + 1) / a.process.steps.length) + ')';
+      const show = () => {
+        detailEl.innerHTML = '<div class="craft__detail-inner"><div class="craft__body">' +
+          '<figure class="craft__figure"><img src="' + s.img + '" alt="' + s.t + '工序示意" loading="lazy"></figure>' +
+          '<div class="craft__text"><h3><i>' + s.n + '</i>' + s.t + '</h3><p>' + s.d + '</p></div>' +
+        '</div></div>';
+      };
+      if (window.gsap && !reduceMotion) {
+        gsap.to(detailEl, {
+          opacity: 0, y: 8, duration: .18, ease: 'power2.in',
+          onComplete: () => { show(); gsap.to(detailEl, { opacity: 1, y: 0, duration: .35, ease: 'power3.out' }); }
+        });
+      } else show();
+    });
+    stepsEl.appendChild(btn);
+  });
+  barFill.style.transform = 'scaleX(' + (1 / a.process.steps.length) + ')';
+  const first = a.process.steps[0];
+  detailEl.innerHTML = '<div class="craft__detail-inner"><div class="craft__body">' +
+    '<figure class="craft__figure"><img src="' + first.img + '" alt="' + first.t + '工序示意" loading="lazy"></figure>' +
+    '<div class="craft__text"><h3><i>' + first.n + '</i>' + first.t + '</h3><p>' + first.d + '</p></div>' +
+  '</div></div>';
+}
+
+function renderTrivia(a) {
+  const grid = document.getElementById('triviaGrid');
+  grid.innerHTML = '';
+  const PLUS = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M8 2v12M2 8h12"/></svg>';
+  a.trivia.forEach(t => {
+    const card = document.createElement('button');
+    card.className = 'trivia__card reveal';
+    card.setAttribute('aria-expanded', 'false');
+    card.innerHTML =
+      '<span class="trivia__ghost" aria-hidden="true">' + t.num + '</span>' +
+      '<span class="trivia__num">' + t.num + '<b>' + t.t + '</b>' + PLUS + '</span>' +
+      '<p>' + t.p + '</p>' +
+      '<span class="trivia__detail"><span class="trivia__detail-inner"><p>' + t.d + '</p></span></span>';
+    card.addEventListener('click', () => {
+      const open = card.getAttribute('aria-expanded') === 'true';
+      card.setAttribute('aria-expanded', String(!open));
+    });
+    grid.appendChild(card);
+  });
+
+  /* 3D 微倾斜（仅桌面可悬停设备） */
+  if (!reduceMotion && window.matchMedia('(hover: hover) and (min-width: 768px)').matches) {
+    grid.querySelectorAll('.trivia__card').forEach(card => {
+      card.addEventListener('mousemove', e => {
+        const r = card.getBoundingClientRect();
+        const rx = ((e.clientY - r.top) / r.height - .5) * -5;
+        const ry = ((e.clientX - r.left) / r.width - .5) * 5;
+        card.style.transform = 'rotateX(' + rx + 'deg) rotateY(' + ry + 'deg)';
+      });
+      card.addEventListener('mouseleave', () => { card.style.transform = 'rotateX(0) rotateY(0)'; });
+    });
+  }
+}
+
+function renderMarquee(a) {
+  const line = a.marquee.map((t, i) => (i % 2 === 0 ? '<em>' + t + '</em>' : t)).join(' · ');
+  /* 两条相同内容首尾相接，实现无缝滚动 */
+  document.getElementById('marqueeTrack').innerHTML =
+    '<span class="marquee__line">' + line + '</span><span class="marquee__line">' + line + '</span>';
+}
+
+function renderWatermarks(a) {
+  document.querySelectorAll('.wm').forEach(el => el.remove());
+  [['story', a.wm.story], ['plays', a.wm.plays], ['vow', a.wm.vow]].forEach(([id, ch]) => {
+    const wm = document.createElement('div');
+    wm.className = 'wm';
+    wm.setAttribute('aria-hidden', 'true');
+    wm.textContent = ch;
+    document.getElementById(id).appendChild(wm);
+  });
+}
+
+function renderStory(a) {
+  document.getElementById('storyTitle').textContent = a.storyTitle;
+  const media = document.getElementById('storyMedia');
+  let html = '';
+  if (a.storyImg) {
+    html += '<div class="shot">' +
+      '<img src="' + a.storyImg + '" alt="' + a.storyImgAlt + '" loading="lazy">';
+    if (a.hotspots) {
+      html += '<span class="shot__hint" aria-hidden="true">点击圆点 · 细看行头</span>';
+      a.hotspots.forEach((h, i) => {
+        const vert = h.y > 55 ? 't' : 'b';
+        const horiz = h.x > 55 ? 'l' : 'r';
+        html +=
+          '<button class="hotspot" style="left:' + h.x + '%;top:' + h.y + '%" ' +
+            'aria-expanded="false" aria-label="' + h.t + ' 注解" data-hotspot="' + i + '">' +
+            '<span class="hotspot__ring" aria-hidden="true"></span>' +
+            '<span class="hotspot__core" aria-hidden="true"></span>' +
+          '</button>' +
+          '<div class="shot__card shot__card--' + vert + horiz + '" role="note" ' +
+            'style="left:' + h.x + '%;top:' + h.y + '%" data-card="' + i + '">' +
+            '<h4>' + h.t + '</h4><p>' + h.d + '</p>' +
+          '</div>';
+      });
+    }
+    html += '</div>';
+  } else {
+    html += typePanelHTML(a, 'type-panel--story');
+  }
+  html += '<figcaption>' + a.storyCaption + '</figcaption>';
+  media.innerHTML = html;
+
+  /* 热点交互 */
+  media.querySelectorAll('.hotspot').forEach(dot => {
+    dot.addEventListener('click', () => {
+      const i = dot.dataset.hotspot;
+      const card = media.querySelector('[data-card="' + i + '"]');
+      const willOpen = dot.getAttribute('aria-expanded') !== 'true';
+      media.querySelectorAll('.hotspot').forEach(d => d.setAttribute('aria-expanded', 'false'));
+      media.querySelectorAll('.shot__card').forEach(c => c.classList.remove('is-open'));
+      if (willOpen) {
+        dot.setAttribute('aria-expanded', 'true');
+        card.classList.add('is-open');
+      }
+    });
+  });
+
+  const blocks = document.getElementById('storyBlocks');
+  blocks.innerHTML = a.story.map(b =>
+    '<article class="story__block reveal">' +
+      '<p class="story__scene">' + b.scene + '</p>' +
+      '<h3>' + b.h + '</h3><p>' + b.p + '</p>' +
+    '</article>'
+  ).join('');
+}
+
+function renderTimeline(a) {
+  const track = document.getElementById('tlTrack');
+  track.innerHTML = '';
+  const PLUS = '<svg class="tl-item__plus" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M8 2v12M2 8h12"/></svg>';
+  a.timeline.forEach(d => {
+    const item = document.createElement('button');
+    item.className = 'tl-item';
+    item.setAttribute('aria-expanded', 'false');
+    item.innerHTML =
+      '<div class="tl-item__year">' + d.year + '</div>' +
+      '<h3 class="tl-item__title">' + d.title + PLUS + '</h3>' +
+      '<p class="tl-item__desc">' + d.desc + '</p>' +
+      '<span class="tl-item__detail"><span class="tl-item__detail-inner"><p>' + d.detail + '</p></span></span>';
+    track.appendChild(item);
+  });
+  initTimelineRail();
+}
+
+/* ==================== 年表长卷：拖拽 / 翻页 / 进度 / 点亮 ==================== */
+function initTimelineRail() {
+  const viewport = document.getElementById('tlViewport');
+  const track = document.getElementById('tlTrack');
+  const barFill = document.getElementById('tlBarFill');
+  const prev = document.getElementById('tlPrev');
+  const next = document.getElementById('tlNext');
+  const items = Array.from(track.querySelectorAll('.tl-item'));
+  let x = 0, maxX = 0;
+
+  /* 降级：无 gsap 或减弱动效 → 原生横向滚动 */
+  if (!window.gsap || reduceMotion) {
+    viewport.classList.add('tl-viewport--native');
+    track.style.transform = 'none';
+    const syncNative = () => {
+      const m = Math.max(1, track.scrollWidth - viewport.clientWidth);
+      barFill.style.transform = 'scaleX(' + (viewport.scrollLeft / m) + ')';
+      prev.disabled = viewport.scrollLeft <= 4;
+      next.disabled = viewport.scrollLeft >= m - 4;
+    };
+    viewport.addEventListener('scroll', syncNative);
+    prev.onclick = () => viewport.scrollBy({ left: -320, behavior: 'smooth' });
+    next.onclick = () => viewport.scrollBy({ left: 320, behavior: 'smooth' });
+    items.forEach(it => {
+      it.classList.add('is-lit');
+      it.addEventListener('click', () => it.setAttribute('aria-expanded', String(it.getAttribute('aria-expanded') !== 'true')));
+    });
+    syncNative();
+    return;
+  }
+  viewport.classList.remove('tl-viewport--native');
+
+  const measure = () => { maxX = Math.max(0, track.scrollWidth - viewport.clientWidth); };
+  const render = () => {
+    gsap.set(track, { x });
+    barFill.style.transform = 'scaleX(' + (maxX ? -x / maxX : 0) + ')';
+    prev.disabled = x >= -4; next.disabled = x <= -maxX + 4;
+    /* 最接近视口中心的节点点亮 */
+    const vc = viewport.clientWidth / 2;
+    let bestI = 0, bestD = Infinity;
+    items.forEach((it, i) => {
+      const r = it.getBoundingClientRect();
+      const vr = viewport.getBoundingClientRect();
+      const c = r.left - vr.left + r.width / 2;
+      const d = Math.abs(c - vc);
+      if (d < bestD) { bestD = d; bestI = i; }
+    });
+    items.forEach((it, i) => it.classList.toggle('is-lit', Math.abs(i - bestI) <= 1));
+  };
+  const setX = (nx, animate) => {
+    x = Math.max(-maxX, Math.min(0, nx));
+    if (animate) gsap.to(track, { x, duration: .55, ease: 'power3.out', onUpdate: render });
+    else render();
+  };
+  measure(); render();
+
+  /* 拖拽 + 惯性 */
+  let dragging = false, startX = 0, baseX = 0, lastX = 0, vel = 0, moved = 0, suppressClick = false;
+  viewport.onpointerdown = e => {
+    dragging = true; moved = 0; startX = lastX = e.clientX; baseX = x;
+    viewport.classList.add('is-drag');
+    viewport.setPointerCapture(e.pointerId);
+    gsap.killTweensOf(track);
+  };
+  viewport.onpointermove = e => {
+    if (!dragging) return;
+    const dx = e.clientX - startX;
+    moved = Math.max(moved, Math.abs(dx));
+    vel = e.clientX - lastX; lastX = e.clientX;
+    x = Math.max(-maxX - 60, Math.min(60, baseX + dx)); /* 边缘橡皮筋 */
+    render();
+  };
+  const endDrag = () => {
+    if (!dragging) return;
+    dragging = false;
+    viewport.classList.remove('is-drag');
+    suppressClick = moved > 8; /* 仅抑制紧随拖拽的那次点击 */
+    let target = x + vel * 14; /* 惯性 */
+    setX(target, true);
+  };
+  viewport.onpointerup = viewport.onpointercancel = endDrag;
+
+  /* 点击展开 */
+  items.forEach(it => {
+    it.addEventListener('click', () => {
+      if (suppressClick) { suppressClick = false; return; }
+      it.setAttribute('aria-expanded', String(it.getAttribute('aria-expanded') !== 'true'));
+    });
+  });
+
+  /* 翻页按钮 */
+  const step = () => (items[0] ? items[0].offsetWidth + 22.4 : 300);
+  prev.onclick = () => setX(x + step(), true);
+  next.onclick = () => setX(x - step(), true);
+
+  window.addEventListener('resize', () => { measure(); setX(x, false); });
+}
+
+function renderRoute(a) {
+  const sec = document.getElementById('route');
+  if (!a.route) { sec.style.display = 'none'; return; }
+  sec.style.display = '';
+  const gridV = [83, 167, 250, 333, 417, 500, 583, 667, 750, 833, 917];
+  const gridH = [173, 347];
+  let svg = '<svg viewBox="0 0 1000 520" role="img" aria-label="1930 年梅兰芳访美航线示意图">';
+  gridV.forEach(x => { svg += '<line x1="' + x + '" y1="0" x2="' + x + '" y2="520" stroke="rgba(232,226,213,.11)" stroke-dasharray="2 6"/>'; });
+  gridH.forEach(y => { svg += '<line x1="0" y1="' + y + '" x2="1000" y2="' + y + '" stroke="rgba(232,226,213,.11)" stroke-dasharray="2 6"/>'; });
+  svg += '<path d="' + a.route.d + '" fill="none" stroke="rgba(201,169,110,.18)" stroke-width="1.4" stroke-dasharray="2 7"/>';
+  svg += '<path id="routePath" d="' + a.route.d + '" fill="none" stroke="#c9a96e" stroke-width="1.8" stroke-linecap="round"/>';
+  a.route.cities.forEach(c => {
+    const tx = c.anchor === 'end' ? c.x - 14 : c.x + 14;
+    svg += '<g class="route-city" style="opacity:0">' +
+      '<circle cx="' + c.x + '" cy="' + c.y + '" r="4.5" fill="#c9a96e"/>' +
+      '<circle cx="' + c.x + '" cy="' + c.y + '" r="10" fill="none" stroke="rgba(201,169,110,.4)"/>' +
+      '<text x="' + tx + '" y="' + (c.y - 6) + '" text-anchor="' + c.anchor + '" fill="#e8e2d5" font-size="15" font-weight="600" letter-spacing="3">' + c.name + '</text>' +
+      '<text x="' + tx + '" y="' + (c.y + 14) + '" text-anchor="' + c.anchor + '" fill="#5e5a52" font-size="9" letter-spacing="2.5" font-family="Cinzel, serif">' + c.en + '</text>' +
+    '</g>';
+  });
+  svg += '<g id="routeMarker"><circle r="5.5" fill="#a63a2c" stroke="#e8e2d5" stroke-width="1.2"/></g>';
+  svg += '</svg>';
+  document.getElementById('routeMap').innerHTML = svg;
+}
+
+const ARROW_SVG = '<svg class="play-row__arrow" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M8 2v12M2 8h12"/></svg>';
+function renderPlays(a) {
+  document.getElementById('playsTitle').textContent = a.playsTitle;
+  const playsList = document.getElementById('playsList');
+  playsList.innerHTML = '';
+  a.plays.forEach((d, i) => {
+    const row = document.createElement('button');
+    row.className = 'play-row';
+    row.setAttribute('aria-expanded', 'false');
+    row.innerHTML =
+      '<span class="play-row__main">' +
+        '<span class="play-row__num">' + String(i + 1).padStart(2, '0') + '</span>' +
+        '<span class="play-row__name">' + d.name + '</span>' +
+        '<span class="play-row__meta">' + (d.tag ? '<span class="play-row__tag">' + d.tag + '</span>' : '') + d.type + ARROW_SVG + '</span>' +
+      '</span>' +
+      '<span class="play-row__detail"><span class="play-row__detail-inner"><span class="play-row__detail-body">' +
+        (d.img ? '<span class="play-row__thumbwrap"><img class="play-row__thumb" src="' + d.img + '" alt="' + d.name + '意象配图" loading="lazy"></span>' : '') +
+        '<p>' + d.desc + '</p>' +
+      '</span></span></span>';
+    row.addEventListener('click', () => {
+      const open = row.getAttribute('aria-expanded') === 'true';
+      row.setAttribute('aria-expanded', String(!open));
+    });
+    playsList.appendChild(row);
+  });
+}
+
+function renderStats(a) {
+  document.getElementById('statsGrid').innerHTML = a.stats.map(s =>
+    '<div class="stat">' +
+      '<div class="stat__num" data-n="' + s.n + '" data-suffix="' + s.suffix + '">' + s.n + s.suffix + '</div>' +
+      '<div class="stat__label">' + s.label + '</div>' +
+    '</div>'
+  ).join('');
+}
+
+function renderVow(a) {
+  document.getElementById('vowIndex').textContent = a.vow.tag;
+  document.getElementById('vowLines').innerHTML = a.vow.lines.map(l =>
+    '<h2 class="reveal-line"><span>' + splitChars(l) + '</span></h2>'
+  ).join('');
+  document.getElementById('vowText').textContent = a.vow.text;
+  document.getElementById('vowSeal').textContent = a.vow.seal;
+}
+
+function renderTribute(a) {
+  document.getElementById('tributeName').textContent = a.name;
+  const btn = document.getElementById('tributeBtn');
+  const seal = document.getElementById('tributeSeal');
+  const done = !!localStorage.getItem('xh_tribute_' + a.id);
+  btn.disabled = done;
+  btn.querySelector('span').textContent = done ? '已致敬 · 感谢' : '向匠人致敬';
+  if (done) {
+    seal.style.opacity = '1';
+    seal.style.transform = 'scale(1) rotate(-8deg)';
+  } else {
+    seal.style.opacity = '';
+    seal.style.transform = '';
+  }
+}
+
+/* 章节编号 */
+function numberSections(a) {
+  let ch = 1;
+  document.getElementById('storyIndex').textContent = 'CHAPTER ' + pad2(ch++);
+  document.getElementById('timelineIndex').textContent = 'CHAPTER ' + pad2(ch++);
+  if (a.route) document.getElementById('routeIndex').textContent = 'CHAPTER ' + pad2(ch++) + ' · 1930';
+  document.getElementById('craftIndex').textContent = 'CHAPTER ' + pad2(ch++);
+  document.getElementById('playsIndex').textContent = 'CHAPTER ' + pad2(ch++);
+}
+
+function buildArtisan(a) {
+  renderHero(a);
+  renderArtisanList();
+  renderIntro(a);
+  renderHeritage(a);
+  renderStory(a);
+  renderTimeline(a);
+  renderRoute(a);
+  renderCraft(a);
+  renderPlays(a);
+  renderQuote(a);
+  renderMarquee(a);
+  renderStats(a);
+  renderTrivia(a);
+  renderVow(a);
+  renderTribute(a);
+  renderWatermarks(a);
+  numberSections(a);
+}
+
+/* ==================== 动效：随内容重建的部分 ==================== */
+function killDyn() {
+  dynST.forEach(st => st.kill(true));
+  dynST.length = 0;
+  const track = document.getElementById('tlTrack');
+  if (track && window.gsap) gsap.set(track, { clearProps: 'x' });
+}
+
+function initDyn() {
+  if (!window.gsap) return;
+  gsap.registerPlugin(ScrollTrigger);
+
+  /* 航线：reduced-motion 下直接呈现最终态 */
+  const routeSec = document.getElementById('route');
+  const routeVisible = routeSec.style.display !== 'none';
+
+  if (reduceMotion) {
+    if (routeVisible) {
+      routeSec.querySelectorAll('.route-city').forEach(c => c.style.opacity = 1);
+      document.getElementById('routeMarker').style.display = 'none';
+    }
+    return;
+  }
+
+  dynST.push(...ScrollTrigger.batch('#main .reveal', {
+    start: 'top 88%',
+    onEnter: batch => gsap.to(batch, { opacity: 1, y: 0, duration: .9, stagger: .09, ease: 'power3.out', overwrite: true })
+  }));
+
+  /* 章节标题金色下划线描绘 */
+  dynST.push(...ScrollTrigger.batch('.sec-head', {
+    start: 'top 82%',
+    onEnter: batch => batch.forEach(el => el.classList.add('is-in'))
+  }));
+
+  /* 引言 / 金句 / 风骨：逐字浮现 */
+  document.querySelectorAll('#main .reveal-line > span').forEach(el => {
+    const chars = el.querySelectorAll('.ch');
+    if (!chars.length) return;
+    const tw = gsap.to(chars, {
+      y: 0, duration: .9, ease: 'power3.out', stagger: .028,
+      scrollTrigger: { trigger: el, start: 'top 90%' }
+    });
+    dynST.push(tw.scrollTrigger);
+  });
+
+  /* Hero 剧照：滚动视差 + 鼠标视差 */
+  const heroImg = document.querySelector('#heroMedia img');
+  if (heroImg) {
+    gsap.set(heroImg, { scale: 1.06 });
+    const twH = gsap.to(heroImg, {
+      yPercent: 8, ease: 'none',
+      scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: 1 }
+    });
+    dynST.push(twH.scrollTrigger);
+    heroImgFx.xTo = gsap.quickTo(heroImg, 'x', { duration: .9, ease: 'power3.out' });
+    heroImgFx.yTo = gsap.quickTo(heroImg, 'y', { duration: .9, ease: 'power3.out' });
+  } else {
+    heroImgFx.xTo = heroImgFx.yTo = null;
+  }
+
+  /* 故事剧照：揭幕式显现 */
+  const shotImg = document.querySelector('#storyMedia .shot img');
+  if (shotImg) {
+    const twS = gsap.fromTo(shotImg,
+      { clipPath: 'inset(10% 7% 10% 7%)', scale: 1.04 },
+      {
+        clipPath: 'inset(0% 0% 0% 0%)', scale: 1, duration: 1.4, ease: 'power3.out',
+        scrollTrigger: { trigger: shotImg, start: 'top 82%' }
+      });
+    dynST.push(twS.scrollTrigger);
+  }
+
+  /* 章节底字：缓慢视差 */
+  document.querySelectorAll('.wm').forEach(el => {
+    const twW = gsap.fromTo(el, { yPercent: 22 }, {
+      yPercent: -18, ease: 'none',
+      scrollTrigger: { trigger: el.parentElement, start: 'top bottom', end: 'bottom top', scrub: 1.2 }
+    });
+    dynST.push(twW.scrollTrigger);
+  });
+
+  /* 数据块揭示 + 数字滚动 */
+  dynST.push(...ScrollTrigger.batch('.stat', {
+    start: 'top 90%',
+    onEnter: batch => {
+      gsap.to(batch, { opacity: 1, y: 0, duration: .8, stagger: .1, ease: 'power2.out', overwrite: true });
+      batch.forEach((el, i) => {
+        const numEl = el.querySelector('.stat__num');
+        const target = +numEl.dataset.n;
+        const suffix = numEl.dataset.suffix || '';
+        const o = { v: 0 };
+        gsap.to(o, {
+          v: target, duration: 1.5, delay: .15 + i * .1, ease: 'power2.out',
+          onUpdate: () => { numEl.textContent = Math.round(o.v) + suffix; },
+          onComplete: () => { numEl.textContent = target + suffix; }
+        });
+      });
+    }
+  }));
+
+  /* 年表为拖拽长卷，在 renderTimeline 中初始化，此处无需 pin */
+
+  /* 航线描绘动画 */
+  if (routeVisible) {
+    const path = document.getElementById('routePath');
+    const marker = document.getElementById('routeMarker');
+    const cities = Array.from(routeSec.querySelectorAll('.route-city'));
+    const len = path.getTotalLength();
+    path.style.strokeDasharray = len;
+    path.style.strokeDashoffset = len;
+
+    /* 计算每座城市在路径长度上的到达比例 */
+    const SAMPLES = 400;
+    const pts = [];
+    for (let i = 0; i <= SAMPLES; i++) pts.push(path.getPointAtLength(len * i / SAMPLES));
+    const thresholds = cities.map(cg => {
+      const cx = +cg.querySelector('circle').getAttribute('cx');
+      const cy = +cg.querySelector('circle').getAttribute('cy');
+      let best = 0, bestD = Infinity;
+      pts.forEach((p, i) => {
+        const d = (p.x - cx) * (p.x - cx) + (p.y - cy) * (p.y - cy);
+        if (d < bestD) { bestD = d; best = i / SAMPLES; }
+      });
+      return { el: cg, thr: best };
+    });
+
+    const setMarker = p => {
+      const pt = path.getPointAtLength(len * p);
+      marker.setAttribute('transform', 'translate(' + pt.x + ',' + pt.y + ')');
+    };
+    setMarker(0);
+
+    /* 桌面：钉住整节，滚动即描绘，保证完整看完；移动端：加长描绘区间 */
+    const stCfg = isDesktop()
+      ? { trigger: routeSec, start: 'top top', end: '+=1100', pin: true, scrub: .6 }
+      : { trigger: routeSec, start: 'top 82%', end: 'bottom 62%', scrub: .6 };
+    dynST.push(ScrollTrigger.create({
+      ...stCfg,
+      onUpdate: self => {
+        const p = self.progress;
+        path.style.strokeDashoffset = len * (1 - p);
+        setMarker(p);
+        thresholds.forEach(t => { t.el.style.opacity = p >= t.thr - .001 ? 1 : 0; });
+      }
+    }));
+  }
+}
+
+/* ==================== 匠人切换 ==================== */
+function scrollToTarget(selector, immediate) {
+  const el = document.querySelector(selector);
+  if (!el) return;
+  if (lenis) lenis.scrollTo(el, immediate ? { immediate: true } : { duration: 1.2 });
+  else el.scrollIntoView({ behavior: (reduceMotion || immediate) ? 'auto' : 'smooth' });
+}
+
+function switchArtisan(id) {
+  if (id === currentId) { scrollToTarget('#artisans'); return; }
+  currentId = id;
+  const main = document.getElementById('main');
+  const a = getArtisan();
+  const doSwap = () => {
+    killDyn();
+    buildArtisan(a);
+    scrollToTarget('#intro', true);
+    initDyn();
+    if (window.ScrollTrigger) ScrollTrigger.refresh();
+  };
+  if (window.gsap && !reduceMotion) {
+    gsap.to(main, {
+      opacity: 0, y: 14, duration: .28, ease: 'power2.in',
+      onComplete: () => {
+        doSwap();
+        gsap.fromTo(main, { opacity: 0, y: -14 }, { opacity: 1, y: 0, duration: .5, ease: 'power3.out' });
+      }
+    });
+  } else {
+    doSwap();
+  }
+}
+
+/* ==================== 全局交互（不随匠人切换重建） ==================== */
+/* 移动端菜单 */
+const menuToggle = document.getElementById('menuToggle');
+menuToggle.addEventListener('click', () => {
+  const open = document.body.classList.toggle('menu-open');
+  menuToggle.setAttribute('aria-expanded', String(open));
+  menuToggle.setAttribute('aria-label', open ? '关闭菜单' : '打开菜单');
+});
+document.querySelectorAll('.mobile-menu a').forEach(a =>
+  a.addEventListener('click', () => {
+    document.body.classList.remove('menu-open');
+    menuToggle.setAttribute('aria-expanded', 'false');
+  })
+);
+
+/* Hero 与章节按钮 */
+document.getElementById('heroScroll').addEventListener('click', () => scrollToTarget('#intro'));
+document.querySelectorAll('.chapter-nav button').forEach(btn =>
+  btn.addEventListener('click', () => scrollToTarget(btn.dataset.target))
+);
+
+/* Hero 鼠标视差：只绑定一次，目标跟随当前剧照 */
+const heroImgFx = { xTo: null, yTo: null };
+if (window.matchMedia('(hover: hover)').matches && !reduceMotion) {
+  const heroEl = document.getElementById('hero');
+  heroEl.addEventListener('mousemove', e => {
+    if (!heroImgFx.xTo) return;
+    const r = heroEl.getBoundingClientRect();
+    heroImgFx.xTo(((e.clientX - r.left) / r.width - .5) * -14);
+    heroImgFx.yTo(((e.clientY - r.top) / r.height - .5) * -10);
+  });
+  heroEl.addEventListener('mouseleave', () => {
+    if (heroImgFx.xTo) { heroImgFx.xTo(0); heroImgFx.yTo(0); }
+  });
+}
+
+/* Esc 关闭热点卡片 */
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  document.querySelectorAll('.shot__card.is-open').forEach(c => c.classList.remove('is-open'));
+  document.querySelectorAll('.hotspot[aria-expanded="true"]').forEach(d => d.setAttribute('aria-expanded', 'false'));
+});
+
+/* 致敬印章 + 磁吸按钮 */
+const tributeBtn = document.getElementById('tributeBtn');
+const tributeSeal = document.getElementById('tributeSeal');
+if (window.gsap && !reduceMotion && window.matchMedia('(hover: hover)').matches) {
+  const mxTo = gsap.quickTo(tributeBtn, 'x', { duration: .4, ease: 'power3.out' });
+  const myTo = gsap.quickTo(tributeBtn, 'y', { duration: .4, ease: 'power3.out' });
+  tributeBtn.addEventListener('mousemove', e => {
+    const r = tributeBtn.getBoundingClientRect();
+    mxTo((e.clientX - r.left - r.width / 2) * .28);
+    myTo((e.clientY - r.top - r.height / 2) * .28);
+  });
+  tributeBtn.addEventListener('mouseleave', () => { mxTo(0); myTo(0); });
+}
+tributeBtn.addEventListener('click', () => {
+  localStorage.setItem('xh_tribute_' + currentId, '1');
+  tributeBtn.disabled = true;
+  tributeBtn.querySelector('span').textContent = '已致敬 · 感谢';
+  wallPush(getArtisan().name);
+  if (!reduceMotion && window.gsap) {
+    gsap.fromTo(tributeSeal,
+      { opacity: 0, scale: 2.4, rotate: -14 },
+      { opacity: 1, scale: 1, rotate: -8, duration: .6, ease: 'back.out(2.2)' }
+    );
+  } else {
+    tributeSeal.style.opacity = '1';
+    tributeSeal.style.transform = 'scale(1) rotate(-8deg)';
+  }
+});
+
+/* 作品 hover 剧照跟随已移除（避免半透明“虚影”干扰阅读） */
+
+/* ==================== 环境音：合成丝竹 + 流水实录 双模式 ==================== */
+const sndSynth = document.getElementById('sndSynth');
+const sndLiushuiBtn = document.getElementById('sndLiushui');
+let audioCtx = null, audioMaster = null, audioTimer = null, synthOn = false, droneNodes = null;
+
+/* —— 流水实录（管平湖演奏，Wikimedia Commons, CC BY 2.5） —— */
+const liushui = new Audio('audio/liushui.ogg');
+liushui.loop = true; liushui.preload = 'auto'; liushui.volume = 0;
+let liushuiOn = false, liushuiFader = null;
+function fadeLiushui(target, done) {
+  clearInterval(liushuiFader);
+  liushuiFader = setInterval(() => {
+    const v = liushui.volume;
+    if (Math.abs(v - target) < 0.03) {
+      liushui.volume = target; clearInterval(liushuiFader);
+      if (done) done();
+    } else {
+      liushui.volume = v + (target > v ? 0.03 : -0.03);
+    }
+  }, 60);
+}
+function stopLiushui() {
+  if (!liushuiOn) return;
+  liushuiOn = false;
+  fadeLiushui(0, () => liushui.pause());
+  sndLiushuiBtn.setAttribute('aria-pressed', 'false');
+}
+
+function pluckBuffer(ctx, freq) {
+  const sr = ctx.sampleRate, N = Math.round(sr / freq), len = Math.floor(sr * 4);
+  const buf = ctx.createBuffer(1, len, sr), d = buf.getChannelData(0);
+  for (let i = 0; i < N; i++) d[i] = Math.random() * 2 - 1;
+  d[N] = d[0] * 0.4995; /* 首点无“前一采样”，单独处理 */
+  for (let i = N + 1; i < len; i++) d[i] = (d[i - N] + d[i - N - 1]) * 0.4995; /* Karplus–Strong 拨弦（长延音） */
+  /* 归一化到 0.95 峰值，保证响度 */
+  let peak = 0;
+  for (let i = 0; i < len; i++) peak = Math.max(peak, Math.abs(d[i]));
+  if (peak > 0) { const k = 0.95 / peak; for (let i = 0; i < len; i++) d[i] *= k; }
+  return buf;
+}
+function playPluck(freq, when, vol) {
+  const src = audioCtx.createBufferSource();
+  src.buffer = pluckBuffer(audioCtx, freq);
+  const lp = audioCtx.createBiquadFilter();   /* 低通柔化，更像丝弦 */
+  lp.type = 'lowpass'; lp.frequency.value = 1900; lp.Q.value = 0.3;
+  const g = audioCtx.createGain(); g.gain.value = vol;
+  src.connect(lp); lp.connect(g); g.connect(audioMaster);
+  src.start(when);
+}
+/* 五声音阶：D2 起，偏中低音区 */
+const PENTA = [73.42, 82.41, 92.50, 110.00, 123.47, 146.83, 164.81, 185.00, 220.00, 246.94, 293.66];
+/* 一段舒缓的江南丝竹小调（音级, 拍秒），循环演奏 */
+const MELODY = [
+  [5, 1.5], [6, 1.0], [7, 1.5], [9, 2.4],
+  [9, 1.0], [7, 1.0], [6, 1.5], [5, 2.6],
+  [6, 1.0], [7, 1.0], [6, 1.3], [3, 2.2],
+  [5, 1.3], [3, 1.0], [2, 2.8], [0, 3.5]
+];
+let melodyPos = 0;
+function scheduleMelody() {
+  if (!synthOn) return;
+  const [idx, beats] = MELODY[melodyPos];
+  const t = audioCtx.currentTime + 0.05;
+  playPluck(PENTA[idx], t, 0.5);
+  if (idx >= 5 && Math.random() < 0.3) playPluck(PENTA[idx - 3], t + 0.08, 0.3); /* 偶尔衬一个下三度 */
+  melodyPos = (melodyPos + 1) % MELODY.length;
+  const pause = melodyPos === 0 ? 2600 : 0; /* 乐句间留白 */
+  audioTimer = setTimeout(scheduleMelody, beats * 1000 + pause);
+}
+function startDrone() {
+  /* 极低音量持续低音衬底，填补拨弦间隙 */
+  const osc = audioCtx.createOscillator(); osc.type = 'sine'; osc.frequency.value = 73.42 / 2;
+  const g = audioCtx.createGain(); g.gain.value = 0;
+  g.gain.linearRampToValueAtTime(0.06, audioCtx.currentTime + 2);
+  osc.connect(g); g.connect(audioMaster); osc.start();
+  droneNodes = { osc, g };
+}
+async function startSynth() {
+  stopLiushui();
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    audioMaster = audioCtx.createGain(); audioMaster.gain.value = 0;
+    /* 厅堂混响感：反馈延迟 */
+    const delay = audioCtx.createDelay(1.5); delay.delayTime.value = 0.45;
+    const fb = audioCtx.createGain(); fb.gain.value = 0.42;
+    const wet = audioCtx.createGain(); wet.gain.value = 0.55;
+    audioMaster.connect(audioCtx.destination);
+    audioMaster.connect(delay); delay.connect(fb); fb.connect(delay); delay.connect(wet); wet.connect(audioCtx.destination);
+  }
+  await audioCtx.resume();
+  synthOn = true;
+  sndSynth.setAttribute('aria-pressed', 'true');
+  audioMaster.gain.cancelScheduledValues(audioCtx.currentTime);
+  audioMaster.gain.linearRampToValueAtTime(0.26, audioCtx.currentTime + 1.5);
+  melodyPos = 0;
+  startDrone();
+  scheduleMelody();
+}
+function stopSynth() {
+  if (!synthOn) return;
+  synthOn = false;
+  sndSynth.setAttribute('aria-pressed', 'false');
+  audioMaster.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.8);
+  clearTimeout(audioTimer);
+  if (droneNodes) { const dn = droneNodes; droneNodes = null; setTimeout(() => dn.osc.stop(), 1000); }
+}
+sndSynth.addEventListener('click', () => { synthOn ? stopSynth() : startSynth(); });
+sndLiushuiBtn.addEventListener('click', () => {
+  if (liushuiOn) { stopLiushui(); return; }
+  stopSynth();
+  liushuiOn = true;
+  sndLiushuiBtn.setAttribute('aria-pressed', 'true');
+  liushui.play().then(() => fadeLiushui(0.55)).catch(() => {
+    /* 浏览器拦截时复位 */
+    liushuiOn = false;
+    sndLiushuiBtn.setAttribute('aria-pressed', 'false');
+  });
+});
+
+/* ==================== 致敬墙弹幕（本地累积） ==================== */
+const WALL_KEY = 'xh_wall_v1';
+const WALL_TOTAL = 'xh_wall_total';
+const wallLanes = document.getElementById('wallLanes');
+
+function wallEntries() {
+  try { return JSON.parse(localStorage.getItem(WALL_KEY) || '[]'); } catch (e) { return []; }
+}
+function chipHTML(e) {
+  return '<span class="mini-seal" aria-hidden="true">敬</span>第 ' + e.n + ' 位观展人 · 向' + e.name + '致敬';
+}
+function renderWall(liveEntry) {
+  const list = wallEntries().slice(-9);
+  if (liveEntry) list.push(liveEntry);
+  wallLanes.innerHTML = '';
+  if (!list.length) {
+    wallLanes.innerHTML = '<span style="position:absolute;left:50%;top:36px;transform:translateX(-50%);font-size:.76rem;color:var(--ink-faint);letter-spacing:.2em;">虚位以待 · 等你落印</span>';
+    return;
+  }
+  list.forEach((e, i) => {
+    const chip = document.createElement('span');
+    chip.className = 'wall__chip';
+    chip.innerHTML = chipHTML(e);
+    chip.style.top = (i % 3) * 38 + 'px';
+    const dur = 15 + (i * 37 % 8);
+    chip.style.animationDuration = dur + 's';
+    /* 错相位铺开，保证任一时刻都有印章在墙内 */
+    chip.style.animationDelay = -((i / list.length) * dur) + 's';
+    wallLanes.appendChild(chip);
+  });
+}
+function wallPush(artisanName) {
+  const total = (parseInt(localStorage.getItem(WALL_TOTAL) || '0', 10) + 1);
+  localStorage.setItem(WALL_TOTAL, String(total));
+  const arr = wallEntries();
+  const entry = { name: artisanName, n: total, t: Date.now() };
+  arr.push(entry);
+  localStorage.setItem(WALL_KEY, JSON.stringify(arr.slice(-40)));
+  renderWall(entry);
+}
+renderWall();
+
+/* ==================== 纪念海报（Canvas 合成） ==================== */
+const posterModal = document.getElementById('posterModal');
+const posterImg = document.getElementById('posterImg');
+const posterDl = document.getElementById('posterDl');
+
+function loadImg(src) {
+  return new Promise((resolve, reject) => {
+    const im = new Image();
+    im.onload = () => resolve(im);
+    im.onerror = reject;
+    im.src = src;
+  });
+}
+async function makePoster(a) {
+  const W = 750, H = 1150;
+  const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+  const ctx = cv.getContext('2d');
+  ctx.fillStyle = '#0b0b0d'; ctx.fillRect(0, 0, W, H);
+  /* 顶部配图（cover 裁切，限制在 0–560 区域内） */
+  try {
+    const im = await loadImg(a.heroImg || a.storyImg);
+    const tw = W, th = 560, s = Math.max(tw / im.width, th / im.height);
+    ctx.save(); ctx.beginPath(); ctx.rect(0, 0, tw, th); ctx.clip();
+    ctx.drawImage(im, (tw - im.width * s) / 2, (th - im.height * s) / 2, im.width * s, im.height * s);
+    ctx.restore();
+    const grad = ctx.createLinearGradient(0, 380, 0, 560);
+    grad.addColorStop(0, 'rgba(11,11,13,0)'); grad.addColorStop(1, '#0b0b0d');
+    ctx.fillStyle = grad; ctx.fillRect(0, 380, W, 180);
+  } catch (e) { /* 无图则留白 */ }
+  /* 金色双线框 */
+  ctx.strokeStyle = '#c9a96e'; ctx.lineWidth = 2; ctx.strokeRect(26, 26, W - 52, H - 52);
+  ctx.lineWidth = 1; ctx.strokeRect(34, 34, W - 68, H - 68);
+  /* 文字 */
+  ctx.textAlign = 'center'; ctx.fillStyle = '#c9a96e';
+  ctx.font = '400 20px "Cinzel","Noto Serif SC",serif';
+  ctx.fillText('A R T I S A N', W / 2, 640);
+  ctx.fillStyle = '#e8e2d5'; ctx.font = '900 104px "Noto Serif SC",serif';
+  ctx.fillText(a.name, W / 2, 760);
+  ctx.fillStyle = '#9a948a'; ctx.font = '400 26px "Noto Serif SC",serif';
+  ctx.fillText(a.craft + ' · ' + a.years, W / 2, 815);
+  ctx.strokeStyle = '#c9a96e'; ctx.beginPath(); ctx.moveTo(W / 2 - 60, 850); ctx.lineTo(W / 2 + 60, 850); ctx.stroke();
+  ctx.fillStyle = '#e8e2d5'; ctx.font = '600 34px "Noto Serif SC",serif';
+  a.motto.lines.forEach((l, i) => ctx.fillText(l.replace(/<[^>]+>/g, ''), W / 2, 915 + i * 52));
+  /* 朱砂印章 */
+  ctx.save(); ctx.translate(W - 150, H - 170); ctx.rotate(-0.1);
+  ctx.strokeStyle = '#a63a2c'; ctx.lineWidth = 5; ctx.strokeRect(0, 0, 92, 92);
+  ctx.lineWidth = 2; ctx.strokeRect(8, 8, 76, 76);
+  ctx.fillStyle = '#a63a2c'; ctx.font = '900 40px "Noto Serif SC",serif'; ctx.textAlign = 'center';
+  ctx.fillText('致敬', 46, 62); ctx.restore();
+  /* 页脚 */
+  ctx.fillStyle = '#5e5a52'; ctx.font = '400 20px "Noto Serif SC",serif';
+  ctx.fillText('薪火 · 非遗数字展馆', W / 2, H - 60);
+  return cv.toDataURL('image/png');
+}
+function openPoster(dataURL, name) {
+  posterImg.src = dataURL;
+  posterDl.href = dataURL;
+  posterDl.setAttribute('download', '致敬海报-' + name + '.png');
+  posterModal.classList.add('is-open');
+  document.getElementById('posterClose').focus();
+}
+function closePoster() { posterModal.classList.remove('is-open'); }
+document.getElementById('posterBtn').addEventListener('click', async e => {
+  const btn = e.currentTarget;
+  btn.textContent = '绘制中…'; btn.disabled = true;
+  try { openPoster(await makePoster(getArtisan()), getArtisan().name); }
+  finally { btn.textContent = '生成纪念海报'; btn.disabled = false; }
+});
+document.getElementById('posterClose').addEventListener('click', closePoster);
+posterModal.addEventListener('click', e => { if (e.target === posterModal) closePoster(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closePoster(); });
+
+/* ==================== 自动巡览（影院模式） ==================== */
+const tourBtn = document.getElementById('tourBtn');
+const tourCap = document.getElementById('tourCap');
+let touring = false;
+let tourTimers = [];
+const tWait = ms => new Promise(r => tourTimers.push(setTimeout(r, ms)));
+const tAfter = (ms, fn) => tourTimers.push(setTimeout(fn, ms));
+
+function showCap(index, text) {
+  document.getElementById('tourCapIndex').textContent = index;
+  document.getElementById('tourCapText').textContent = text;
+  tourCap.classList.add('is-show');
+}
+function hideCap() { tourCap.classList.remove('is-show'); }
+
+function tourScrollTo(target, immediate) {
+  const el = document.querySelector(target);
+  if (!el) return;
+  const y = el.getBoundingClientRect().top + window.scrollY;
+  if (lenis) lenis.scrollTo(y, { duration: immediate ? 0.8 : 1.6 });
+  else window.scrollTo({ top: y, behavior: 'smooth' });
+}
+
+async function runTour() {
+  touring = true;
+  tourBtn.textContent = '退出巡览';
+  document.body.classList.add('touring');
+  await tWait(900);
+
+  for (let ai = 0; ai < ARTISANS.length; ai++) {
+    if (!touring) break;
+    const a = ARTISANS[ai];
+    /* 切换匠人 + 引言 */
+    showCap('ARTISAN ' + a.num, a.name + ' · ' + a.craft);
+    if (currentId !== a.id) switchArtisan(a.id);
+    tourScrollTo('#intro');
+    await tWait(3400); if (!touring) break;
+
+    /* 故事 + 开一个热点 */
+    hideCap();
+    tAfter(500, () => showCap('SCENE', a.storyTitle));
+    tourScrollTo('#story');
+    await tWait(1400);
+    tAfter(600, () => { const h = document.querySelector('.hotspot'); if (h) h.click(); });
+    await tWait(3000); if (!touring) break;
+
+    /* 年表长卷：自动翻两页 */
+    hideCap();
+    tAfter(500, () => showCap('TIMELINE', '生平年表 · 拖动长卷'));
+    tourScrollTo('#timeline');
+    await tWait(1400);
+    tAfter(400, () => document.getElementById('tlNext').click());
+    tAfter(1400, () => document.getElementById('tlNext').click());
+    await tWait(3200); if (!touring) break;
+
+    /* 航线（仅梅兰芳）：慢速滚动完成描绘 */
+    if (a.route) {
+      hideCap();
+      tAfter(500, () => showCap('VOYAGE · 1930', '渡海赴美'));
+      const routeSec = document.getElementById('route');
+      const y = routeSec.getBoundingClientRect().top + window.scrollY;
+      if (lenis) { lenis.scrollTo(y, { duration: 1.4 }); tAfter(1600, () => lenis.scrollTo(y + 1150, { duration: 4.2 })); }
+      else window.scrollTo({ top: y, behavior: 'smooth' });
+      await tWait(6600); if (!touring) break;
+    }
+
+    /* 工序：自动点选两步 */
+    hideCap();
+    tAfter(500, () => showCap('CRAFT', a.process.title));
+    tourScrollTo('#craft');
+    await tWait(1400);
+    tAfter(400, () => { const s = document.querySelectorAll('.craft__step')[1]; if (s) s.click(); });
+    tAfter(2400, () => { const s = document.querySelectorAll('.craft__step')[3]; if (s) s.click(); });
+    await tWait(4600); if (!touring) break;
+
+    /* 金句 */
+    hideCap();
+    tAfter(500, () => showCap('WORDS', '匠人语'));
+    tourScrollTo('#quote');
+    await tWait(3200); if (!touring) break;
+  }
+
+  /* 终章：致敬落印 */
+  hideCap();
+  tAfter(500, () => showCap('FINALE', '薪火相传 · 匠心不熄'));
+  tourScrollTo('#tribute');
+  await tWait(1800);
+  const tb = document.getElementById('tributeBtn');
+  if (!tb.disabled) tb.click();
+  await tWait(3000);
+  endTour();
+}
+
+function endTour() {
+  touring = false;
+  tourTimers.forEach(clearTimeout); tourTimers = [];
+  document.body.classList.remove('touring');
+  hideCap();
+  tourBtn.textContent = '巡览';
+}
+tourBtn.addEventListener('click', () => { touring ? endTour() : runTour(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && touring) endTour(); });
+
+/* 断点变化时重建动态动效 */
+window.matchMedia('(min-width: 768px)').addEventListener('change', () => {
+  if (!window.gsap || reduceMotion) return;
+  killDyn();
+  initDyn();
+  ScrollTrigger.refresh();
+});
+
+/* ==================== 首屏构建 ==================== */
+buildArtisan(getArtisan());
+
+/* ==================== GSAP 全局动效 ==================== */
+if (window.gsap) {
+  gsap.registerPlugin(ScrollTrigger);
+
+  if (!reduceMotion) {
+    /* 平滑滚动 */
+    lenis = new Lenis({ duration: 1.15, smoothWheel: true });
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add(time => lenis.raf(time * 1000));
+    gsap.ticker.lagSmoothing(0);
+
+    /* Hero 入场 */
+    gsap.timeline({ defaults: { ease: 'power3.out' } })
+      .from('.hero__img', { opacity: 0, clipPath: 'inset(8% 0 0 0)', duration: 1.3 })
+      .from('.hero__kicker', { opacity: 0, y: 18, duration: .7 }, '-=.9')
+      .from('.hero__title', { opacity: 0, y: 44, duration: .9 }, '-=.5')
+      .from('.hero__role, .hero__en', { opacity: 0, y: 18, duration: .7, stagger: .12 }, '-=.5')
+      .from('.hero__line', { scaleX: 0, transformOrigin: 'left', duration: .8 }, '-=.4')
+      .from('.hero__scroll', { opacity: 0, duration: .7 }, '-=.3');
+  }
+
+  initDyn();
+
+  /* 阅读进度条（reduced-motion 下也保留） */
+  ScrollTrigger.create({
+    start: 0,
+    end: () => document.documentElement.scrollHeight - window.innerHeight,
+    onUpdate: self => gsap.set('.progress__bar', { scaleX: self.progress })
+  });
+
+  /* 章节指示器高亮 */
+  const navButtons = document.querySelectorAll('.chapter-nav button');
+  navButtons.forEach(btn => {
+    const section = document.querySelector(btn.dataset.target);
+    if (!section) return;
+    ScrollTrigger.create({
+      trigger: section,
+      start: 'top 45%',
+      end: 'bottom 45%',
+      onToggle: self => {
+        if (self.isActive) {
+          navButtons.forEach(b => b.classList.remove('is-active'));
+          btn.classList.add('is-active');
+        }
+      }
+    });
+  });
+}
 </script>
 </body>
 </html>

@@ -1,0 +1,9 @@
+{
+  "name": "xinhuo-heritage",
+  "private": true,
+  "version": "1.0.0",
+  "description": "薪火 · 非遗数字展馆（零杯网页比赛）",
+  "scripts": {
+    "dev": "node server.js"
+  }
+}
