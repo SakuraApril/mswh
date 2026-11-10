@@ -1,30 +1,489 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>彩蛋</title>
+<title>技艺互动 · 三门手艺 | 薪火 · 非遗数字展馆</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@200;300;400;600;900&family=Cormorant+Garamond:wght@300;400&display=swap" rel="stylesheet">
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }/* 宣纸为底、墨色为字：变量名沿用旧约定 —— --ink 是纸色，--paper 是墨色 */
+  :root {
+    --ink:       #f4eee1;
+    --ink-2:     #ece3d1;
+    --gold:      #9a7b3f;
+    --gold-lit:  #7a5c2a;
+    --paper:     #241d15;
+    --paper-dim: #4e4537;
+    --seal:      #a8342a;
+    --line:      rgba(36, 29, 21, .20);
+    --line-soft: rgba(36, 29, 21, .10);
+    --dim:       rgba(36, 29, 21, .60);
+    --serif: 'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', 'SimSun', serif;
+    --kai:   'Kaiti SC', 'KaiTi', 'STKaiti', 'Songti SC', 'Noto Serif SC', serif;
+    --latin: 'Cormorant Garamond', Georgia, serif;
+    --ease:  cubic-bezier(.22, .68, .16, 1);
+  }
+
+  html, body { height: 100%; }
+
   body {
-    height: 100vh; background: #000;
+    background: var(--ink); color: var(--paper);
+    font-family: var(--serif); -webkit-font-smoothing: antialiased;
+    display: grid; grid-template-rows: auto 1fr auto;
+    min-height: 100vh; overflow: hidden; position: relative;
+    overflow-x: hidden;
+  }
+
+  .light {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse 64% 48% at 50% -8%, rgba(255, 253, 246, .96), transparent 72%),
+      radial-gradient(ellipse 92% 62% at 50% 114%, rgba(150, 120, 74, .17), transparent 66%),
+      linear-gradient(180deg, #f9f4e9 0%, #f1e8d6 46%, #e6dbc2 100%);
+  }
+  .grain {
+    position: fixed; inset: 0; z-index: 1; pointer-events: none;
+    opacity: .17; mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='.4'/%3E%3C/svg%3E");
+  }
+  /* 装裱双线 */
+  .light::before, .light::after {
+    content: ''; position: absolute; pointer-events: none;
+    border: 1px solid rgba(36, 29, 21, .22);
+  }
+  .light::before { inset: 13px; }
+  .light::after  { inset: 19px; border-color: rgba(36, 29, 21, .08); }
+
+  /* ===== 导航 ===== */
+  .nav {
+    position: relative; z-index: 30;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.3rem clamp(1.25rem, 4.2vw, 4rem);
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .brand { display: flex; align-items: baseline; gap: .8rem; text-decoration: none; color: inherit; }
+  .brand__mark {
+    font-size: .8rem; font-weight: 600; letter-spacing: .08em;
+    color: #c04138; border: 1px solid rgba(156, 43, 36, .8);
+    padding: .14rem .3rem; line-height: 1; border-radius: 1px;
+  }
+  .brand__name { font-size: .92rem; letter-spacing: .36em; }
+  .brand__sub { font-size: .6rem; letter-spacing: .3em; color: var(--dim); border-left: 1px solid var(--line); padding-left: .8rem; }
+  .nav__links { display: flex; align-items: center; gap: clamp(1rem, 2.6vw, 2.6rem); }
+  .nav__links a {
+    position: relative; font-size: .73rem; letter-spacing: .24em;
+    color: var(--dim); text-decoration: none; padding: .3rem 0;
+    transition: color .45s var(--ease);
+  }
+  .nav__links a::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
+    background: var(--gold); transform: scaleX(0); transform-origin: right;
+    transition: transform .55s var(--ease);
+  }
+  .nav__links a:hover { color: var(--paper); }
+  .nav__links a:hover::after { transform: scaleX(1); transform-origin: left; }
+  .nav__links a.is-active { color: var(--gold-lit); }
+  .nav__links a.is-active::after { transform: scaleX(1); opacity: .5; }
+
+  /* ===== 主体 ===== */
+  .stage {
+    position: relative; z-index: 20;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: clamp(1.6rem, 5vh, 3.4rem);
+    padding: clamp(1.6rem, 4vh, 3rem) clamp(1.25rem, 4.2vw, 4rem);
+    min-height: 0;
+  }
+
+  .head { text-align: center; }
+  .kicker {
+    font-family: var(--latin); font-size: .62rem; letter-spacing: .5em;
+    color: var(--gold); opacity: .72; text-transform: uppercase; margin-bottom: 1rem;
+  }
+  .title {
+    font-size: clamp(2rem, 3.4vw, 2.9rem); font-weight: 900;
+    letter-spacing: .3em; line-height: 1; color: var(--paper);
+    text-indent: .3em;
+  }
+  .subtitle {
+    margin-top: 1rem; font-size: .72rem; font-weight: 300;
+    letter-spacing: .34em; color: var(--dim);
+  }
+  .rule { width: 40px; height: 1px; background: var(--gold); opacity: .45; margin: 1.3rem auto 0; }
+
+  /* ===== 三张卡 ===== */
+  .crafts {
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(.9rem, 2vw, 2rem);
+    width: min(1020px, 100%);
+  }
+
+  .craft {
+    position: relative; display: flex; flex-direction: column;
+    text-decoration: none; color: inherit; overflow: hidden;
+    border: 1px solid var(--line);
+    background: linear-gradient(180deg, rgba(255,252,244,.72), rgba(246,238,220,.42) 46%, rgba(206,188,152,.26));
+    padding: 1.15rem 1.15rem 1.2rem;
+    transition: transform .7s var(--ease), border-color .55s var(--ease), background .55s var(--ease);
+  }
+  .craft::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(circle at 50% 34%, rgba(168,132,70,.13), transparent 64%);
+    opacity: 0; transition: opacity .7s var(--ease);
+  }
+  .craft:hover { transform: translateY(-7px); border-color: rgba(36,29,21,.42); }
+  .craft:hover::before { opacity: 1; }
+
+  .craft::after {
+    content: ''; position: absolute; right: -1px; bottom: -1px;
+    width: 22px; height: 22px; border-right: 1px solid rgba(201,169,110,.55);
+    border-bottom: 1px solid rgba(201,169,110,.55);
+    transform: translate(100%, 100%); transition: transform .55s var(--ease);
+  }
+  .craft:hover::after { transform: translate(0, 0); }
+
+  .craft__no {
+    display: flex; align-items: baseline; justify-content: space-between;
+    font-family: var(--latin); font-size: .62rem; letter-spacing: .3em;
+    color: var(--gold); opacity: .62;
+  }
+  .craft__no em { font-style: normal; letter-spacing: .18em; opacity: .8; }
+
+  .craft__art {
+    position: relative; flex: none;
+    height: clamp(150px, 21vh, 210px);
     display: flex; align-items: center; justify-content: center;
-    overflow: hidden;
+    padding: .4rem 0 .2rem;
   }
-  img {
-    max-height: 100vh; max-width: 100vw;
-    object-fit: contain;
+  .craft__art svg {
+    height: 100%; width: auto; display: block;
+    transition: transform .9s var(--ease), filter .7s var(--ease);
   }
-  .back {
-    position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%);
-    color: #666; text-decoration: none; font-size: 0.8rem;
-    letter-spacing: 0.1em; z-index: 10;
+  .craft:hover .craft__art svg { transform: scale(1.05) translateY(-3px); }
+
+  .craft__name {
+    display: flex; align-items: baseline; gap: .6rem;
+    border-top: 1px solid var(--line-soft); padding-top: .85rem;
   }
-  .back:hover { color: #fff; }
+  .craft__name b {
+    font-size: 1.16rem; font-weight: 600; letter-spacing: .26em; color: var(--paper);
+    transition: color .45s var(--ease);
+  }
+  .craft:hover .craft__name b { color: var(--gold-lit); }
+  .craft__name small {
+    font-family: var(--latin); font-size: .58rem; letter-spacing: .3em;
+    color: var(--gold); opacity: .55; text-transform: uppercase;
+  }
+  .craft__desc {
+    margin-top: .6rem; font-size: .68rem; line-height: 1.95;
+    letter-spacing: .12em; color: var(--dim); font-weight: 300;
+  }
+  .craft__go {
+    margin-top: .85rem; display: flex; align-items: center; gap: .5rem;
+    font-size: .64rem; letter-spacing: .3em; color: var(--gold);
+    opacity: 0; transform: translateX(-6px);
+    transition: opacity .5s var(--ease), transform .5s var(--ease);
+  }
+  .craft:hover .craft__go { opacity: 1; transform: none; }
+  .craft__go i { font-style: normal; transition: transform .5s var(--ease); }
+  .craft:hover .craft__go i { transform: translateX(4px); }
+
+  /* ===== 页脚 ===== */
+  .plate {
+    position: relative; z-index: 20;
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    padding: .85rem clamp(1.25rem, 4.2vw, 4rem);
+    border-top: 1px solid var(--line-soft);
+    font-size: .64rem; letter-spacing: .28em; color: var(--dim);
+  }
+  .plate__no { color: var(--gold); opacity: .8; flex: none; }
+  .plate__desc { opacity: .6; }
+  .plate__hint { opacity: .4; flex: none; }
+
+  .side {
+    position: fixed; top: 50%; writing-mode: vertical-rl;
+    font-size: .62rem; letter-spacing: .6em; color: var(--gold);
+    opacity: .36; z-index: 15; pointer-events: none; transform: translateY(-50%);
+    white-space: nowrap;
+  }
+  .side--l { left: .9rem; }
+  .side--r { right: .9rem; }
+
+  @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  .anim { opacity: 0; animation: rise 1s var(--ease) forwards; }
+  .d1{animation-delay:.08s}.d2{animation-delay:.18s}
+  .d3{animation-delay:.3s}.d4{animation-delay:.4s}.d5{animation-delay:.5s}
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; }
+    .anim { opacity: 1 !important; }
+  }
+
+  @media (max-width: 1180px) {
+    .brand__sub { display: none; }
+    .side { display: none; }
+  }
+  @media (max-width: 900px) {
+    body { grid-template-columns: minmax(0, 1fr); overflow-y: auto; overflow-x: hidden; height: auto; }
+    .stage { padding: 1.8rem 1.2rem 2.2rem; }
+    .crafts { grid-template-columns: 1fr; gap: .9rem; width: min(520px, 100%); }
+    .craft { flex-direction: row; align-items: center; gap: 1rem; padding: .95rem 1rem; }
+    .craft__art { padding: 0; flex: none; }
+    .craft__art svg { height: 92px; }
+    .craft__name { border-top: 0; padding-top: 0; }
+    .craft__desc { margin-top: .35rem; font-size: .64rem; }
+    .craft__go { margin-top: .5rem; }
+    .craft__no { position: absolute; top: .7rem; right: .9rem; }
+    .craft__no em { display: none; }
+    .nav__links { gap: .9rem; }
+    .nav__links a { font-size: .66rem; letter-spacing: .14em; }
+    .brand__name { font-size: .8rem; letter-spacing: .2em; }
+    .plate { flex-wrap: wrap; justify-content: center; text-align: center; gap: .4rem; }
+    .plate__hint { display: none; }
+  }
+  @media (max-width: 520px) {
+    .nav { padding: 1rem .9rem; }
+    .nav__links { gap: .7rem; }
+    .nav__links a { font-size: .6rem; letter-spacing: .05em; }
+    .brand__name { letter-spacing: .12em; }
+    .craft__art svg { height: 78px; }
+    .craft__desc { display: none; }
+  }
+  /* ===== 中式排版 ===== */
+  body { line-height: 1.7; }
+  .subtitle, .craft__desc, .note p, .meta-note, .card__poem,
+  .plate__desc, .cloth-hint, .craft__go, .hint__text {
+    font-family: var(--kai);
+  }
+  .subtitle { letter-spacing: .34em; font-size: .8rem; }
+  .title { letter-spacing: .24em; }
+  .kicker { letter-spacing: .5em; opacity: .85; }
+  .brand__name { letter-spacing: .4em; }
+  .nav__links a.is-active { color: var(--seal); }
+  .nav__links a.is-active::after { background: var(--seal); }
+  .btn--solid { border-color: rgba(36,29,21,.38); color: var(--paper); }
+  .btn--solid::after { background: var(--paper); }
+  .btn--solid:hover { color: var(--ink); border-color: var(--paper); }
+  .btn--ghost { border-color: rgba(36,29,21,.28); color: var(--paper); opacity: .95; }
+  .btn--ghost:hover { border-color: rgba(36,29,21,.55); color: var(--paper); opacity: 1; }
+  /* 标题旁朱印 */
+  .title::after {
+    content: '薪'; align-self: flex-start; margin-left: .5rem; margin-top: .06em;
+    font-family: var(--serif); font-weight: 600; font-size: .3em; line-height: 1;
+    color: #f8f2e4; background: var(--seal);
+    padding: .34em .38em .38em; letter-spacing: 0; transform: rotate(-2.5deg);
+    box-shadow: inset 0 0 0 1px rgba(248, 242, 228, .4);
+  }
+  /* 移动端：卡片收紧 */
+  @media (max-width: 900px) {
+    .craft { align-items: center; }
+    .craft__art { height: auto; width: 96px; }
+    .craft__art svg { height: 82px; }
+    .craft__desc { display: block; }
+    .craft__name b { white-space: nowrap; }
+    .craft__name small { display: none; }
+  }
+  @media (max-width: 520px) {
+    .craft__desc { display: block; font-size: .62rem; line-height: 1.8; }
+    .craft__art { width: 76px; }
+    .craft__art svg { height: 66px; }
+  }
+  .craft__plate { height:100%; width:auto; display:block; background:#fdfbf4; padding:6px; box-shadow:0 6px 16px -6px rgba(70,52,26,.4), 0 0 0 1px rgba(36,29,21,.16); }
+  .craft__art img { transition:transform .9s var(--ease); }
+  .craft:hover .craft__art img { transform:scale(1.04) translateY(-2px); }
+  /* 宣纸过场 */
+  .curtain {
+    position: fixed; inset: 0; z-index: 9999; pointer-events: none; display: none;
+    background: linear-gradient(180deg, #f9f4e9 0%, #f1e8d6 50%, #e6dbc2 100%);
+    transform: translateY(0);
+    transition: transform .78s cubic-bezier(.6, 0, .2, 1);
+  }
+  .curtain.is-up { transform: translateY(-101%); }
+  .gallery-link {
+    display:inline-flex; align-items:center; gap:.8rem; margin-top:clamp(1.2rem,3vh,2rem);
+    padding:.7rem 1.4rem; border:1px solid rgba(36,29,21,.22);
+    text-decoration:none; color:var(--paper-dim);
+    font-size:.7rem; letter-spacing:.3em;
+    transition:border-color .45s var(--ease), color .45s var(--ease), background .45s var(--ease);
+  }
+  .gallery-link:hover { border-color:rgba(36,29,21,.5); color:var(--paper); background:rgba(255,252,244,.6); }
+  .gallery-link__count { font-family:var(--kai); color:var(--seal); letter-spacing:.14em; font-size:.66rem; }
+  .gallery-link i { font-style:normal; transition:transform .45s var(--ease); }
+  .gallery-link:hover i { transform:translateX(4px); }
+  /* 园林窗影 */
+  .garden { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+  .garden::before, .garden::after {
+    content: ''; position: absolute;
+    background: url(images/garden/window.png) center / contain no-repeat;
+  }
+  .garden::before { top: -23vmin; right: -21vmin; width: min(68vmin, 820px); height: min(68vmin, 820px); opacity: .13; }
+  .garden::after { right: -18vmin; bottom: -22vmin; width: min(44vmin, 520px); height: min(44vmin, 520px); opacity: .06; }
+  .garden .bamboo {
+    position: absolute; left: -9vmin; bottom: -3vmin;
+    width: min(54vmin, 640px); height: min(86vmin, 1000px);
+    background: url(images/garden/bamboo.png) left bottom / contain no-repeat;
+    opacity: .1;
+  }
+  /* ===== 卡片悬停 ===== */
+  .craft {
+    box-shadow: 0 10px 24px -20px rgba(70,52,26,.45);
+    transition: transform .7s var(--ease), border-color .55s var(--ease),
+                box-shadow .7s var(--ease), background .55s var(--ease), outline-color .5s var(--ease);
+    outline: 1px solid transparent; outline-offset: -7px;
+  }
+  .craft:hover {
+    transform: translateY(-9px);
+    border-color: rgba(168,52,42,.45);
+    outline-color: rgba(168,52,42,.22);
+    box-shadow: 0 26px 46px -22px rgba(70,52,26,.5), 0 0 0 1px rgba(168,52,42,.1);
+  }
+  /* 序号变朱砂 */
+  .craft__no span {
+    display: inline-block; color: var(--gold); font-size: .62rem;
+    transition: color .45s var(--ease), transform .55s var(--ease);
+  }
+  .craft:hover .craft__no span .craft__no span {
+    color: var(--seal); transform: scale(1.35);
+  }
+  .craft__no em { transition: opacity .45s var(--ease); opacity: .55; }
+  .craft:hover .craft__no em .craft__no em { opacity: .3; }
+
+  /* 画片：抬起 + 极轻微旋转 */
+  .craft__plate {
+    transition: transform .75s var(--ease), box-shadow .6s var(--ease);
+  }
+  .craft:hover .craft__plate .craft__plate {
+    transform: scale(1.055) rotate(-.8deg);
+    box-shadow: 0 18px 34px -14px rgba(70,52,26,.5), 0 0 0 1px rgba(36,29,21,.22);
+  }
+
+  /* 光扫过 */
+  .craft__art { overflow: hidden; }
+  .craft__art::after {
+    content: ''; position: absolute; inset: -20%;
+    pointer-events: none; opacity: 0;
+    background: linear-gradient(104deg, transparent 34%, rgba(255,253,246,.92) 48%, transparent 62%);
+    transform: translateX(-130%);
+    transition: transform 1s cubic-bezier(.3,.7,.2,1), opacity .35s ease;
+  }
+  .craft:hover .craft__art::after .craft__art::after {
+    opacity: 1; transform: translateX(130%);
+  }
+
+  /* 进入：常显 + 悬停推动 */
+  .craft__go { opacity: .42; transform: none; }
+  .craft:hover .craft__go .craft__go { opacity: 1; }
+  .craft__go::after {
+    content: ''; position: absolute; left: 0; bottom: -3px; height: 1px; width: 100%;
+    background: currentColor; transform: scaleX(0); transform-origin: left;
+    transition: transform .6s var(--ease);
+  }
+  .craft__go { position: relative; }
+  .craft:hover .craft__go::after .craft__go::after { transform: scaleX(1); }
 </style>
 </head>
 <body>
-  <img src="images/easter-egg.png" alt="彩蛋">
-  <a href="index.html" class="back">← 返回</a>
+<div class="curtain" id="curtain" aria-hidden="true"></div>
+<script>
+(function(){
+  var c = document.getElementById('curtain');
+  var flag = false;
+  try { flag = sessionStorage.getItem('xh-transit') === '1'; sessionStorage.removeItem('xh-transit'); } catch (e) {}
+  if(!flag) return;
+  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  c.style.display = 'block';
+  requestAnimationFrame(function(){ requestAnimationFrame(function(){
+    c.classList.add('is-up');
+    setTimeout(function(){ c.style.display = 'none'; }, 900);
+  }); });
+})();
+</script>
+
+<div class="light"></div>
+<div class="grain"></div>
+<div class="garden"><span class="bamboo"></span></div>
+
+<div class="side side--l">三艺在手　皆由心出</div>
+<div class="side side--r">一纸一布　俱是功夫</div>
+
+<header class="nav">
+  <a class="brand" href="index.html">
+    <span class="brand__mark">薪</span>
+    <span class="brand__name">薪火</span>
+    <span class="brand__sub">非遗数字展馆</span>
+  </a>
+  <nav class="nav__links">
+    <a href="index.html">首页</a>
+    <a href="hall.html">数字展馆</a>
+    <a href="craftsman.html">匠人故事</a>
+    <a href="easter-egg.html" class="is-active">技艺互动</a>
+  </nav>
+</header>
+
+<main class="stage">
+
+  <div class="head anim d1">
+    <p class="kicker">Craft · Interaction</p>
+    <h1 class="title">技艺互动</h1>
+    <p class="subtitle">三 门 手 艺 · 三 种 触 感</p>
+    <div class="rule"></div>
+  </div>
+
+  <div class="crafts">
+
+    <a class="craft anim d2" href="lianpu.html">
+      <div class="craft__no"><span>Ⅰ</span><em>FACE PAINTING</em></div>
+      <div class="craft__art">
+        <img class="craft__plate" src="images/lianpu/l1.jpg" alt="京剧脸谱">
+      </div>
+      <div class="craft__name"><b>勾脸</b><small>Lianpu</small></div>
+      <p class="craft__desc">红忠勇，黑刚直，白奸诈。一笔一划，勾出人物心性。</p>
+      <span class="craft__go">进 入 <i>→</i></span>
+    </a>
+
+    <a class="craft anim d3" href="jianzhi.html">
+      <div class="craft__no"><span>Ⅱ</span><em>PAPER CUT</em></div>
+      <div class="craft__art">
+        <img class="craft__plate" src="images/craft/jianzhi.jpg" alt="剪纸团花">
+      </div>
+      <div class="craft__name"><b>剪纸</b><small>Jianzhi</small></div>
+      <p class="craft__desc">一纸对折，八面对称。剪去的地方，才透出光来。</p>
+      <span class="craft__go">进 入 <i>→</i></span>
+    </a>
+
+    <a class="craft anim d4" href="zaran.html">
+      <div class="craft__no"><span>Ⅲ</span><em>TIE DYE</em></div>
+      <div class="craft__art">
+        <img class="craft__plate" src="images/craft/zaran.jpg" alt="扎染布料">
+      </div>
+      <div class="craft__name"><b>扎染</b><small>Zaran</small></div>
+      <p class="craft__desc">线缚布面，投之蓝缸。拆线那一刻，纹样才成定局。</p>
+      <span class="craft__go">进 入 <i>→</i></span>
+    </a>
+
+  </div>
+  <a class="gallery-link" href="gallery.html">
+    <span>我 的 展 厅</span>
+    <span class="gallery-link__count" id="galCount"></span>
+    <i>→</i>
+  </a>
+</main>
+
+<footer class="plate">
+  <span class="plate__no">壹 / 技艺互动</span>
+  <span class="plate__desc">三艺 · 皆以手传心</span>
+  <span class="plate__hint">XINHUO · INTANGIBLE HERITAGE</span>
+</footer>
+
+<script>
+(function(){
+  try{
+    var n = JSON.parse(localStorage.getItem('xh-gallery')||'[]').length;
+    var el = document.getElementById('galCount');
+    if(n && el) el.textContent = '已 收 ' + n + ' 件';
+  }catch(e){}
+})();
+</script>
 </body>
 </html>

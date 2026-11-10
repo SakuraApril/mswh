@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>剪纸 · 技艺互动 | 薪火非遗</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;900&family=Cinzel:wght@300;400;600&display=swap" rel="stylesheet">
+<script src="https://lib.baomitu.com/three.js/0.160.0/three.min.js"></script>
+<script src="js/gsap.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --gold: #c9a96e;
+    --red: #c8102e;
+    --ink: #0a0a0c;
+    --paper: #e8dcc8;
+    --text: #d4cdc0;
+    --text-dim: #6b6558;
+  }
+  body, html { height: 100%; overflow: hidden; background: var(--ink); color: var(--text); font-family: 'Noto Serif SC', serif; }
+  body::before {
+    content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background: radial-gradient(ellipse at 50% 30%, rgba(200,16,46,0.06) 0%, transparent 60%);
+  }
+  #bg-canvas { position: fixed; inset: 0; z-index: 1; }
+
+  .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; padding: 1.8rem 3.5rem; }
+  .nav__logo { font-size: 0.9rem; letter-spacing: 0.3em; color: var(--gold); font-weight: 300; }
+  .nav__links { display: flex; gap: 2.5rem; }
+  .nav__links a { font-size: 0.78rem; color: var(--text-dim); text-decoration: none; letter-spacing: 0.2em; transition: color 0.3s; font-weight: 300; }
+  .nav__links a:hover { color: var(--text); }
+  .nav__links a.active { color: var(--gold); }
+
+  .back-btn { position: fixed; top: 6rem; left: 3.5rem; z-index: 10; font-size: 0.78rem; color: var(--text-dim); text-decoration: none; letter-spacing: 0.2em; transition: color 0.3s; }
+  .back-btn:hover { color: var(--gold); }
+
+  .title-block { position: fixed; top: 8rem; left: 3.5rem; z-index: 10; }
+  .title-block__main { font-size: 1.8rem; font-weight: 900; letter-spacing: 0.4em; color: var(--paper); line-height: 1.2; }
+  .title-block__sub { margin-top: 0.8rem; font-size: 0.72rem; color: var(--text-dim); letter-spacing: 0.3em; font-family: 'Cinzel', serif; }
+  .title-block__line { width: 40px; height: 1px; background: var(--red); margin-top: 1rem; }
+
+  .stage { position: fixed; inset: 0; z-index: 5; display: flex; align-items: center; justify-content: center; }
+  .paper-container { position: relative; width: min(50vh, 400px); height: min(50vh, 400px); }
+  .paper-svg { width: 100%; height: 100%; filter: drop-shadow(0 0 40px rgba(200,16,46,0.2)); }
+
+  .cut-point { cursor: pointer; transition: all 0.3s; }
+  .cut-point:hover { opacity: 0.8; }
+  .cut-point.cut circle { fill: transparent !important; }
+  .cut-point.cut .cut-shape { opacity: 1; }
+  .cut-shape { opacity: 0; transition: opacity 0.3s; }
+
+  .tools-left { position: fixed; left: 3.5rem; top: 50%; transform: translateY(-50%); z-index: 20; }
+  .tool-label { font-size: 0.7rem; color: var(--text-dim); letter-spacing: 0.3em; margin-bottom: 1rem; text-align: center; }
+  .shape-btns { display: flex; flex-direction: column; gap: 0.7rem; align-items: center; }
+  .shape-btn {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(200,16,46,0.3);
+    cursor: pointer; transition: all 0.3s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .shape-btn:hover { border-color: var(--red); background: rgba(200,16,46,0.1); }
+  .shape-btn.active { border-color: var(--red); background: rgba(200,16,46,0.2); box-shadow: 0 0 15px rgba(200,16,46,0.3); }
+  .shape-btn svg { width: 20px; height: 20px; }
+
+  .tools-right { position: fixed; right: 3.5rem; top: 50%; transform: translateY(-50%); z-index: 20; display: flex; flex-direction: column; gap: 1.5rem; }
+  .action-row { display: flex; flex-direction: column; gap: 0.6rem; }
+  .btn { padding: 0.7rem 1.5rem; border-radius: 2px; cursor: pointer; font-family: 'Noto Serif SC', serif; font-size: 0.8rem; letter-spacing: 0.2em; transition: all 0.3s; }
+  .btn--primary { background: var(--red); color: #fff; border: none; font-weight: 600; }
+  .btn--primary:hover { box-shadow: 0 0 30px rgba(200,16,46,0.4); }
+  .btn--ghost { background: transparent; color: var(--text-dim); border: 1px solid rgba(255,255,255,0.15); }
+  .btn--ghost:hover { border-color: var(--text-dim); color: var(--text); }
+
+  .knowledge { position: fixed; left: 3.5rem; bottom: 3rem; z-index: 10; max-width: 260px; }
+  .knowledge__title { font-size: 0.75rem; color: var(--red); letter-spacing: 0.2em; margin-bottom: 0.5rem; }
+  .knowledge__text { font-size: 0.78rem; color: var(--text-dim); line-height: 1.9; font-weight: 300; }
+
+  .hint { position: fixed; right: 3.5rem; bottom: 3rem; z-index: 10; text-align: right; }
+  .hint__text { font-size: 0.75rem; color: var(--text-dim); letter-spacing: 0.15em; line-height: 2; }
+  .hint__text span { color: var(--red); }
+
+  .modal { position: fixed; inset: 0; z-index: 200; background: rgba(10,10,12,0.85); display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.5s; backdrop-filter: blur(8px); }
+  .modal.show { opacity: 1; pointer-events: auto; }
+  .modal__inner { text-align: center; transform: translateY(20px); transition: transform 0.5s cubic-bezier(0.2,0.8,0.2,1); }
+  .modal.show .modal__inner { transform: translateY(0); }
+  .modal__preview { width: 200px; height: 200px; margin: 0 auto 1.5rem; }
+  .modal__seal { width: 80px; height: 80px; margin: 0 auto 1.5rem; border: 2px solid var(--red); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: var(--red); transform: rotate(-5deg); }
+  .modal__title { font-size: 1.6rem; font-weight: 900; color: var(--paper); letter-spacing: 0.3em; margin-bottom: 0.8rem; }
+  .modal__desc { font-size: 0.85rem; color: var(--text-dim); line-height: 2; max-width: 320px; margin: 0 auto 2rem; font-weight: 300; }
+  .modal__btn { padding: 0.8rem 2.5rem; background: transparent; border: 1px solid var(--red); color: var(--red); font-family: 'Noto Serif SC', serif; font-size: 0.85rem; letter-spacing: 0.2em; cursor: pointer; transition: all 0.3s; }
+  .modal__btn:hover { background: var(--red); color: #fff; }
+
+  @media (max-width: 900px) {
+    .nav { padding: 1rem; } .nav__links { gap: 1rem; }
+    .back-btn { top: 4.5rem; left: 1rem; }
+    .title-block { top: 6rem; left: 1rem; } .title-block__main { font-size: 1.2rem; }
+    .tools-left { left: 1rem; } .tools-right { right: 1rem; }
+    .knowledge, .hint { display: none; }
+    .paper-container { width: 60vw; height: 60vw; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<nav class="nav">
+  <div class="nav__logo">薪火</div>
+  <div class="nav__links">
+    <a href="index.html">首页</a>
+    <a href="hall.html">展馆</a>
+    <a href="craftsman.html">匠人</a>
+    <a href="easter-egg.html" class="active">技艺互动</a>
+  </div>
+</nav>
+
+<a href="easter-egg.html" class="back-btn">← 返回技艺</a>
+
+<div class="title-block">
+  <div class="title-block__main">剪 纸</div>
+  <div class="title-block__sub">PAPER CUTTING</div>
+  <div class="title-block__line"></div>
+</div>
+
+<div class="stage">
+  <div class="paper-container">
+    <svg class="paper-svg" viewBox="0 0 400 400" id="paperSvg">
+      <!-- 折叠的红纸（三角形） -->
+      <defs>
+        <radialGradient id="paperGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#c8102e" stop-opacity="0.3"/>
+          <stop offset="100%" stop-color="#c8102e" stop-opacity="0.05"/>
+        </radialGradient>
+      </defs>
+
+      <polygon points="200,50 350,350 50,350" fill="url(#paperGlow)" stroke="#c8102e" stroke-width="1.5" opacity="0.8"/>
+
+      <!-- 折叠线 -->
+      <line x1="200" y1="50" x2="200" y2="350" stroke="#c8102e" stroke-width="0.5" opacity="0.3" stroke-dasharray="4,3"/>
+
+      <!-- 可裁剪的点 -->
+      <g class="cut-point" data-pos="top" data-x="200" data-y="120">
+        <circle cx="200" cy="120" r="12" fill="rgba(200,16,46,0.15)" stroke="#c8102e" stroke-width="1" stroke-dasharray="3,2"/>
+        <g class="cut-shape">
+          <circle cx="200" cy="120" r="8" fill="#0a0a0c"/>
+        </g>
+      </g>
+
+      <g class="cut-point" data-pos="left" data-x="140" data-y="220">
+        <circle cx="140" cy="220" r="12" fill="rgba(200,16,46,0.15)" stroke="#c8102e" stroke-width="1" stroke-dasharray="3,2"/>
+        <g class="cut-shape">
+          <path d="M 132 220 Q 140 212 148 220 Q 140 228 132 220" fill="#0a0a0c"/>
+        </g>
+      </g>
+
+      <g class="cut-point" data-pos="right" data-x="260" data-y="220">
+        <circle cx="260" cy="220" r="12" fill="rgba(200,16,46,0.15)" stroke="#c8102e" stroke-width="1" stroke-dasharray="3,2"/>
+        <g class="cut-shape">
+          <path d="M 252 220 Q 260 212 268 220 Q 260 228 252 220" fill="#0a0a0c"/>
+        </g>
+      </g>
+
+      <g class="cut-point" data-pos="bottom" data-x="200" data-y="300">
+        <circle cx="200" cy="300" r="12" fill="rgba(200,16,46,0.15)" stroke="#c8102e" stroke-width="1" stroke-dasharray="3,2"/>
+        <g class="cut-shape">
+          <path d="M 194 295 L 200 305 L 206 295 Z" fill="#0a0a0c"/>
+        </g>
+      </g>
+    </svg>
+  </div>
+</div>
+
+<div class="tools-left">
+  <div class="tool-label">剪 刀</div>
+  <div class="shape-btns">
+    <button class="shape-btn active" data-shape="circle" title="圆孔">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6" fill="none" stroke="#c8102e" stroke-width="1.5"/></svg>
+    </button>
+    <button class="shape-btn" data-shape="moon" title="月牙">
+      <svg viewBox="0 0 24 24"><path d="M 14 6 A 7 7 0 1 0 14 18 A 5.5 5.5 0 1 1 14 6" fill="none" stroke="#c8102e" stroke-width="1.5"/></svg>
+    </button>
+    <button class="shape-btn" data-shape="triangle" title="三角">
+      <svg viewBox="0 0 24 24"><path d="M 12 6 L 19 18 L 5 18 Z" fill="none" stroke="#c8102e" stroke-width="1.5"/></svg>
+    </button>
+  </div>
+</div>
+
+<div class="tools-right">
+  <div>
+    <div class="tool-label">操 作</div>
+    <div class="action-row">
+      <button class="btn btn--ghost" id="clearBtn">重 剪</button>
+      <button class="btn btn--primary" id="finishBtn">展 开</button>
+    </div>
+  </div>
+</div>
+
+<div class="knowledge">
+  <div class="knowledge__title">剪纸之说</div>
+  <div class="knowledge__text">
+    一纸一剪，阴阳相生。对折之后剪，展开便是对称乾坤。
+  </div>
+</div>
+
+<div class="hint">
+  <div class="hint__text">
+    点击虚线圈标记处裁剪<br>剪满<span>四处</span>后展开
+  </div>
+</div>
+
+<div class="modal" id="modal">
+  <div class="modal__inner">
+    <div class="modal__seal">福</div>
+    <div class="modal__title">剪 纸 初 成</div>
+    <div class="modal__desc">
+      薄薄一张纸，剪出四季花。你展开的不只是纹样，更是千年的指尖温度。
+    </div>
+    <button class="modal__btn" id="modalClose">再 剪 一 张</button>
+  </div>
+</div>
+
+<script>
+let scene, camera, renderer, particleSystem;
+let mouseX = 0, mouseY = 0;
+
+function initThree() {
+  const canvas = document.getElementById('bg-canvas');
+  scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x0a0a0c, 0.008);
+  camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 200);
+  camera.position.z = 60;
+  renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+  const count = 400;
+  const geo = new THREE.BufferGeometry();
+  const pos = new Float32Array(count*3);
+  const col = new Float32Array(count*3);
+  const red = new THREE.Color(0xc8102e);
+  const gold = new THREE.Color(0xc9a96e);
+  const dim = new THREE.Color(0x3a2828);
+
+  for (let i = 0; i < count; i++) {
+    pos[i*3] = (Math.random()-0.5)*120;
+    pos[i*3+1] = (Math.random()-0.5)*100;
+    pos[i*3+2] = (Math.random()-0.5)*60;
+    const r = Math.random();
+    const c = r > 0.7 ? red : r > 0.4 ? gold : dim;
+    col[i*3] = c.r; col[i*3+1] = c.g; col[i*3+2] = c.b;
+  }
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+
+  const c2 = document.createElement('canvas');
+  c2.width = c2.height = 64;
+  const ctx2 = c2.getContext('2d');
+  const g = ctx2.createRadialGradient(32,32,0,32,32,32);
+  g.addColorStop(0, 'rgba(255,255,255,1)');
+  g.addColorStop(0.3, 'rgba(255,255,255,0.4)');
+  g.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx2.fillStyle = g; ctx2.fillRect(0,0,64,64);
+
+  const mat = new THREE.PointsMaterial({ size: 0.5, map: new THREE.CanvasTexture(c2), vertexColors: true, transparent: true, opacity: 0.6, depthWrite: false, blending: THREE.AdditiveBlending });
+  particleSystem = new THREE.Points(geo, mat);
+  scene.add(particleSystem);
+
+  window.addEventListener('mousemove', e => {
+    mouseX = (e.clientX/window.innerWidth - 0.5) * 2;
+    mouseY = (e.clientY/window.innerHeight - 0.5) * 2;
+  });
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+  animate();
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+  particleSystem.rotation.y += 0.0003;
+  particleSystem.rotation.x += (mouseY*0.02 - particleSystem.rotation.x) * 0.02;
+  particleSystem.rotation.y += (mouseX*0.03 - particleSystem.rotation.y) * 0.02;
+  renderer.render(scene, camera);
+}
+
+function paperBurst() {
+  const count = 300;
+  const geo = new THREE.BufferGeometry();
+  const pos = new Float32Array(count*3);
+  const vels = [];
+  for (let i = 0; i < count; i++) {
+    pos[i*3] = 0; pos[i*3+1] = 0; pos[i*3+2] = 0;
+    vels.push({ x:(Math.random()-0.5)*3, y:(Math.random()-0.5)*3, z:(Math.random()-0.5)*2 });
+  }
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  const mat = new THREE.PointsMaterial({ size: 0.8, color: 0xc8102e, transparent: true, opacity: 1, depthWrite: false, blending: THREE.AdditiveBlending });
+  const burst = new THREE.Points(geo, mat);
+  scene.add(burst);
+  let p = 0;
+  function anim() {
+    p += 0.015;
+    const arr = burst.geometry.attributes.position.array;
+    for (let i = 0; i < count; i++) {
+      arr[i*3] += vels[i].x * p;
+      arr[i*3+1] += vels[i].y * p;
+      arr[i*3+2] += vels[i].z * p;
+    }
+    burst.geometry.attributes.position.needsUpdate = true;
+    mat.opacity = 1 - p;
+    if (p < 1) requestAnimationFrame(anim);
+    else { scene.remove(burst); geo.dispose(); mat.dispose(); }
+  }
+  anim();
+}
+
+// 剪纸逻辑
+let currentShape = 'circle';
+const cutPoints = document.querySelectorAll('.cut-point');
+
+document.querySelectorAll('.shape-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.shape-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentShape = btn.dataset.shape;
+  });
+});
+
+cutPoints.forEach(point => {
+  point.addEventListener('click', () => {
+    if (point.classList.contains('cut')) return;
+    point.classList.add('cut');
+    gsap.fromTo(point, { scale: 0.9 }, { scale: 1, duration: 0.3 });
+  });
+});
+
+document.getElementById('clearBtn').addEventListener('click', () => {
+  cutPoints.forEach(p => p.classList.remove('cut'));
+});
+
+document.getElementById('finishBtn').addEventListener('click', () => {
+  paperBurst();
+  document.getElementById('modal').classList.add('show');
+});
+document.getElementById('modalClose').addEventListener('click', () => {
+  document.getElementById('modal').classList.remove('show');
+  cutPoints.forEach(p => p.classList.remove('cut'));
+});
+
+window.addEventListener('load', () => {
+  gsap.from('.title-block', { opacity: 0, x: -30, duration: 1, delay: 0.3 });
+  gsap.from('.tools-left', { opacity: 0, x: -30, duration: 1, delay: 0.5 });
+  gsap.from('.tools-right', { opacity: 0, x: 30, duration: 1, delay: 0.5 });
+  gsap.from('.paper-container', { opacity: 0, scale: 0.9, duration: 1.2, delay: 0.2, ease: 'power2.out' });
+});
+
+initThree();
+</script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN" data-theme="dark">
 
 <head>
@@ -172,6 +172,14 @@
             background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
             transition: width 0.3s;
         }
+        /* 宣纸过场 */
+        .curtain {
+            position: fixed; inset: 0; z-index: 9999; pointer-events: none;
+            background: linear-gradient(180deg, #f9f4e9 0%, #f1e8d6 50%, #e6dbc2 100%);
+            transform: translateY(101%);
+            transition: transform .55s cubic-bezier(.7, 0, .25, 1);
+        }
+        html.transit-out .curtain { transform: translateY(0); }
     </style>
 </head>
 
@@ -577,7 +585,11 @@
         }
 
         function enterEasterEgg() {
-            window.location.href = 'easter-egg.html';
+            var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            try { sessionStorage.setItem('xh-transit', '1'); } catch (e) {}
+            if (reduce) { window.location.href = 'easter-egg.html'; return; }
+            document.documentElement.classList.add('transit-out');
+            setTimeout(function () { window.location.href = 'easter-egg.html'; }, 580);
         }
 
         // 滚动进度条
@@ -592,6 +604,7 @@
         gsap.from('.nav', { opacity: 0, y: -20, duration: 1, ease: 'power2.out' });
         gsap.from('.hero__cta', { opacity: 0, y: 20, duration: 1, ease: 'power2.out', delay: 0.8 });
     </script>
+    <div class="curtain"></div>
 </body>
 
 </html>

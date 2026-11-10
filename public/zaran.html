@@ -1,0 +1,760 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>扎染 · 一缸靛蓝 | 薪火 · 非遗数字展馆</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@200;300;400;600;900&family=Cormorant+Garamond:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }/* 宣纸为底、墨色为字：变量名沿用旧约定 —— --ink 是纸色，--paper 是墨色 */
+  :root {
+    --ink:       #f4eee1;
+    --ink-2:     #ece3d1;
+    --gold:      #9a7b3f;
+    --gold-lit:  #7a5c2a;
+    --paper:     #241d15;
+    --paper-dim: #4e4537;
+    --seal:      #a8342a;
+    --line:      rgba(36, 29, 21, .20);
+    --line-soft: rgba(36, 29, 21, .10);
+    --dim:       rgba(36, 29, 21, .60);
+    --serif: 'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', 'SimSun', serif;
+    --kai:   'Kaiti SC', 'KaiTi', 'STKaiti', 'Songti SC', 'Noto Serif SC', serif;
+    --latin: 'Cormorant Garamond', Georgia, serif;
+    --ease:  cubic-bezier(.22, .68, .16, 1);
+  }
+  html, body { height:100%; }
+  body {
+    background:var(--ink); color:var(--paper); font-family:var(--serif);
+    -webkit-font-smoothing:antialiased;
+    display:grid; grid-template-rows:auto 1fr auto;
+    min-height:100vh; overflow:hidden; overflow-x:hidden; position:relative;
+  }
+  .light {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse 64% 48% at 50% -8%, rgba(255, 253, 246, .96), transparent 72%),
+      radial-gradient(ellipse 92% 62% at 50% 114%, rgba(150, 120, 74, .17), transparent 66%),
+      linear-gradient(180deg, #f9f4e9 0%, #f1e8d6 46%, #e6dbc2 100%);
+  }
+  .grain {
+    position: fixed; inset: 0; z-index: 1; pointer-events: none;
+    opacity: .17; mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='.4'/%3E%3C/svg%3E");
+  }
+  /* 装裱双线 */
+  .light::before, .light::after {
+    content: ''; position: absolute; pointer-events: none;
+    border: 1px solid rgba(36, 29, 21, .22);
+  }
+  .light::before { inset: 13px; }
+  .light::after  { inset: 19px; border-color: rgba(36, 29, 21, .08); }
+
+  .nav {
+    position:relative; z-index:30; display:flex; align-items:center; justify-content:space-between;
+    padding:1.3rem clamp(1.25rem,4.2vw,4rem); border-bottom:1px solid var(--line-soft);
+  }
+  .brand { display:flex; align-items:baseline; gap:.8rem; text-decoration:none; color:inherit; }
+  .brand__mark { font-size:.8rem; font-weight:600; letter-spacing:.08em; color:#c04138;
+    border:1px solid rgba(156,43,36,.8); padding:.14rem .3rem; line-height:1; border-radius:1px; }
+  .brand__name { font-size:.92rem; letter-spacing:.36em; }
+  .brand__sub { font-size:.6rem; letter-spacing:.3em; color:var(--dim); border-left:1px solid var(--line); padding-left:.8rem; }
+  .nav__links { display:flex; align-items:center; gap:clamp(1rem,2.6vw,2.6rem); }
+  .nav__links a { position:relative; font-size:.73rem; letter-spacing:.24em; color:var(--dim);
+    text-decoration:none; padding:.3rem 0; transition:color .45s var(--ease); }
+  .nav__links a::after { content:''; position:absolute; left:0; right:0; bottom:0; height:1px;
+    background:var(--gold); transform:scaleX(0); transform-origin:right; transition:transform .55s var(--ease); }
+  .nav__links a:hover { color:var(--paper); }
+  .nav__links a:hover::after { transform:scaleX(1); transform-origin:left; }
+  .nav__links a.is-active { color:var(--gold-lit); }
+  .nav__links a.is-active::after { transform:scaleX(1); opacity:.5; }
+
+  .deck {
+    position:relative; z-index:20;
+    display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
+    align-items:center; column-gap:clamp(1rem,2.6vw,3rem);
+    padding:0 clamp(1.25rem,4.2vw,4rem); min-height:0;
+  }
+  .col-left { justify-self:start; width:min(292px,100%); display:flex; flex-direction:column; gap:clamp(1rem,3vh,2rem); }
+  .kicker { font-family:var(--latin); font-size:.62rem; letter-spacing:.46em; color:var(--gold);
+    opacity:.75; text-transform:uppercase; margin-bottom:.9rem; }
+  .title { font-size:clamp(2.3rem,3.8vw,3.1rem); font-weight:900; letter-spacing:.16em; line-height:1; }
+  .title span:last-child { color:var(--gold-lit); }
+  .subtitle { margin-top:.95rem; font-size:.74rem; font-weight:300; letter-spacing:.3em; color:var(--dim); }
+  .rule { width:44px; height:1px; background:var(--gold); opacity:.5; margin-top:1.3rem; }
+  .label { font-size:.62rem; letter-spacing:.42em; color:var(--gold); opacity:.6; margin-bottom:.1rem; }
+
+  .notes { list-style:none; border-top:1px solid var(--line-soft); }
+  .note { padding:.62rem .2rem; border-bottom:1px solid var(--line-soft); }
+  .note b { display:block; font-size:.76rem; font-weight:600; letter-spacing:.2em; color:var(--paper-dim); margin-bottom:.3rem; }
+  .note p { font-size:.66rem; line-height:1.9; letter-spacing:.06em; color:var(--dim); font-weight:300; }
+
+  .col-mid { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1rem; }
+  .stage {
+    position:relative; height:min(66vh,580px); aspect-ratio:1/1;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .halo {
+    position:absolute; left:50%; top:50%; width:150%; aspect-ratio:1; transform:translate(-50%,-50%);
+    background:radial-gradient(circle, rgba(64,104,160,.14) 0%, rgba(64,104,160,.04) 40%, rgba(64,104,160,0) 72%);
+    filter:blur(12px); pointer-events:none;
+  }
+  .cloth-wrap {
+    position:relative; width:100%; height:100%;
+    filter:drop-shadow(0 16px 28px rgba(88,66,36,.26));
+  }
+  #cloth { width:100%; height:100%; display:block; cursor:crosshair; border-radius:2px; }
+  .cloth-hint {
+    position:absolute; left:50%; bottom:-2.1rem; transform:translateX(-50%);
+    font-size:.6rem; letter-spacing:.28em; color:var(--gold); opacity:.45; white-space:nowrap;
+    transition:opacity .5s var(--ease);
+  }
+  .cloth-hint.is-hidden { opacity:0; }
+
+  .tag { display:flex; align-items:center; gap:.7rem; white-space:nowrap;
+    font-size:.66rem; letter-spacing:.28em; color:var(--dim); }
+  .tag__no { font-family:var(--latin); color:var(--gold); opacity:.7; letter-spacing:.1em; }
+  .tag__dot { width:3px; height:3px; border-radius:50%; background:var(--gold); opacity:.5; }
+  .tag__type { color:var(--gold); opacity:.62; font-size:.62rem; }
+
+  .col-right { justify-self:end; width:min(232px,100%); display:flex; flex-direction:column; gap:clamp(1.1rem,3.4vh,2.2rem); }
+
+  .dyes { list-style:none; border-top:1px solid var(--line-soft); }
+  .dye {
+    display:flex; align-items:center; gap:.75rem;
+    padding:.6rem .3rem; border-bottom:1px solid var(--line-soft);
+    cursor:pointer; position:relative;
+    transition:background .4s var(--ease), padding-left .4s var(--ease);
+  }
+  .dye:hover { background:rgba(201,169,110,.05); padding-left:.75rem; }
+  .dye__dot { width:14px; height:14px; border-radius:50%; flex:none; background:var(--c);
+    box-shadow:0 0 0 1px rgba(0,0,0,.5), 0 0 0 2px rgba(201,169,110,.13), inset 0 1px 1px rgba(255,255,255,.25);
+    transition:transform .4s var(--ease), box-shadow .4s var(--ease); }
+  .dye:hover .dye__dot { transform:scale(1.14); }
+  .dye__name { font-size:.78rem; letter-spacing:.18em; color:var(--paper-dim); transition:color .35s; }
+  .dye__from { margin-left:auto; font-size:.62rem; letter-spacing:.14em; color:var(--dim); opacity:.6; }
+  .dye.is-on .dye__dot { transform:scale(1.2);
+    box-shadow:0 0 0 1px rgba(0,0,0,.5), 0 0 0 2px var(--gold), 0 0 14px -2px var(--c); }
+  .dye.is-on .dye__name { color:var(--gold-lit); }
+  .dye.is-on .dye__from { color:var(--gold); opacity:1; }
+
+  .actions { display:flex; flex-direction:column; gap:.55rem; }
+  .btn { position:relative; overflow:hidden; font-family:inherit; font-size:.76rem;
+    letter-spacing:.3em; padding:.8rem 1rem; cursor:pointer; border-radius:1px;
+    transition:color .45s var(--ease), border-color .45s var(--ease), background .45s var(--ease); }
+  .btn::after { content:''; position:absolute; inset:0; background:var(--gold); transform:translateY(101%);
+    transition:transform .5s var(--ease); z-index:0; }
+  .btn > span { position:relative; z-index:1; }
+  .btn--ghost { background:transparent; border:1px solid var(--line); color:var(--dim); }
+  .btn--ghost::after { display:none; }
+  .btn--ghost:hover { border-color:rgba(201,169,110,.5); color:var(--gold-lit); }
+  .btn--solid { background:transparent; border:1px solid rgba(201,169,110,.45); color:var(--gold-lit); }
+  .btn--solid:hover { color:#100e0b; border-color:var(--gold); }
+  .btn--solid:hover::after { transform:translateY(0); }
+  .meta-note { margin-top:.9rem; font-size:.64rem; line-height:2; letter-spacing:.16em; color:var(--dim); opacity:.6; }
+
+  .plate {
+    position:relative; z-index:20; display:flex; align-items:center; justify-content:space-between; gap:1rem;
+    padding:.85rem clamp(1.25rem,4.2vw,4rem); border-top:1px solid var(--line-soft);
+    font-size:.64rem; letter-spacing:.28em; color:var(--dim);
+  }
+  .plate a { color:var(--gold); opacity:.8; text-decoration:none; }
+  .plate__desc { opacity:.6; }
+  .plate__hint { opacity:.4; flex:none; }
+
+  .side { position:fixed; top:50%; writing-mode:vertical-rl; font-size:.62rem; letter-spacing:.6em;
+    color:var(--gold); opacity:.36; z-index:15; pointer-events:none; transform:translateY(-50%); white-space:nowrap; }
+  .side--l { left:.9rem; } .side--r { right:.9rem; }
+
+  @keyframes rise { from{opacity:0;transform:translateY(14px);} to{opacity:1;transform:none;} }
+  @keyframes maskIn { from{opacity:0;transform:scale(.94);filter:blur(10px);} to{opacity:1;transform:none;filter:blur(0);} }
+  .anim { opacity:0; animation:rise 1s var(--ease) forwards; }
+  .d1{animation-delay:.08s}.d2{animation-delay:.18s}.d3{animation-delay:.3s}.d4{animation-delay:.42s}.d5{animation-delay:.54s}
+  .stage { opacity:0; animation:maskIn 1.4s var(--ease) .15s forwards; }
+  @media (prefers-reduced-motion:reduce){ *,*::before,*::after{animation-duration:.01ms!important;animation-delay:0s!important;transition-duration:.01ms!important;} .anim,.stage{opacity:1!important;} }
+
+  @media (max-width:1180px){ .brand__sub{display:none;} .side{display:none;} .col-left{width:min(236px,100%);} .col-right{width:min(206px,100%);} }
+  @media (max-width:980px){
+    body { grid-template-columns:minmax(0,1fr); overflow-y:auto; overflow-x:hidden; height:auto; }
+    .deck { grid-template-columns:minmax(0,1fr); justify-items:center; row-gap:1.4rem; padding:1.4rem 1.2rem 2rem; }
+    .col-left,.col-right { width:min(540px,100%); justify-self:center; }
+    .col-left { order:1; align-items:stretch; text-align:center; }
+    .col-left > div { width:100%; }
+    .notes { display:grid; grid-template-columns:1fr 1fr 1fr; column-gap:1rem; }
+    .col-mid { order:2; } .col-right { order:3; }
+    .stage { height:min(50vh,400px); }
+    .dyes { display:grid; grid-template-columns:1fr 1fr; column-gap:1.2rem; }
+    .actions { flex-direction:row; } .actions .btn { flex:1; }
+    .nav__links { gap:.9rem; } .nav__links a { font-size:.66rem; letter-spacing:.14em; }
+    .brand__name { font-size:.8rem; letter-spacing:.2em; }
+    .plate { flex-wrap:wrap; justify-content:center; text-align:center; gap:.4rem; }
+    .plate__hint { display:none; }
+  }
+  @media (max-width:520px){
+    .nav { padding:1rem .9rem; } .nav__links { gap:.7rem; }
+    .nav__links a { font-size:.6rem; letter-spacing:.05em; }
+    .brand__name { letter-spacing:.12em; }
+    .notes { grid-template-columns:1fr; }
+    .dyes { grid-template-columns:1fr; }
+  }
+  /* ===== 中式排版 ===== */
+  body { line-height: 1.7; }
+  .subtitle, .craft__desc, .note p, .meta-note, .card__poem,
+  .plate__desc, .cloth-hint, .craft__go, .hint__text {
+    font-family: var(--kai);
+  }
+  .subtitle { letter-spacing: .34em; font-size: .8rem; }
+  .title { letter-spacing: .24em; }
+  .kicker { letter-spacing: .5em; opacity: .85; }
+  .brand__name { letter-spacing: .4em; }
+  .nav__links a.is-active { color: var(--seal); }
+  .nav__links a.is-active::after { background: var(--seal); }
+  .btn--solid { border-color: rgba(36,29,21,.38); color: var(--paper); }
+  .btn--solid::after { background: var(--paper); }
+  .btn--solid:hover { color: var(--ink); border-color: var(--paper); }
+  .btn--ghost { border-color: rgba(36,29,21,.28); color: var(--paper); opacity: .95; }
+  .btn--ghost:hover { border-color: rgba(36,29,21,.55); color: var(--paper); opacity: 1; }
+  /* 标题旁朱印 */
+  .title::after {
+    content: '薪'; align-self: flex-start; margin-left: .5rem; margin-top: .06em;
+    font-family: var(--serif); font-weight: 600; font-size: .3em; line-height: 1;
+    color: #f8f2e4; background: var(--seal);
+    padding: .34em .38em .38em; letter-spacing: 0; transform: rotate(-2.5deg);
+    box-shadow: inset 0 0 0 1px rgba(248, 242, 228, .4);
+  }
+  /* 落款 */
+  .colophon {
+    position: fixed; right: 2.2rem; bottom: 2.9rem;
+    display: flex; flex-direction: column; align-items: center; gap: .6rem;
+    z-index: 16; pointer-events: none;
+  }
+  .colophon__text {
+    writing-mode: vertical-rl; font-family: var(--kai);
+    font-size: .66rem; letter-spacing: .3em; color: rgba(36,29,21,.5); line-height: 1.4;
+  }
+  .colophon__seal {
+    writing-mode: vertical-rl; font-family: var(--serif); font-weight: 600;
+    font-size: .56rem; line-height: 1.12; letter-spacing: .04em;
+    color: #f8f2e4; background: var(--seal); padding: .36em .32em;
+    box-shadow: inset 0 0 0 1px rgba(248,242,228,.36); transform: rotate(-2deg);
+  }
+  @media (max-width: 1180px) { .colophon { display: none; } }
+  /* 园林窗影 */
+  .garden { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+  .garden::before, .garden::after {
+    content: ''; position: absolute;
+    background: url(images/garden/window.png) center / contain no-repeat;
+  }
+  .garden::before { top: -23vmin; right: -21vmin; width: min(68vmin, 820px); height: min(68vmin, 820px); opacity: .13; }
+  .garden::after { right: -18vmin; bottom: -22vmin; width: min(44vmin, 520px); height: min(44vmin, 520px); opacity: .06; }
+  .garden .bamboo {
+    position: absolute; left: -9vmin; bottom: -3vmin;
+    width: min(54vmin, 640px); height: min(86vmin, 1000px);
+    background: url(images/garden/bamboo.png) left bottom / contain no-repeat;
+    opacity: .1;
+  }
+  /* 三艺切换 */
+  .switch {
+    display: flex; align-items: center; gap: 1.15rem;
+    margin-top: .35rem; flex-wrap: wrap;
+  }
+  .switch__item {
+    position: relative; text-decoration: none;
+    font-size: .7rem; letter-spacing: .22em;
+    color: rgba(36,29,21,.54);
+    transition: color .4s var(--ease);
+  }
+  .switch__item:hover { color: var(--paper); }
+  .switch__item.is-on { color: var(--seal); }
+  .switch__item.is-on::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: -5px;
+    height: 1px; background: var(--seal); opacity: .55;
+  }
+  .switch__no {
+    font-family: var(--serif); font-size: .58rem; margin-right: .34em; opacity: .65;
+  }
+  @media (max-width: 980px) {
+    .switch { justify-content: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="light"></div>
+<div class="grain"></div>
+<div class="garden"><span class="bamboo"></span></div>
+<div class="side side--l">线缚布面　投之蓝缸</div>
+<header class="nav">
+  <a class="brand" href="index.html">
+    <span class="brand__mark">薪</span><span class="brand__name">薪火</span>
+    <span class="brand__sub">非遗数字展馆</span>
+  </a>
+  <nav class="nav__links">
+    <a href="index.html">首页</a>
+    <a href="hall.html">数字展馆</a>
+    <a href="craftsman.html">匠人故事</a>
+    <a href="easter-egg.html" class="is-active">技艺互动</a>
+  </nav>
+</header>
+
+<main class="deck">
+
+  <section class="col-left">
+    <div class="anim d1">
+      <p class="kicker">扎 染 · 蓝 白</p>
+      <h1 class="title"><span>扎</span><span>染</span></h1>
+      <p class="subtitle">点布为结 · 蓝白晕染</p>
+      <div class="rule"></div>
+      <div class="switch" aria-label="三艺切换">
+        <a class="switch__item" href="lianpu.html"><span class="switch__no">一</span>勾脸</a>
+        <a class="switch__item" href="jianzhi.html"><span class="switch__no">二</span>剪纸</a>
+        <a class="switch__item is-on" href="zaran.html"><span class="switch__no">三</span>扎染</a>
+      </div>
+    </div>
+    <div class="anim d3">
+      <p class="label">扎 染 三 步</p>
+      <ul class="notes">
+        <li class="note"><b>扎</b><p>以线缚布，缚得越紧，染料越进不去，留白越多。</p></li>
+        <li class="note"><b>染</b><p>入缸反复浸染，每染一次，蓝色便深一层。</p></li>
+        <li class="note"><b>拆</b><p>拆线才见纹。晕开的边界，是机器做不出的。</p></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="col-mid">
+    <div class="stage">
+      
+      <div class="cloth-wrap">
+        <canvas id="cloth" width="720" height="720" aria-label="扎染布面"></canvas>
+        <span class="cloth-hint" id="hint">点 击 布 面 · 放 下 一 个 结</span>
+      </div>
+    </div>
+    <div class="tag">
+      <span class="tag__no" id="tagNo">◇</span>
+      <span id="tagName">素 布</span>
+      <span class="tag__dot"></span>
+      <span class="tag__type" id="tagType">尚未下缸</span>
+    </div>
+  </section>
+
+  <aside class="col-right">
+    <div class="anim d4">
+      <p class="label">染 料</p>
+      <ul class="dyes" id="dyes">
+        <li class="dye is-on" data-color="#1f4e79" style="--c:#1f4e79">
+          <span class="dye__dot"></span><span class="dye__name">靛蓝</span><span class="dye__from">蓝草</span></li>
+        <li class="dye" data-color="#a4211d" style="--c:#a4211d">
+          <span class="dye__dot"></span><span class="dye__name">茜草</span><span class="dye__from">茜根</span></li>
+        <li class="dye" data-color="#b8862c" style="--c:#b8862c">
+          <span class="dye__dot"></span><span class="dye__name">栀子</span><span class="dye__from">栀子实</span></li>
+        <li class="dye" data-color="#5b3568" style="--c:#5b3568">
+          <span class="dye__dot"></span><span class="dye__name">苏木</span><span class="dye__from">苏木心</span></li>
+        <li class="dye" data-color="#2f6b52" style="--c:#2f6b52">
+          <span class="dye__dot"></span><span class="dye__name">松绿</span><span class="dye__from">松针</span></li>
+      </ul>
+    </div>
+    <div class="anim d5">
+      <div class="actions">
+        <button class="btn btn--ghost" id="dipBtn"><span>整 缸 浸 染</span></button>
+        <button class="btn btn--ghost" id="clearBtn"><span>清 水 重 来</span></button>
+        <button class="btn btn--solid" id="saveBtn"><span>留 下 这 块</span></button>
+      </div>
+      <p class="meta-note">先选染料，再点布面；多点几处会叠色</p>
+    </div>
+  </aside>
+</main>
+
+<div class="colophon" aria-hidden="true">
+  <span class="colophon__text">丙午孟冬　薪火录</span>
+  <span class="colophon__seal">薪火</span>
+</div>
+
+<footer class="plate">
+  <a href="easter-egg.html">← 技 艺 互 动</a>
+  <span class="plate__desc">一缸靛蓝 · 千般晕染</span>
+  <span class="plate__hint">薪 火 · 二 〇 二 六</span>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+  var cv = document.getElementById('cloth');
+  var ctx = cv.getContext('2d');
+  var W = 720, H = 720;
+  var state = { color: '#1f4e79', ties: [], dip: null };
+  document.getElementById('hint').classList.remove('is-hidden');
+
+  var GARMENT = (function () {
+    var g = new Path2D();
+    g.moveTo(340, 128);
+    g.lineTo(252, 142);
+    g.bezierCurveTo(214, 152, 186, 174, 166, 212);
+    g.bezierCurveTo(140, 262, 112, 310, 88, 354);
+    g.bezierCurveTo(108, 384, 134, 402, 160, 410);
+    g.bezierCurveTo(186, 372, 210, 336, 234, 316);
+    g.bezierCurveTo(240, 380, 246, 470, 250, 566);
+    g.bezierCurveTo(251, 600, 252, 634, 254, 660);
+    g.bezierCurveTo(314, 674, 406, 674, 466, 660);
+    g.bezierCurveTo(468, 634, 469, 600, 470, 566);
+    g.bezierCurveTo(474, 470, 480, 380, 486, 316);
+    g.bezierCurveTo(510, 336, 534, 372, 560, 410);
+    g.bezierCurveTo(586, 402, 612, 384, 632, 354);
+    g.bezierCurveTo(608, 310, 580, 262, 554, 212);
+    g.bezierCurveTo(534, 174, 506, 152, 468, 142);
+    g.lineTo(380, 128);
+    g.bezierCurveTo(372, 154, 348, 154, 340, 128);
+    g.closePath();
+    return g;
+  })();
+  function wobbly(radius, seed, amp) {
+    var pts = 96;
+    ctx.beginPath();
+    for (var i = 0; i <= pts; i++) {
+      var a = i / pts * Math.PI * 2;
+      var n = Math.sin(a * 3 + seed) * .5 + Math.sin(a * 7 + seed * 2.3) * .3 + Math.sin(a * 13 + seed * .7) * .2;
+      var r = radius * (1 + amp * n);
+      var x = Math.cos(a) * r, y = Math.sin(a) * r;
+      if (i) ctx.lineTo(x, y); else ctx.moveTo(x, y);
+    }
+    ctx.closePath();
+  }
+  function hexToRgb(hex) { return [parseInt(hex.slice(1,3),16), parseInt(hex.slice(3,5),16), parseInt(hex.slice(5,7),16)]; }
+  function rgba(rgb, a) { return 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',' + a + ')'; }
+
+  function drawGarment() {
+    ctx.save();
+    ctx.shadowColor = 'rgba(70,52,26,.26)';
+    ctx.shadowBlur = 26; ctx.shadowOffsetY = 12;
+    var g = ctx.createLinearGradient(80, 140, 620, 660);
+    g.addColorStop(0, '#f4eddc'); g.addColorStop(.45, '#eae1cd'); g.addColorStop(1, '#dcd0b6');
+    ctx.fillStyle = g;
+    ctx.fill(GARMENT);
+    ctx.restore();
+
+    ctx.save();
+    ctx.clip(GARMENT);
+    for (var y = 120; y < 660; y += 3) {
+      ctx.fillStyle = 'rgba(180,168,142,.055)';
+      ctx.fillRect(0, y, W, 1);
+    }
+    for (var x = 40; x < 690; x += 3) {
+      ctx.fillStyle = 'rgba(255,255,255,.06)';
+      ctx.fillRect(x, 0, 1, H);
+    }
+    ctx.restore();
+  }
+
+  function drawTie(tie) {
+    var rgb = hexToRgb(tie.color);
+    var R = tie.r;
+    var style = tie.style || 0;
+
+    if (style === 1) {
+      ctx.save();
+      ctx.globalCompositeOperation = 'multiply';
+      for (var pass = 0; pass < 5; pass++) {
+        ctx.beginPath();
+        for (var s = 0; s <= 120; s++) {
+          var a0 = s * .19 + tie.seed + pass * .5;
+          var rr = R * .95 * (s / 120);
+          var x = tie.x + Math.cos(a0) * rr, y = tie.y + Math.sin(a0) * rr;
+          if (s === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+        ctx.strokeStyle = rgba(rgb, .05);
+        ctx.lineWidth = R * (.14 - pass * .018);
+        ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+        ctx.stroke();
+      }
+      ctx.restore();
+      return;
+    }
+
+    if (style === 3) {
+      ctx.save();
+      ctx.globalCompositeOperation = 'multiply';
+      for (var b = 0; b < 6; b++) {
+        var ang = tie.seed + b * 1.05;
+        var dist = R * (.12 + .2 * (b % 3));
+        ctx.save();
+        ctx.translate(tie.x + Math.cos(ang) * dist, tie.y + Math.sin(ang) * dist);
+        wobbly(R * (.32 + .12 * ((b * 7) % 3)), tie.seed + b * 2.7, .28);
+        ctx.fillStyle = rgba(rgb, .135);
+        ctx.fill();
+        ctx.restore();
+      }
+      ctx.restore();
+      ctx.save();
+      for (var q = 0; q < 3; q++) {
+        ctx.save();
+        ctx.translate(tie.x + Math.cos(tie.seed + q * 2) * R * .22, tie.y + Math.sin(tie.seed + q * 2) * R * .22);
+        wobbly(R * (.1 + q * .05), tie.seed + q, .3);
+        ctx.fillStyle = 'rgba(244,238,224,.5)';
+        ctx.fill();
+        ctx.restore();
+      }
+      ctx.restore();
+      return;
+    }
+
+    ctx.save();
+    ctx.globalCompositeOperation = 'multiply';
+    for (var k = 26; k >= 1; k--) {
+      ctx.save();
+      ctx.translate(tie.x, tie.y);
+      wobbly(R * (k / 26), tie.seed + k * .37, .1 + .05 * Math.sin(k));
+      ctx.fillStyle = rgba(rgb, .125);
+      ctx.fill();
+      ctx.restore();
+    }
+    ctx.restore();
+
+    ctx.save();
+    for (var j = 1; j <= 3; j++) {
+      ctx.save();
+      ctx.translate(tie.x, tie.y);
+      wobbly(R * (.24 + j * .19), tie.seed + j * 1.7, .16);
+      ctx.strokeStyle = 'rgba(244,238,224,.30)';
+      ctx.lineWidth = 1.2 + j * 1.2;
+      ctx.stroke();
+      ctx.restore();
+    }
+    ctx.save();
+    ctx.translate(tie.x, tie.y);
+    wobbly(R * .07, tie.seed, .2);
+    ctx.fillStyle = 'rgba(244,238,224,.55)';
+    ctx.fill();
+    ctx.restore();
+    ctx.restore();
+  }
+
+  function drawDetails() {
+    ctx.save();
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+
+    // 衣身轮廓
+    ctx.strokeStyle = 'rgba(36,29,21,.26)';
+    ctx.lineWidth = 1.6;
+    ctx.stroke(GARMENT);
+
+    ctx.save();
+    ctx.clip(GARMENT);
+
+    // 交领：左襟在下，右襟压上
+    ctx.strokeStyle = 'rgba(226,216,194,.98)';
+    ctx.lineWidth = 30;
+    ctx.beginPath(); ctx.moveTo(262, 150); ctx.lineTo(366, 352); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(458, 150); ctx.lineTo(354, 352); ctx.stroke();
+
+    ctx.strokeStyle = 'rgba(36,29,21,.30)';
+    ctx.lineWidth = 1.3;
+    ctx.beginPath(); ctx.moveTo(248, 152); ctx.lineTo(352, 352); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(472, 152); ctx.lineTo(368, 352); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(262, 150); ctx.lineTo(366, 352); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(458, 150); ctx.lineTo(354, 352); ctx.stroke();
+
+    // 系带
+    ctx.fillStyle = 'rgba(220,209,185,.95)';
+    ctx.fillRect(248, 372, 224, 16);
+    ctx.strokeStyle = 'rgba(36,29,21,.28)';
+    ctx.lineWidth = 1.2;
+    ctx.strokeRect(248, 372, 224, 16);
+    ctx.beginPath();
+    ctx.moveTo(360, 388); ctx.lineTo(352, 470);
+    ctx.moveTo(360, 388); ctx.lineTo(368, 470);
+    ctx.strokeStyle = 'rgba(36,29,21,.22)';
+    ctx.stroke();
+
+    // 下摆线与袖口
+    ctx.beginPath(); ctx.moveTo(256, 628); ctx.lineTo(464, 628);
+    ctx.strokeStyle = 'rgba(36,29,21,.20)'; ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(96, 358); ctx.lineTo(160, 410); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(624, 358); ctx.lineTo(560, 410); ctx.stroke();
+
+    ctx.restore();
+    ctx.restore();
+  }
+  function render() {
+    ctx.clearRect(0, 0, W, H);
+    drawGarment();
+
+    ctx.save();
+    ctx.clip(GARMENT);
+
+    if (state.dip) {
+      var d = hexToRgb(state.dip);
+      ctx.save();
+      ctx.globalCompositeOperation = 'multiply';
+      ctx.fillStyle = rgba(d, .30);
+      ctx.fillRect(0, 0, W, H);
+      for (var i = 0; i < 7; i++) {
+        ctx.beginPath();
+        ctx.arc(W * (.5 + Math.sin(i * 2.1) * .30), H * (.52 + Math.cos(i * 1.7) * .28), W * (.12 + i * .045), 0, Math.PI * 2);
+        ctx.fillStyle = rgba(d, .05);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    state.ties.forEach(drawTie);
+
+    var vg = ctx.createRadialGradient(360, 400, 120, 360, 400, 420);
+    vg.addColorStop(0, 'rgba(60,44,20,0)');
+    vg.addColorStop(1, 'rgba(60,44,20,.15)');
+    ctx.fillStyle = vg;
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.restore();
+    drawDetails();
+    updateTag();
+  }
+
+  function clothPoint(e) {
+    var r = cv.getBoundingClientRect();
+    return { x: (e.clientX - r.left) / r.width * W, y: (e.clientY - r.top) / r.height * H };
+  }
+
+  cv.addEventListener('click', function (e) {
+    var p = clothPoint(e);
+    if (!ctx.isPointInPath(GARMENT, p.x, p.y)) return;
+    state.ties.push({
+      x: p.x, y: p.y,
+      r: 720 * (.17 + Math.random() * .05),
+      color: state.color,
+      style: [0, 1, 3][state.ties.length % 3],
+      seed: Math.random() * 10
+    });
+    if (state.ties.length > 8) state.ties.shift();
+    document.getElementById('hint').classList.add('is-hidden');
+    render();
+  });
+  cv.addEventListener('mousemove', function (e) {
+    var p = clothPoint(e);
+    cv.style.cursor = ctx.isPointInPath(GARMENT, p.x, p.y) ? 'crosshair' : 'default';
+  });
+
+  Array.prototype.forEach.call(document.querySelectorAll('.dye'), function (el) {
+    el.addEventListener('click', function () {
+      Array.prototype.forEach.call(document.querySelectorAll('.dye'), function (d) { d.classList.remove('is-on'); });
+      el.classList.add('is-on');
+      state.color = el.dataset.color;
+    });
+  });
+
+  document.getElementById('dipBtn').addEventListener('click', function () { state.dip = state.color; render(); });
+  document.getElementById('clearBtn').addEventListener('click', function () {
+    state.ties = []; state.dip = null;
+    document.getElementById('hint').classList.remove('is-hidden');
+    render();
+  });
+  document.getElementById('saveBtn').addEventListener('click', function () {
+    try {
+      var a = document.createElement('a');
+      a.download = '薪火-扎染-' + Date.now() + '.png';
+      a.href = cv.toDataURL('image/png');
+      a.click();
+    } catch (err) { console.warn(err); }
+  });
+
+  function updateTag() {
+    var n = state.ties.length;
+    var names = ['素 衣', '一 结', '二 结', '三 结', '四 结', '五 结', '六 结', '七 结', '八 结'];
+    document.getElementById('tagName').textContent = names[n] || '密 结';
+    document.getElementById('tagType').textContent = state.dip ? '已 下 缸' : '尚 未 下 缸';
+    document.getElementById('tagNo').textContent = n ? '◇' : '○';
+  }
+
+  render();
+})();
+</script>
+<script>window.XH_KIND = 'zaran';</script>
+<script>
+/* 收入「我的展厅」 */
+(function () {
+  var KEY = 'xh-gallery';
+  function toast(msg) {
+    var d = document.createElement('div');
+    d.textContent = msg;
+    d.style.cssText = 'position:fixed;left:50%;bottom:5.4rem;transform:translateX(-50%);z-index:9998;'
+      + 'background:rgba(36,29,21,.9);color:#f8f2e4;font-family:"Kaiti SC","KaiTi","Noto Serif SC",serif;'
+      + 'font-size:.72rem;letter-spacing:.24em;padding:.6rem 1.2rem;pointer-events:none;opacity:0;'
+      + 'transition:opacity .35s ease';
+    document.body.appendChild(d);
+    requestAnimationFrame(function () { d.style.opacity = '1'; });
+    setTimeout(function () { d.style.opacity = '0'; setTimeout(function () { d.remove(); }, 400); }, 1400);
+  }
+  function save(kind, kindName, title, url) {
+    try {
+      var list = JSON.parse(localStorage.getItem(KEY) || '[]');
+      list.unshift({ id: Date.now() + '-' + Math.random().toString(36).slice(2, 6), kind: kind, kindName: kindName, title: title, data: url, ts: Date.now() });
+      if (list.length > 12) list = list.slice(0, 12);
+      localStorage.setItem(KEY, JSON.stringify(list));
+      toast('已 收 入 展 厅');
+      return true;
+    } catch (e) {
+      toast('展 厅 已 满');
+      return false;
+    }
+  }
+  function fromSvg(svgEl, w, h, cb) {
+    if (!svgEl) return;
+    var clone = svgEl.cloneNode(true);
+    clone.removeAttribute('id');
+    clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+    clone.setAttribute('width', w); clone.setAttribute('height', h);
+    clone.style.filter = 'none';
+    var hit = clone.querySelector('#hitGroup');
+    if (hit) hit.parentNode.removeChild(hit);
+    var bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    bg.setAttribute('width', '100%'); bg.setAttribute('height', '100%');
+    bg.setAttribute('fill', '#f4eee1');
+    clone.insertBefore(bg, clone.firstChild);
+    var str = new XMLSerializer().serializeToString(clone);
+    var url = URL.createObjectURL(new Blob([str], { type: 'image/svg+xml;charset=utf-8' }));
+    var img = new Image();
+    img.onload = function () {
+      var c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      c.getContext('2d').drawImage(img, 0, 0, w, h);
+      URL.revokeObjectURL(url);
+      try { cb(c.toDataURL('image/jpeg', .82)); } catch (e) { console.warn(e); }
+    };
+    img.src = url;
+  }
+  function tagTitle() {
+    var a = document.getElementById('tagName'), b = document.getElementById('tagType');
+    return ((a ? a.textContent : '') + (b ? ' · ' + b.textContent : '')).trim();
+  }
+
+  var KIND = window.XH_KIND;
+  var btn = document.getElementById('saveBtn');
+  if (!btn || !KIND) return;
+
+  if (KIND === 'lianpu') {
+    btn.addEventListener('click', function () {
+      if (typeof saveCard === 'function') { try { saveCard(); } catch (e) {} }
+      fromSvg(document.getElementById('mask'), 420, 520, function (u) {
+        save('lianpu', '勾脸', tagTitle(), u);
+      });
+    });
+  } else if (KIND === 'jianzhi') {
+    btn.addEventListener('click', function () {
+      fromSvg(document.getElementById('paperSvg'), 420, 420, function (u) {
+        save('jianzhi', '剪纸', tagTitle(), u);
+      });
+    });
+  } else if (KIND === 'zaran') {
+    btn.addEventListener('click', function () {
+      var cv = document.getElementById('cloth');
+      var c = document.createElement('canvas');
+      c.width = 420; c.height = 420;
+      c.getContext('2d').drawImage(cv, 0, 0, 420, 420);
+      try { save('zaran', '扎染', tagTitle(), c.toDataURL('image/jpeg', .82)); } catch (e) {}
+    });
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,666 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>剪纸 · 八折团花 | 薪火 · 非遗数字展馆</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@200;300;400;600;900&family=Cormorant+Garamond:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }/* 宣纸为底、墨色为字：变量名沿用旧约定 —— --ink 是纸色，--paper 是墨色 */
+  :root {
+    --ink:       #f4eee1;
+    --ink-2:     #ece3d1;
+    --gold:      #9a7b3f;
+    --gold-lit:  #7a5c2a;
+    --paper:     #241d15;
+    --paper-dim: #4e4537;
+    --seal:      #a8342a;
+    --line:      rgba(36, 29, 21, .20);
+    --line-soft: rgba(36, 29, 21, .10);
+    --dim:       rgba(36, 29, 21, .60);
+    --serif: 'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', 'SimSun', serif;
+    --kai:   'Kaiti SC', 'KaiTi', 'STKaiti', 'Songti SC', 'Noto Serif SC', serif;
+    --latin: 'Cormorant Garamond', Georgia, serif;
+    --ease:  cubic-bezier(.22, .68, .16, 1);
+  }
+  html, body { height:100%; }
+  body {
+    background:var(--ink); color:var(--paper); font-family:var(--serif);
+    -webkit-font-smoothing:antialiased;
+    display:grid; grid-template-rows:auto 1fr auto;
+    min-height:100vh; overflow:hidden; overflow-x:hidden; position:relative;
+  }
+  .light {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse 64% 48% at 50% -8%, rgba(255, 253, 246, .96), transparent 72%),
+      radial-gradient(ellipse 92% 62% at 50% 114%, rgba(150, 120, 74, .17), transparent 66%),
+      linear-gradient(180deg, #f9f4e9 0%, #f1e8d6 46%, #e6dbc2 100%);
+  }
+  .grain {
+    position: fixed; inset: 0; z-index: 1; pointer-events: none;
+    opacity: .17; mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='.4'/%3E%3C/svg%3E");
+  }
+  /* 装裱双线 */
+  .light::before, .light::after {
+    content: ''; position: absolute; pointer-events: none;
+    border: 1px solid rgba(36, 29, 21, .22);
+  }
+  .light::before { inset: 13px; }
+  .light::after  { inset: 19px; border-color: rgba(36, 29, 21, .08); }
+
+  /* 导航 */
+  .nav {
+    position:relative; z-index:30; display:flex; align-items:center; justify-content:space-between;
+    padding:1.3rem clamp(1.25rem,4.2vw,4rem); border-bottom:1px solid var(--line-soft);
+  }
+  .brand { display:flex; align-items:baseline; gap:.8rem; text-decoration:none; color:inherit; }
+  .brand__mark { font-size:.8rem; font-weight:600; letter-spacing:.08em; color:#c04138;
+    border:1px solid rgba(156,43,36,.8); padding:.14rem .3rem; line-height:1; border-radius:1px; }
+  .brand__name { font-size:.92rem; letter-spacing:.36em; }
+  .brand__sub { font-size:.6rem; letter-spacing:.3em; color:var(--dim); border-left:1px solid var(--line); padding-left:.8rem; }
+  .nav__links { display:flex; align-items:center; gap:clamp(1rem,2.6vw,2.6rem); }
+  .nav__links a { position:relative; font-size:.73rem; letter-spacing:.24em; color:var(--dim);
+    text-decoration:none; padding:.3rem 0; transition:color .45s var(--ease); }
+  .nav__links a::after { content:''; position:absolute; left:0; right:0; bottom:0; height:1px;
+    background:var(--gold); transform:scaleX(0); transform-origin:right; transition:transform .55s var(--ease); }
+  .nav__links a:hover { color:var(--paper); }
+  .nav__links a:hover::after { transform:scaleX(1); transform-origin:left; }
+  .nav__links a.is-active { color:var(--gold-lit); }
+  .nav__links a.is-active::after { transform:scaleX(1); opacity:.5; }
+
+  /* 三栏 */
+  .deck {
+    position:relative; z-index:20;
+    display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
+    align-items:center; column-gap:clamp(1rem,2.6vw,3rem);
+    padding:0 clamp(1.25rem,4.2vw,4rem); min-height:0;
+  }
+  .col-left { justify-self:start; width:min(292px,100%); display:flex; flex-direction:column; gap:clamp(1rem,3vh,2rem); }
+  .kicker { font-family:var(--latin); font-size:.62rem; letter-spacing:.46em; color:var(--gold);
+    opacity:.75; text-transform:uppercase; margin-bottom:.9rem; }
+  .title { font-size:clamp(2.3rem,3.8vw,3.1rem); font-weight:900; letter-spacing:.16em; line-height:1; }
+  .title span:last-child { color:var(--gold-lit); }
+  .subtitle { margin-top:.95rem; font-size:.74rem; font-weight:300; letter-spacing:.3em; color:var(--dim); }
+  .rule { width:44px; height:1px; background:var(--gold); opacity:.5; margin-top:1.3rem; }
+  .label { font-size:.62rem; letter-spacing:.42em; color:var(--gold); opacity:.6; margin-bottom:.1rem; }
+
+  .notes { list-style:none; border-top:1px solid var(--line-soft); }
+  .note { padding:.62rem .2rem; border-bottom:1px solid var(--line-soft); }
+  .note b { display:block; font-size:.76rem; font-weight:600; letter-spacing:.2em; color:var(--paper-dim); margin-bottom:.3rem; }
+  .note p { font-size:.66rem; line-height:1.9; letter-spacing:.06em; color:var(--dim); font-weight:300; }
+
+  /* 中栏 */
+  .col-mid { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1rem; }
+  .stage {
+    position:relative; height:min(70vh,620px); aspect-ratio:1/1;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .halo {
+    position:absolute; left:50%; top:50%; width:150%; aspect-ratio:1; transform:translate(-50%,-50%);
+    background:radial-gradient(circle, rgba(176,42,34,.13) 0%, rgba(176,42,34,.04) 38%, rgba(176,42,34,0) 70%);
+    filter:blur(10px); pointer-events:none;
+  }
+  .ring-deco {
+    position:absolute; left:50%; top:50%; width:112%; aspect-ratio:1;
+    transform:translate(-50%,-50%); border:1px solid rgba(36,29,21,.12); border-radius:50%; pointer-events:none;
+  }
+  .ring-deco--dash { width:126%; border-style:dashed; border-color:rgba(36,29,21,.075); }
+
+  #paperSvg { position:relative; width:100%; height:100%; overflow:visible;
+    filter:drop-shadow(0 16px 28px rgba(88,66,36,.26)); }
+
+  .hit { cursor:pointer; }
+  .hit:hover { stroke:var(--gold-lit); stroke-width:1.4; stroke-opacity:.85; }
+  .cut-anim { transform-box:fill-box; transform-origin:center; }
+
+  .tag { display:flex; align-items:center; gap:.7rem; white-space:nowrap;
+    font-size:.66rem; letter-spacing:.28em; color:var(--dim); }
+  .tag__no { font-family:var(--latin); color:var(--gold); opacity:.7; letter-spacing:.1em; }
+  .tag__dot { width:3px; height:3px; border-radius:50%; background:var(--gold); opacity:.5; }
+  .tag__type { color:var(--gold); opacity:.62; font-size:.62rem; }
+
+  /* 右栏 */
+  .col-right { justify-self:end; width:min(232px,100%); display:flex; flex-direction:column; gap:clamp(1.2rem,3.6vh,2.4rem); }
+  .patterns { list-style:none; border-top:1px solid var(--line-soft); }
+  .pattern {
+    display:flex; align-items:center; gap:.8rem; width:100%;
+    padding:.7rem .3rem; border:0; border-bottom:1px solid var(--line-soft);
+    background:none; color:inherit; font-family:inherit; text-align:left;
+    cursor:pointer; position:relative; overflow:hidden;
+    transition:padding-left .45s var(--ease);
+  }
+  .pattern::after { content:''; position:absolute; inset:0; z-index:-1;
+    background:linear-gradient(90deg, rgba(201,169,110,.11), rgba(201,169,110,0));
+    opacity:0; transform:translateX(-20px); transition:opacity .45s var(--ease), transform .55s var(--ease); }
+  .pattern:hover::after, .pattern.is-on::after { opacity:1; transform:translateX(0); }
+  .pattern:hover, .pattern.is-on { padding-left:.8rem; }
+  .pattern__no { font-family:var(--latin); font-size:.64rem; color:var(--gold); opacity:.5; width:1em; flex:none; }
+  .pattern:hover .pattern__no, .pattern.is-on .pattern__no { opacity:1; }
+  .pattern__name { font-size:.88rem; letter-spacing:.26em; color:var(--paper-dim); transition:color .35s; }
+  .pattern.is-on .pattern__name { color:var(--gold-lit); }
+  .pattern__type { margin-left:auto; font-size:.6rem; letter-spacing:.18em; color:var(--dim); opacity:.5; }
+
+  .actions { display:flex; flex-direction:column; gap:.55rem; }
+  .btn { position:relative; overflow:hidden; font-family:inherit; font-size:.76rem;
+    letter-spacing:.3em; padding:.8rem 1rem; cursor:pointer; border-radius:1px;
+    transition:color .45s var(--ease), border-color .45s var(--ease), background .45s var(--ease); }
+  .btn::after { content:''; position:absolute; inset:0; background:var(--gold); transform:translateY(101%);
+    transition:transform .5s var(--ease); z-index:0; }
+  .btn > span { position:relative; z-index:1; }
+  .btn--ghost { background:transparent; border:1px solid var(--line); color:var(--dim); }
+  .btn--ghost::after { display:none; }
+  .btn--ghost:hover { border-color:rgba(201,169,110,.5); color:var(--gold-lit); }
+  .btn--solid { background:transparent; border:1px solid rgba(201,169,110,.45); color:var(--gold-lit); }
+  .btn--solid:hover { color:#100e0b; border-color:var(--gold); }
+  .btn--solid:hover::after { transform:translateY(0); }
+  .meta-note { margin-top:.95rem; font-size:.64rem; line-height:2; letter-spacing:.16em; color:var(--dim); opacity:.6; }
+
+  /* 页脚 */
+  .plate {
+    position:relative; z-index:20; display:flex; align-items:center; justify-content:space-between; gap:1rem;
+    padding:.85rem clamp(1.25rem,4.2vw,4rem); border-top:1px solid var(--line-soft);
+    font-size:.64rem; letter-spacing:.28em; color:var(--dim);
+  }
+  .plate a { color:var(--gold); opacity:.8; text-decoration:none; }
+  .plate__desc { opacity:.6; }
+  .plate__hint { opacity:.4; flex:none; }
+
+  .side { position:fixed; top:50%; writing-mode:vertical-rl; font-size:.62rem; letter-spacing:.6em;
+    color:var(--gold); opacity:.36; z-index:15; pointer-events:none; transform:translateY(-50%); white-space:nowrap; }
+  .side--l { left:.9rem; } .side--r { right:.9rem; }
+
+  @keyframes rise { from{opacity:0;transform:translateY(14px);} to{opacity:1;transform:none;} }
+  @keyframes maskIn { from{opacity:0;transform:scale(.94);filter:blur(10px);} to{opacity:1;transform:none;filter:blur(0);} }
+  .anim { opacity:0; animation:rise 1s var(--ease) forwards; }
+  .d1{animation-delay:.08s}.d2{animation-delay:.18s}.d3{animation-delay:.3s}.d4{animation-delay:.42s}.d5{animation-delay:.54s}
+  .stage { opacity:0; animation:maskIn 1.4s var(--ease) .15s forwards; }
+  @media (prefers-reduced-motion:reduce){ *,*::before,*::after{animation-duration:.01ms!important;animation-delay:0s!important;transition-duration:.01ms!important;} .anim,.stage{opacity:1!important;} }
+
+  @media (max-width:1180px){ .brand__sub{display:none;} .side{display:none;} .col-left{width:min(236px,100%);} .col-right{width:min(206px,100%);} }
+  @media (max-width:980px){
+    body { grid-template-columns:minmax(0,1fr); overflow-y:auto; overflow-x:hidden; height:auto; }
+    .deck { grid-template-columns:minmax(0,1fr); justify-items:center; row-gap:1.4rem; padding:1.4rem 1.2rem 2rem; }
+    .col-left,.col-right { width:min(540px,100%); justify-self:center; }
+    .col-left { order:1; align-items:stretch; text-align:center; }
+    .col-left > div { width:100%; }
+    .notes { display:grid; grid-template-columns:1fr 1fr; column-gap:1.2rem; }
+    .col-mid { order:2; } .col-right { order:3; }
+    .stage { height:min(52vh,420px); }
+    .patterns { display:grid; grid-template-columns:1fr 1fr; column-gap:1.2rem; }
+    .actions { flex-direction:row; } .actions .btn { flex:1; }
+    .nav__links { gap:.9rem; } .nav__links a { font-size:.66rem; letter-spacing:.14em; }
+    .brand__name { font-size:.8rem; letter-spacing:.2em; }
+    .plate { flex-wrap:wrap; justify-content:center; text-align:center; gap:.4rem; }
+    .plate__hint { display:none; }
+  }
+  @media (max-width:520px){
+    .nav { padding:1rem .9rem; } .nav__links { gap:.7rem; }
+    .nav__links a { font-size:.6rem; letter-spacing:.05em; }
+    .brand__name { letter-spacing:.12em; }
+    .notes { grid-template-columns:1fr; }
+    .patterns { grid-template-columns:1fr; }
+  }
+  /* ===== 中式排版 ===== */
+  body { line-height: 1.7; }
+  .subtitle, .craft__desc, .note p, .meta-note, .card__poem,
+  .plate__desc, .cloth-hint, .craft__go, .hint__text {
+    font-family: var(--kai);
+  }
+  .subtitle { letter-spacing: .34em; font-size: .8rem; }
+  .title { letter-spacing: .24em; }
+  .kicker { letter-spacing: .5em; opacity: .85; }
+  .brand__name { letter-spacing: .4em; }
+  .nav__links a.is-active { color: var(--seal); }
+  .nav__links a.is-active::after { background: var(--seal); }
+  .btn--solid { border-color: rgba(36,29,21,.38); color: var(--paper); }
+  .btn--solid::after { background: var(--paper); }
+  .btn--solid:hover { color: var(--ink); border-color: var(--paper); }
+  .btn--ghost { border-color: rgba(36,29,21,.28); color: var(--paper); opacity: .95; }
+  .btn--ghost:hover { border-color: rgba(36,29,21,.55); color: var(--paper); opacity: 1; }
+  /* 标题旁朱印 */
+  .title::after {
+    content: '薪'; align-self: flex-start; margin-left: .5rem; margin-top: .06em;
+    font-family: var(--serif); font-weight: 600; font-size: .3em; line-height: 1;
+    color: #f8f2e4; background: var(--seal);
+    padding: .34em .38em .38em; letter-spacing: 0; transform: rotate(-2.5deg);
+    box-shadow: inset 0 0 0 1px rgba(248, 242, 228, .4);
+  }
+  #paperSvg { cursor:crosshair; touch-action:none; }
+  .hit { pointer-events:none; }
+  /* 落款 */
+  .colophon {
+    position: fixed; right: 2.2rem; bottom: 2.9rem;
+    display: flex; flex-direction: column; align-items: center; gap: .6rem;
+    z-index: 16; pointer-events: none;
+  }
+  .colophon__text {
+    writing-mode: vertical-rl; font-family: var(--kai);
+    font-size: .66rem; letter-spacing: .3em; color: rgba(36,29,21,.5); line-height: 1.4;
+  }
+  .colophon__seal {
+    writing-mode: vertical-rl; font-family: var(--serif); font-weight: 600;
+    font-size: .56rem; line-height: 1.12; letter-spacing: .04em;
+    color: #f8f2e4; background: var(--seal); padding: .36em .32em;
+    box-shadow: inset 0 0 0 1px rgba(248,242,228,.36); transform: rotate(-2deg);
+  }
+  @media (max-width: 1180px) { .colophon { display: none; } }
+  /* 园林窗影 */
+  .garden { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+  .garden::before, .garden::after {
+    content: ''; position: absolute;
+    background: url(images/garden/window.png) center / contain no-repeat;
+  }
+  .garden::before { top: -23vmin; right: -21vmin; width: min(68vmin, 820px); height: min(68vmin, 820px); opacity: .13; }
+  .garden::after { right: -18vmin; bottom: -22vmin; width: min(44vmin, 520px); height: min(44vmin, 520px); opacity: .06; }
+  .garden .bamboo {
+    position: absolute; left: -9vmin; bottom: -3vmin;
+    width: min(54vmin, 640px); height: min(86vmin, 1000px);
+    background: url(images/garden/bamboo.png) left bottom / contain no-repeat;
+    opacity: .1;
+  }
+  /* 三艺切换 */
+  .switch {
+    display: flex; align-items: center; gap: 1.15rem;
+    margin-top: .35rem; flex-wrap: wrap;
+  }
+  .switch__item {
+    position: relative; text-decoration: none;
+    font-size: .7rem; letter-spacing: .22em;
+    color: rgba(36,29,21,.54);
+    transition: color .4s var(--ease);
+  }
+  .switch__item:hover { color: var(--paper); }
+  .switch__item.is-on { color: var(--seal); }
+  .switch__item.is-on::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: -5px;
+    height: 1px; background: var(--seal); opacity: .55;
+  }
+  .switch__no {
+    font-family: var(--serif); font-size: .58rem; margin-right: .34em; opacity: .65;
+  }
+  @media (max-width: 980px) {
+    .switch { justify-content: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="light"></div>
+<div class="grain"></div>
+<div class="garden"><span class="bamboo"></span></div>
+<div class="side side--l">一纸对折　八面生花</div>
+<header class="nav">
+  <a class="brand" href="index.html">
+    <span class="brand__mark">薪</span><span class="brand__name">薪火</span>
+    <span class="brand__sub">非遗数字展馆</span>
+  </a>
+  <nav class="nav__links">
+    <a href="index.html">首页</a>
+    <a href="hall.html">数字展馆</a>
+    <a href="craftsman.html">匠人故事</a>
+    <a href="easter-egg.html" class="is-active">技艺互动</a>
+  </nav>
+</header>
+
+<main class="deck">
+
+  <section class="col-left">
+    <div class="anim d1">
+      <p class="kicker">剪 纸 · 团 花</p>
+      <h1 class="title"><span>剪</span><span>纸</span></h1>
+      <p class="subtitle">八折团花 · 层叠剪镂</p>
+      <div class="rule"></div>
+      <div class="switch" aria-label="三艺切换">
+        <a class="switch__item" href="lianpu.html"><span class="switch__no">一</span>勾脸</a>
+        <a class="switch__item is-on" href="jianzhi.html"><span class="switch__no">二</span>剪纸</a>
+        <a class="switch__item" href="zaran.html"><span class="switch__no">三</span>扎染</a>
+      </div>
+    </div>
+    <div class="anim d3">
+      <p class="label">剪 纸 之 法</p>
+      <ul class="notes">
+        <li class="note"><b>折</b><p>方纸对折再三，成八重。一刀下去，八处同时开口。</p></li>
+        <li class="note"><b>镂</b><p>留者为实，去者为虚。一刀落下，八处同时开口。</p></li>
+        <li class="note"><b>连</b><p>纹样须一气相连，断处过多，纸便散了。</p></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="col-mid">
+    <div class="stage">
+      
+      
+      
+      <svg id="paperSvg" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" aria-label="团花剪纸">
+        <defs>
+          <mask id="cutMask" maskUnits="userSpaceOnUse" x="0" y="0" width="400" height="400">
+            <rect width="400" height="400" fill="#fff"/>
+            <g id="cutGroup" fill="#000"></g>
+          </mask>
+          <radialGradient id="paperG" cx="38%" cy="30%" r="72%">
+            <stop offset="0%" stop-color="#c8402f"/>
+            <stop offset="55%" stop-color="#b02a22"/>
+            <stop offset="100%" stop-color="#8c1e18"/>
+          </radialGradient>
+        </defs>
+        <circle cx="200" cy="200" r="192" fill="url(#paperG)" mask="url(#cutMask)"/>
+        <g id="edgeGroup" fill="none" stroke="#3d0c08" stroke-opacity=".45" stroke-width="1.1"></g>
+        <g id="foldGroup" fill="none" stroke="#ffffff" stroke-opacity=".16" stroke-width="1"></g>
+        <g id="hitGroup" fill="transparent" pointer-events="all"></g>
+      </svg>
+    </div>
+    <div class="tag">
+      <span class="tag__no" id="tagNo">捌</span>
+      <span id="tagName">八折团花</span>
+      <span class="tag__dot"></span>
+      <span class="tag__type" id="tagType">五层全开</span>
+    </div>
+  </section>
+
+  <aside class="col-right">
+    <div class="anim d4">
+      <p class="label">折 数</p>
+      <ul class="patterns" id="patterns">
+        <li><button class="pattern" data-sym="6"><span class="pattern__no">Ⅰ</span><span class="pattern__name">六折</span><span class="pattern__type">疏朗</span></button></li>
+        <li><button class="pattern is-on" data-sym="8"><span class="pattern__no">Ⅱ</span><span class="pattern__name">八折</span><span class="pattern__type">端正</span></button></li>
+        <li><button class="pattern" data-sym="12"><span class="pattern__no">Ⅲ</span><span class="pattern__name">十二折</span><span class="pattern__type">繁密</span></button></li>
+      </ul>
+    </div>
+    <div class="anim d5">
+      <div class="actions">
+        <button class="btn btn--ghost" id="undoBtn"><span>撤 销 一 刀</span></button>
+        <button class="btn btn--ghost" id="clearBtn"><span>重 新 折 纸</span></button>
+        <button class="btn btn--solid" id="saveBtn"><span>留 下 这 张</span></button>
+      </div>
+      <p class="meta-note">在纸上按住拖动画一刀，八折同时剪开</p>
+    </div>
+  </aside>
+</main>
+
+<div class="colophon" aria-hidden="true">
+  <span class="colophon__text">丙午孟冬　薪火录</span>
+  <span class="colophon__seal">薪火</span>
+</div>
+
+<footer class="plate">
+  <a href="easter-egg.html">← 技 艺 互 动</a>
+  <span class="plate__desc">一纸一剪 · 八面成花</span>
+  <span class="plate__hint">薪 火 · 二 〇 二 六</span>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+  var SVGNS = 'http://www.w3.org/2000/svg';
+  var CX = 200, CY = 200, R = 190;
+
+  var cutGroup = document.getElementById('cutGroup');
+  var foldGroup = document.getElementById('foldGroup');
+
+  // 折痕：对折留下的印子
+  (function () {
+    if (!foldGroup) return;
+    for (var i = 0; i < 16; i++) {
+      var a = (360 / 16) * i * Math.PI / 180;
+      var x = CX + Math.cos(a) * (R - 4);
+      var y = CY + Math.sin(a) * (R - 4);
+      var ln = document.createElementNS(SVGNS, 'line');
+      ln.setAttribute('x1', CX); ln.setAttribute('y1', CY);
+      ln.setAttribute('x2', x.toFixed(1)); ln.setAttribute('y2', y.toFixed(1));
+      ln.setAttribute('stroke-opacity', i % 2 ? '.07' : '.16');
+      foldGroup.appendChild(ln);
+    }
+  })();
+  var edgeGroup = document.getElementById('edgeGroup');
+  var hitGroup = document.getElementById('hitGroup');
+  var svg = document.getElementById('paperSvg');
+
+  var state = { strokes: [], sym: 8, drawing: null };
+
+  // 纸面中心点的小孔与边齿：始终保留
+  function fixedDecor() {
+    var g = document.createElementNS(SVGNS, 'g');
+    var c = document.createElementNS(SVGNS, 'circle');
+    c.setAttribute('cx', CX); c.setAttribute('cy', CY); c.setAttribute('r', 9);
+    c.setAttribute('fill', '#000');
+    g.appendChild(c);
+    for (var i = 0; i < 48; i++) {
+      var a = (Math.PI * 2 / 48) * i;
+      var d = document.createElementNS(SVGNS, 'circle');
+      d.setAttribute('cx', (CX + Math.cos(a) * (R - 5)).toFixed(2));
+      d.setAttribute('cy', (CY + Math.sin(a) * (R - 5)).toFixed(2));
+      d.setAttribute('r', 2.4);
+      d.setAttribute('fill', '#000');
+      g.appendChild(d);
+    }
+    return g;
+  }
+
+  function strokeToPath(pts) {
+    if (pts.length < 2) return null;
+    var d = 'M' + pts[0][0].toFixed(1) + ' ' + pts[0][1].toFixed(1);
+    for (var i = 1; i < pts.length; i++) {
+      d += ' L' + pts[i][0].toFixed(1) + ' ' + pts[i][1].toFixed(1);
+    }
+    return d;
+  }
+
+  function render() {
+    cutGroup.innerHTML = '';
+    edgeGroup.innerHTML = '';
+    cutGroup.appendChild(fixedDecor());
+
+    var step = 360 / state.sym;
+    state.strokes.forEach(function (pts) {
+      var d = strokeToPath(pts);
+      if (!d) return;
+      for (var k = 0; k < state.sym; k++) {
+        var p = document.createElementNS(SVGNS, 'path');
+        p.setAttribute('d', d);
+        p.setAttribute('fill', 'none');
+        p.setAttribute('stroke', '#000');
+        p.setAttribute('stroke-width', 15);
+        p.setAttribute('stroke-linecap', 'round');
+        p.setAttribute('stroke-linejoin', 'round');
+        p.setAttribute('transform', 'rotate(' + (k * step) + ' ' + CX + ' ' + CY + ')');
+        cutGroup.appendChild(p);
+
+
+      }
+    });
+    updateTag();
+  }
+
+  function pt(e) {
+    var r = svg.getBoundingClientRect();
+    // viewBox 400x400 等比 contain
+    var s = Math.min(r.width, r.height) / 400;
+    var ox = r.left + (r.width - 400 * s) / 2;
+    var oy = r.top + (r.height - 400 * s) / 2;
+    return [ (e.clientX - ox) / s, (e.clientY - oy) / s ];
+  }
+
+  function inside(p) {
+    var dx = p[0] - CX, dy = p[1] - CY;
+    return Math.sqrt(dx * dx + dy * dy) < R - 6;
+  }
+
+  svg.addEventListener('pointerdown', function (e) {
+    var p = pt(e);
+    if (!inside(p)) return;
+    try { svg.setPointerCapture(e.pointerId); } catch (err) {}
+    state.drawing = [p];
+    state.strokes.push(state.drawing);
+    render();
+  });
+  svg.addEventListener('pointermove', function (e) {
+    if (!state.drawing) return;
+    var p = pt(e);
+    var last = state.drawing[state.drawing.length - 1];
+    if (Math.hypot(p[0] - last[0], p[1] - last[1]) < 3) return;
+    state.drawing.push(p);
+    render();
+  });
+  ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (ev) {
+    svg.addEventListener(ev, function () {
+      if (!state.drawing) return;
+      if (state.drawing.length < 2) state.strokes.pop();
+      state.drawing = null;
+      render();
+    });
+  });
+
+  document.getElementById('undoBtn').addEventListener('click', function () {
+    state.strokes.pop();
+    render();
+  });
+  document.getElementById('clearBtn').addEventListener('click', function () {
+    state.strokes = [];
+    render();
+  });
+
+  Array.prototype.forEach.call(document.querySelectorAll('.pattern'), function (b) {
+    b.addEventListener('click', function () {
+      state.sym = +b.dataset.sym;
+      Array.prototype.forEach.call(document.querySelectorAll('.pattern'), function (x) {
+        x.classList.toggle('is-on', x === b);
+      });
+      render();
+    });
+  });
+
+  function updateTag() {
+    var n = state.strokes.length;
+    document.getElementById('tagType').textContent = (n ? n + ' 刀' : '尚未落剪');
+    document.getElementById('tagName').textContent = state.sym + ' 折团花';
+  }
+
+  document.getElementById('saveBtn').addEventListener('click', function () {
+    var clone = svg.cloneNode(true);
+    clone.removeAttribute('id');
+    clone.setAttribute('xmlns', SVGNS);
+    clone.setAttribute('width', 900);
+    clone.setAttribute('height', 900);
+    clone.style.filter = 'none';
+    var hit = clone.querySelector('#hitGroup');
+    if (hit) hit.parentNode.removeChild(hit);
+    var bg = document.createElementNS(SVGNS, 'rect');
+    bg.setAttribute('width', 400); bg.setAttribute('height', 400);
+    bg.setAttribute('fill', '#f4eee1');
+    clone.insertBefore(bg, clone.firstChild);
+
+    var str = new XMLSerializer().serializeToString(clone);
+    var blob = new Blob([str], { type: 'image/svg+xml;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var img = new Image();
+    img.onload = function () {
+      var cv = document.createElement('canvas');
+      cv.width = cv.height = 900;
+      cv.getContext('2d').drawImage(img, 0, 0, 900, 900);
+      URL.revokeObjectURL(url);
+      try {
+        var a = document.createElement('a');
+        a.download = '薪火-剪纸-' + Date.now() + '.png';
+        a.href = cv.toDataURL('image/png');
+        a.click();
+      } catch (e) { console.warn(e); }
+    };
+    img.src = url;
+  });
+
+  render();
+})();
+</script>
+<script>window.XH_KIND = 'jianzhi';</script>
+<script>
+/* 收入「我的展厅」 */
+(function () {
+  var KEY = 'xh-gallery';
+  function toast(msg) {
+    var d = document.createElement('div');
+    d.textContent = msg;
+    d.style.cssText = 'position:fixed;left:50%;bottom:5.4rem;transform:translateX(-50%);z-index:9998;'
+      + 'background:rgba(36,29,21,.9);color:#f8f2e4;font-family:"Kaiti SC","KaiTi","Noto Serif SC",serif;'
+      + 'font-size:.72rem;letter-spacing:.24em;padding:.6rem 1.2rem;pointer-events:none;opacity:0;'
+      + 'transition:opacity .35s ease';
+    document.body.appendChild(d);
+    requestAnimationFrame(function () { d.style.opacity = '1'; });
+    setTimeout(function () { d.style.opacity = '0'; setTimeout(function () { d.remove(); }, 400); }, 1400);
+  }
+  function save(kind, kindName, title, url) {
+    try {
+      var list = JSON.parse(localStorage.getItem(KEY) || '[]');
+      list.unshift({ id: Date.now() + '-' + Math.random().toString(36).slice(2, 6), kind: kind, kindName: kindName, title: title, data: url, ts: Date.now() });
+      if (list.length > 12) list = list.slice(0, 12);
+      localStorage.setItem(KEY, JSON.stringify(list));
+      toast('已 收 入 展 厅');
+      return true;
+    } catch (e) {
+      toast('展 厅 已 满');
+      return false;
+    }
+  }
+  function fromSvg(svgEl, w, h, cb) {
+    if (!svgEl) return;
+    var clone = svgEl.cloneNode(true);
+    clone.removeAttribute('id');
+    clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+    clone.setAttribute('width', w); clone.setAttribute('height', h);
+    clone.style.filter = 'none';
+    var hit = clone.querySelector('#hitGroup');
+    if (hit) hit.parentNode.removeChild(hit);
+    var bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    bg.setAttribute('width', '100%'); bg.setAttribute('height', '100%');
+    bg.setAttribute('fill', '#f4eee1');
+    clone.insertBefore(bg, clone.firstChild);
+    var str = new XMLSerializer().serializeToString(clone);
+    var url = URL.createObjectURL(new Blob([str], { type: 'image/svg+xml;charset=utf-8' }));
+    var img = new Image();
+    img.onload = function () {
+      var c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      c.getContext('2d').drawImage(img, 0, 0, w, h);
+      URL.revokeObjectURL(url);
+      try { cb(c.toDataURL('image/jpeg', .82)); } catch (e) { console.warn(e); }
+    };
+    img.src = url;
+  }
+  function tagTitle() {
+    var a = document.getElementById('tagName'), b = document.getElementById('tagType');
+    return ((a ? a.textContent : '') + (b ? ' · ' + b.textContent : '')).trim();
+  }
+
+  var KIND = window.XH_KIND;
+  var btn = document.getElementById('saveBtn');
+  if (!btn || !KIND) return;
+
+  if (KIND === 'lianpu') {
+    btn.addEventListener('click', function () {
+      if (typeof saveCard === 'function') { try { saveCard(); } catch (e) {} }
+      fromSvg(document.getElementById('mask'), 420, 520, function (u) {
+        save('lianpu', '勾脸', tagTitle(), u);
+      });
+    });
+  } else if (KIND === 'jianzhi') {
+    btn.addEventListener('click', function () {
+      fromSvg(document.getElementById('paperSvg'), 420, 420, function (u) {
+        save('jianzhi', '剪纸', tagTitle(), u);
+      });
+    });
+  } else if (KIND === 'zaran') {
+    btn.addEventListener('click', function () {
+      var cv = document.getElementById('cloth');
+      var c = document.createElement('canvas');
+      c.width = 420; c.height = 420;
+      c.getContext('2d').drawImage(cv, 0, 0, 420, 420);
+      try { save('zaran', '扎染', tagTitle(), c.toDataURL('image/jpeg', .82)); } catch (e) {}
+    });
+  }
+})();
+</script>
+</body>
+</html>
